@@ -1,0 +1,156 @@
+"use client";
+
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { LoginBody, LoginBodyType } from "@/type/schema/auth.schema";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Form, FormField, FormItem, FormMessage } from "@/components/ui/form";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
+import clsx from "clsx";
+import { useLoginMutation } from "@/lib/query/useAuth";
+import { handleErrorApi } from "@/lib/utils";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+
+export default function LoginForm() {
+  const form = useForm<LoginBodyType>({
+    resolver: zodResolver(LoginBody),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
+  const loginMutation = useLoginMutation();
+
+  const [showPassword, setShowPassword] = useState(false);
+  const router = useRouter();
+  // Updated onSubmit to handle form event
+  const onSubmit = async (data: LoginBodyType) => {
+    if (loginMutation.isPending) return;
+    try {
+      const res = await loginMutation.mutateAsync(data);
+      if (res?.payload?.message) {
+        router.replace("/manage/dashboard");
+        toast("Login succeed", {
+          description: res.payload.message,
+          duration: 5000,
+          action: {
+            label: "Undo",
+            onClick: () => console.log("Undo"),
+          },
+        });
+      }
+    } catch (error) {
+      console.error(error);
+      handleErrorApi({
+        error,
+        setError: form.setError,
+      });
+    }
+  };
+
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-background px-4">
+      <Card className="w-full max-w-sm shadow-md border border-border bg-card text-card-foreground transition-colors">
+        <CardHeader>
+          <CardTitle className="text-2xl text-center">Đăng nhập</CardTitle>
+          <CardDescription className="text-center">
+            Nhập email và mật khẩu của bạn để đăng nhập vào hệ thống
+          </CardDescription>
+        </CardHeader>
+
+        <CardContent>
+          <Form {...form}>
+            <form
+              className="space-y-4"
+              noValidate
+              onSubmit={form.handleSubmit(onSubmit)}
+            >
+              {/* Email */}
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <Label htmlFor="email">Email</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder="m@example.com"
+                      required
+                      {...field}
+                    />
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Password */}
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <div className="flex justify-between items-center mb-1">
+                      <Label htmlFor="password">Mật khẩu</Label>
+                      <Button
+                        variant="link"
+                        size="sm"
+                        className="p-0 text-primary hover:underline"
+                        type="button"
+                        onClick={() => alert("Đi tới trang quên mật khẩu")}
+                      >
+                        Quên mật khẩu?
+                      </Button>
+                    </div>
+                    <div className="relative">
+                      <Input
+                        id="password"
+                        type={showPassword ? "text" : "password"}
+                        placeholder="••••••••"
+                        required
+                        {...field}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className={clsx(
+                          "absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-transform duration-300",
+                          "scale-100"
+                        )}
+                      >
+                        {showPassword ? (
+                          <FaEyeSlash className="w-5 h-5 transform transition-transform duration-300" />
+                        ) : (
+                          <FaEye className="w-5 h-5 transform transition-transform duration-300" />
+                        )}
+                      </button>
+                    </div>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <Button type="submit" className="w-full">
+                Đăng nhập
+              </Button>
+              <Button variant="outline" className="w-full" type="button">
+                Đăng nhập bằng Google
+              </Button>
+            </form>
+          </Form>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
