@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { PlusCircle, Upload } from "lucide-react";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Form, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -21,11 +21,19 @@ import {
   CreateEmployeeAccountBody,
   CreateEmployeeAccountBodyType,
 } from "@/type/schema/account.schema";
+import {
+  useAddAccountMutation,
+  useUploadMediaMutation,
+} from "@/lib/query/useAccount";
+import { handleErrorApi } from "@/lib/utils";
+import envConfig from "@/lib/validateEnv";
 
 export default function AddEmployee() {
   const [file, setFile] = useState<File | null>(null);
   const [open, setOpen] = useState(false);
   const avatarInputRef = useRef<HTMLInputElement | null>(null);
+  const addAccountMutation = useAddAccountMutation();
+  const uploadMediaMutation = useUploadMediaMutation();
   const form = useForm<CreateEmployeeAccountBodyType>({
     resolver: zodResolver(CreateEmployeeAccountBody),
     defaultValues: {
@@ -44,6 +52,33 @@ export default function AddEmployee() {
     }
     return avatar;
   }, [file, avatar]);
+
+  const reset = () => {
+    form.reset();
+    setFile(null);
+  };
+
+  const onSubmit = async (data: CreateEmployeeAccountBodyType) => {
+    if (addAccountMutation.isPending) return;
+    try {
+      addAccountMutation.mutate(data, {
+        onSuccess: () => {
+          reset();
+          setOpen(false);
+        },
+      });
+      if (file) {
+        const formData = new FormData();
+        formData.append("file", file);
+        await uploadMediaMutation.mutateAsync({
+          formData,
+          folder: "avatars",
+        });
+      }
+    } catch (error) {
+      handleErrorApi({ error, setError: form.setError });
+    }
+  };
 
   return (
     <Dialog onOpenChange={setOpen} open={open}>
@@ -67,6 +102,7 @@ export default function AddEmployee() {
             noValidate
             className="grid auto-rows-max items-start gap-4 md:gap-8"
             id="add-employee-form"
+            onSubmit={form.handleSubmit(onSubmit)}
           >
             <div className="grid gap-4 py-4">
               <FormField
@@ -90,7 +126,7 @@ export default function AddEmployee() {
                           if (file) {
                             setFile(file);
                             field.onChange(
-                              "http://localhost:3000/" + file.name
+                              `${envConfig.NEXT_PUBLIC_URL}` + file.name
                             );
                           }
                         }}

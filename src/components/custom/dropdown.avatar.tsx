@@ -15,6 +15,7 @@ import { useLogoutMutation } from "@/lib/query/useAuth";
 import { handleErrorApi } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { useAccountMe } from "@/lib/query/useAccount";
+import envConfig from "@/lib/validateEnv";
 
 export default function DropdownAvatar() {
   const logoutMutation = useLogoutMutation();
@@ -41,7 +42,9 @@ export default function DropdownAvatar() {
         >
           <Avatar>
             <AvatarImage
-              src={account?.avatar ?? undefined}
+              src={`${envConfig?.NEXT_PUBLIC_API_ENDPOINT}/static/avatars/${
+                account?.avatar || "default.png"
+              }`}
               alt={account?.name}
             />
             <AvatarFallback>

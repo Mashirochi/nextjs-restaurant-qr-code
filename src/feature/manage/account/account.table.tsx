@@ -1,6 +1,7 @@
 "use client";
 
-import { CaretSortIcon, DotsHorizontalIcon } from "@radix-ui/react-icons";
+import { ChevronsUpDown, MoreHorizontal } from "lucide-react";
+
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -50,6 +51,8 @@ import { AccountListResType, AccountType } from "@/type/schema/account.schema";
 import EditEmployee from "./edit.employee";
 import AddEmployee from "./add.employee";
 import AutoPagination from "@/components/custom/auto.pagination";
+import { useGetAccountList } from "@/lib/query/useAccount";
+import envConfig from "@/lib/validateEnv";
 
 type AccountItem = AccountListResType["data"][0];
 
@@ -76,7 +79,11 @@ export const columns: ColumnDef<AccountType>[] = [
     cell: ({ row }) => (
       <div>
         <Avatar className="aspect-square w-[100px] h-[100px] rounded-md object-cover">
-          <AvatarImage src={row.getValue("avatar")} />
+          <AvatarImage
+            src={`${
+              envConfig?.NEXT_PUBLIC_API_ENDPOINT
+            }/static/avatars/${row.getValue("avatar")}`}
+          />
           <AvatarFallback className="rounded-none">
             {row.original.name}
           </AvatarFallback>
@@ -98,7 +105,7 @@ export const columns: ColumnDef<AccountType>[] = [
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
           Email
-          <CaretSortIcon className="ml-2 h-4 w-4" />
+          <ChevronsUpDown className="ml-2 h-4 w-4" />
         </Button>
       );
     },
@@ -122,7 +129,7 @@ export const columns: ColumnDef<AccountType>[] = [
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="h-8 w-8 p-0">
               <span className="sr-only">Open menu</span>
-              <DotsHorizontalIcon className="h-4 w-4" />
+              <MoreHorizontal className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
@@ -180,12 +187,13 @@ export default function AccountTable() {
   const searchParam = useSearchParams();
   const page = searchParam.get("page") ? Number(searchParam.get("page")) : 1;
   const pageIndex = page - 1;
+  const accountListQuery = useGetAccountList();
+  const data: AccountType[] = accountListQuery.data?.payload.data ?? [];
   // const params = Object.fromEntries(searchParam.entries())
   const [employeeIdEdit, setEmployeeIdEdit] = useState<number | undefined>();
   const [employeeDelete, setEmployeeDelete] = useState<AccountItem | null>(
     null
   );
-  const data: any[] = [];
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});

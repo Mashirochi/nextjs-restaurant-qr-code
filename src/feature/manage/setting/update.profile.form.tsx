@@ -53,15 +53,16 @@ export default function UpdateProfileForm() {
 
   const onSubmit = async (values: UpdateMeBodyType) => {
     if (updateMeMutation.isPending) return;
+    console.log("Submitting form with values:", values);
     try {
       let body = values;
-      // Only upload image if a new file is selected
       if (file) {
         const formData = new FormData();
         formData.append("file", file);
-        const uploadImageResult = await uploadMediaMutation.mutateAsync(
-          formData
-        );
+        const uploadImageResult = await uploadMediaMutation.mutateAsync({
+          formData,
+          folder: "avatars",
+        });
         const imageUrl = uploadImageResult.payload.data;
         body = {
           ...values,
@@ -88,7 +89,6 @@ export default function UpdateProfileForm() {
 
   const previewAvatar = file ? URL.createObjectURL(file) : avatar;
 
-  // Show loading state when either mutation is in progress
   const isLoading = updateMeMutation.isPending || uploadMediaMutation.isPending;
 
   return (
@@ -97,9 +97,7 @@ export default function UpdateProfileForm() {
         noValidate
         onReset={onReset}
         className="grid auto-rows-max items-start gap-4 md:gap-8"
-        onSubmit={form.handleSubmit(onSubmit, (e) => {
-          console.log(e);
-        })}
+        onSubmit={form.handleSubmit(onSubmit)}
       >
         <Card x-chunk="dashboard-07-chunk-0">
           <CardHeader>
@@ -116,7 +114,7 @@ export default function UpdateProfileForm() {
                       <Avatar className="aspect-square w-[100px] h-[100px] rounded-md object-cover">
                         <AvatarImage src={previewAvatar} />
                         <AvatarFallback className="rounded-none">
-                          {"avatar inage"}
+                          {"avatar image"}
                         </AvatarFallback>
                       </Avatar>
                       <input

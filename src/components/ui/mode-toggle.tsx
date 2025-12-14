@@ -1,7 +1,6 @@
 "use client";
 
-import { FaCloudMoon } from "react-icons/fa";
-import { CiCloudSun } from "react-icons/ci";
+import { CloudMoon, CloudSun } from "lucide-react";
 import { useTheme } from "next-themes";
 import {
   DropdownMenu,
@@ -22,8 +21,8 @@ export default function ModeToggle() {
           size="icon"
           className="rounded-full w-10 h-10"
         >
-          <CiCloudSun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-          <FaCloudMoon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+          <CloudSun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+          <CloudMoon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
           <span className="sr-only">Toggle theme</span>
         </Button>
       </DropdownMenuTrigger>

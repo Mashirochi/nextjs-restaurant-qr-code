@@ -15,7 +15,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Form, FormField, FormItem, FormMessage } from "@/components/ui/form";
-import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { Eye, EyeOff } from "lucide-react";
 import clsx from "clsx";
 import { useLoginMutation } from "@/lib/query/useAuth";
 import { handleErrorApi } from "@/lib/utils";
@@ -76,7 +76,6 @@ export default function LoginForm() {
               noValidate
               onSubmit={form.handleSubmit(onSubmit)}
             >
-              {/* Email */}
               <FormField
                 control={form.control}
                 name="email"
@@ -89,6 +88,7 @@ export default function LoginForm() {
                       placeholder="m@example.com"
                       required
                       {...field}
+                      tabIndex={1}
                     />
                     <FormMessage />
                   </FormItem>
@@ -109,6 +109,7 @@ export default function LoginForm() {
                         className="p-0 text-primary hover:underline"
                         type="button"
                         onClick={() => alert("Đi tới trang quên mật khẩu")}
+                        tabIndex={5}
                       >
                         Quên mật khẩu?
                       </Button>
@@ -120,6 +121,7 @@ export default function LoginForm() {
                         placeholder="••••••••"
                         required
                         {...field}
+                        tabIndex={2}
                       />
                       <button
                         type="button"
@@ -130,9 +132,15 @@ export default function LoginForm() {
                         )}
                       >
                         {showPassword ? (
-                          <FaEyeSlash className="w-5 h-5 transform transition-transform duration-300" />
+                          <EyeOff
+                            tabIndex={6}
+                            className="w-5 h-5 transform transition-transform duration-300"
+                          />
                         ) : (
-                          <FaEye className="w-5 h-5 transform transition-transform duration-300" />
+                          <Eye
+                            tabIndex={6}
+                            className="w-5 h-5 transform transition-transform duration-300"
+                          />
                         )}
                       </button>
                     </div>
@@ -141,10 +149,15 @@ export default function LoginForm() {
                 )}
               />
 
-              <Button type="submit" className="w-full">
+              <Button type="submit" className="w-full" tabIndex={3}>
                 Đăng nhập
               </Button>
-              <Button variant="outline" className="w-full" type="button">
+              <Button
+                variant="outline"
+                className="w-full"
+                type="button"
+                tabIndex={4}
+              >
                 Đăng nhập bằng Google
               </Button>
             </form>

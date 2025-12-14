@@ -23,7 +23,7 @@ export function proxy(request: NextRequest) {
       (path) => pathname.startsWith(path) && !accessToken && refreshToken
     )
   ) {
-    const url = new URL("logout", request.url);
+    const url = new URL("/api/auth/logout", request.url);
     url.searchParams.set("refreshToken", refreshToken ?? "");
     return NextResponse.redirect(url);
   }

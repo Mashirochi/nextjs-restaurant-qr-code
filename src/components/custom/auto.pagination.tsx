@@ -93,16 +93,12 @@ export default function AutoPagination({ page, pageSize, pathname }: Props) {
         }
         return (
           <PaginationItem key={index}>
-            <Link
-              href={{
-                pathname,
-                query: { page: pageNumber },
-              }}
+            <PaginationLink
+              href={`${pathname}?page=${pageNumber}`}
+              isActive={pageNumber === page}
             >
-              <PaginationLink isActive={pageNumber === page}>
-                {pageNumber}
-              </PaginationLink>
-            </Link>
+              {pageNumber}
+            </PaginationLink>
           </PaginationItem>
         );
       });
@@ -127,7 +123,7 @@ export default function AutoPagination({ page, pageSize, pathname }: Props) {
           <PaginationNext
             href={`${pathname}?page=${page + 1}`}
             className={cn({
-              "cursor-not-allowed": page === 1,
+              "cursor-not-allowed": page === pageSize,
             })}
             onClick={(e) => {
               if (page === pageSize) {

@@ -6,7 +6,7 @@ import {
   TooltipProvider,
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
-import { Package2, Settings } from "lucide-react";
+import { Package2, Settings, Settings2, SettingsIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -49,6 +49,11 @@ export const menuItems = [
     title: "Nhân viên",
     Icon: Users2,
     href: "/manage/accounts",
+  },
+  {
+    title: "Setting",
+    Icon: SettingsIcon,
+    href: "/manage/setting",
   },
 ];
 
