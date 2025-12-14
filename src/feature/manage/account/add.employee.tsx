@@ -61,24 +61,46 @@ export default function AddEmployee() {
   const onSubmit = async (data: CreateEmployeeAccountBodyType) => {
     if (addAccountMutation.isPending) return;
     try {
-      addAccountMutation.mutate(data, {
+      let finalData = data;
+      if (file) {
+        try {
+          const formData = new FormData();
+          formData.append("file", file);
+          const uploadResult = await uploadMediaMutation.mutateAsync({
+            formData,
+            folder: "avatars",
+          });
+          // Prepend /static/ to the returned path to make it accessible
+          const avatarUrl = `/static/${uploadResult.payload.data}`;
+          finalData = {
+            ...data,
+            avatar: avatarUrl,
+          };
+        } catch (uploadError) {
+          console.error("Error uploading file:", uploadError);
+          handleErrorApi({ error: uploadError, setError: form.setError });
+          return; // Stop submission if file upload fails
+        }
+      }
+      addAccountMutation.mutate(finalData, {
         onSuccess: () => {
           reset();
           setOpen(false);
         },
       });
-      if (file) {
-        const formData = new FormData();
-        formData.append("file", file);
-        await uploadMediaMutation.mutateAsync({
-          formData,
-          folder: "avatars",
-        });
-      }
     } catch (error) {
+      console.error("Error in form submission:", error);
       handleErrorApi({ error, setError: form.setError });
     }
   };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    form.handleSubmit(onSubmit)(e);
+  };
+
+  const isLoading =
+    addAccountMutation.isPending || uploadMediaMutation.isPending;
 
   return (
     <Dialog onOpenChange={setOpen} open={open}>
@@ -102,7 +124,7 @@ export default function AddEmployee() {
             noValidate
             className="grid auto-rows-max items-start gap-4 md:gap-8"
             id="add-employee-form"
-            onSubmit={form.handleSubmit(onSubmit)}
+            onSubmit={handleSubmit}
           >
             <div className="grid gap-4 py-4">
               <FormField
@@ -125,9 +147,8 @@ export default function AddEmployee() {
                           const file = e.target.files?.[0];
                           if (file) {
                             setFile(file);
-                            field.onChange(
-                              `${envConfig.NEXT_PUBLIC_URL}` + file.name
-                            );
+                            // Don't set a temporary URL here since we're using previewAvatarFromFile
+                            field.onChange("");
                           }
                         }}
                         className="hidden"
@@ -219,8 +240,8 @@ export default function AddEmployee() {
           </form>
         </Form>
         <DialogFooter>
-          <Button type="submit" form="add-employee-form">
-            Thêm
+          <Button type="submit" form="add-employee-form" disabled={isLoading}>
+            {isLoading ? "Đang thêm..." : "Thêm"}
           </Button>
         </DialogFooter>
       </DialogContent>

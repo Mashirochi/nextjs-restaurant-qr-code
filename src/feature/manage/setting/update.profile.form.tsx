@@ -17,6 +17,7 @@ import {
 } from "@/lib/query/useAccount";
 import { toast } from "sonner";
 import { handleErrorApi } from "@/lib/utils";
+import envConfig from "@/lib/validateEnv";
 
 export default function UpdateProfileForm() {
   const [file, setFile] = useState<File | null>(null);
@@ -63,7 +64,7 @@ export default function UpdateProfileForm() {
           formData,
           folder: "avatars",
         });
-        const imageUrl = uploadImageResult.payload.data;
+        const imageUrl = `${envConfig.NEXT_PUBLIC_API_ENDPOINT}/static/${uploadImageResult.payload.data}`;
         body = {
           ...values,
           avatar: imageUrl,
@@ -126,10 +127,8 @@ export default function UpdateProfileForm() {
                           const file = e.target?.files?.[0];
                           if (file) {
                             setFile(file);
-                            field.onChange(
-                              "http://localhost:3000/",
-                              field.name
-                            );
+                            // Don't set a temporary URL here since we're using previewAvatar
+                            field.onChange("");
                           }
                         }}
                       />

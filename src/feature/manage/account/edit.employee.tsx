@@ -106,9 +106,8 @@ export default function EditEmployee({
                           const file = e.target.files?.[0];
                           if (file) {
                             setFile(file);
-                            field.onChange(
-                              "http://localhost:3000/" + file.name
-                            );
+                            // Don't set a temporary URL here since we're using previewAvatarFromFile
+                            field.onChange("");
                           }
                         }}
                         className="hidden"

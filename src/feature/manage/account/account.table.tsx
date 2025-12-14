@@ -14,17 +14,8 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-
+import { Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import {
   Table,
@@ -70,6 +61,11 @@ const AccountTableContext = createContext<{
 
 export const columns: ColumnDef<AccountType>[] = [
   {
+    id: "Order",
+    header: "STT",
+    cell: ({ row }) => <div>{row.index + 1}</div>,
+  },
+  {
     accessorKey: "id",
     header: "ID",
   },
@@ -78,7 +74,7 @@ export const columns: ColumnDef<AccountType>[] = [
     header: "Avatar",
     cell: ({ row }) => (
       <div>
-        <Avatar className="aspect-square w-[100px] h-[100px] rounded-md object-cover">
+        <Avatar className="aspect-square w-[40px] h-[40px] ">
           <AvatarImage
             src={`${
               envConfig?.NEXT_PUBLIC_API_ENDPOINT
@@ -113,34 +109,29 @@ export const columns: ColumnDef<AccountType>[] = [
   },
   {
     id: "actions",
+    header: "Actions",
     enableHiding: false,
     cell: function Actions({ row }) {
       const { setEmployeeIdEdit, setEmployeeDelete } =
         useContext(AccountTableContext);
-      const openEditEmployee = () => {
-        setEmployeeIdEdit(row.original.id);
-      };
 
-      const openDeleteEmployee = () => {
-        setEmployeeDelete(row.original);
-      };
       return (
-        <DropdownMenu modal={false}>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={openEditEmployee}>Sửa</DropdownMenuItem>
-            <DropdownMenuItem onClick={openDeleteEmployee}>
-              Xóa
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setEmployeeIdEdit(row.original.id)}
+          >
+            <Pencil className="h-4 w-4 text-blue-600 hover:scale-110 transition" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setEmployeeDelete(row.original)}
+          >
+            <Trash2 className="h-4 w-4 text-red-600 hover:scale-110 transition" />
+          </Button>
+        </div>
       );
     },
   },
@@ -196,7 +187,9 @@ export default function AccountTable() {
   );
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
+    id: false, // 👈 hide ID column
+  });
   const [rowSelection, setRowSelection] = useState({});
   const [pagination, setPagination] = useState({
     pageIndex, // Gía trị mặc định ban đầu, không có ý nghĩa khi data được fetch bất đồng bộ
