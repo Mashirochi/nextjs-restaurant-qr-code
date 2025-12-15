@@ -3,6 +3,8 @@ import { UseFormSetError } from "react-hook-form";
 import { twMerge } from "tailwind-merge";
 import { EntityError } from "./http";
 import { toast } from "sonner";
+import { DishStatus, TableStatus } from "@/type/constant";
+import envConfig from "./validateEnv";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -64,4 +66,41 @@ export const handleErrorApi = ({
       },
     });
   }
+};
+
+export const formatCurrency = (value: number) => {
+  return new Intl.NumberFormat("vi-VN", {
+    style: "currency",
+    currency: "VND",
+  }).format(value);
+};
+
+export const getVietnameseDishStatus = (status: string) => {
+  switch (status) {
+    case DishStatus.Available:
+      return "Còn hàng";
+    case DishStatus.Unavailable:
+      return "Hết hàng";
+    case DishStatus.Hidden:
+      return "Ngừng kinh doanh";
+    default:
+      return "Không xác định";
+  }
+};
+
+export const getVietnameseTableStatus = (status: string) => {
+  switch (status) {
+    case TableStatus.Available:
+      return "Khả dụng";
+    case TableStatus.Hidden:
+      return "Đang sử dụng";
+    case TableStatus.Reserved:
+      return "Đã đặt trước";
+    default:
+      return "Không xác định";
+  }
+};
+
+export const getTableLink = (tableNumber: number, token: string) => {
+  return `${envConfig.NEXT_PUBLIC_URL}/tables/${tableNumber}?token=${token}`;
 };

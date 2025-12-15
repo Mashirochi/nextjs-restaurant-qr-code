@@ -7,7 +7,6 @@ import {
   UpdateMeBodyType,
 } from "@/type/schema/account.schema";
 import http from "../http";
-import { id } from "zod/v4/locales";
 
 const AccountRequest = {
   me: () => http.get<AccountResType>("/accounts/me"),

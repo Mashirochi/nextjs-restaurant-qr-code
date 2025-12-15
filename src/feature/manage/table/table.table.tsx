@@ -1,7 +1,6 @@
 "use client";
 
 import { ChevronsUpDown, MoreHorizontal } from "lucide-react";
-
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -14,8 +13,16 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import {
   Table,
@@ -25,7 +32,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { createContext, useContext, useEffect, useState } from "react";
 import {
   AlertDialog,
@@ -37,158 +43,116 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { getVietnameseTableStatus } from "@/lib/utils";
 import { useSearchParams } from "next/navigation";
-import { AccountListResType, AccountType } from "@/type/schema/account.schema";
-import EditEmployee from "./edit.employee";
-import AddEmployee from "./add.employee";
+import { TableListResType } from "@/type/schema/table.schema";
+import EditTable from "./edit.table";
+import AddTable from "./add.table";
 import AutoPagination from "@/components/custom/auto.pagination";
-import {
-  useDeleteAccountMutation,
-  useGetAccountList,
-} from "@/lib/query/useAccount";
-import envConfig from "@/lib/validateEnv";
-import { toast } from "sonner";
-import { handleErrorApi } from "@/lib/utils";
 
-type AccountItem = AccountListResType["data"][0];
+type TableItem = TableListResType["data"][0];
 
-const AccountTableContext = createContext<{
-  setEmployeeIdEdit: (value: number) => void;
-  employeeIdEdit: number | undefined;
-  employeeDelete: AccountItem | null;
-  setEmployeeDelete: (value: AccountItem | null) => void;
+const TableTableContext = createContext<{
+  setTableIdEdit: (value: number) => void;
+  tableIdEdit: number | undefined;
+  tableDelete: TableItem | null;
+  setTableDelete: (value: TableItem | null) => void;
 }>({
-  setEmployeeIdEdit: (value: number | undefined) => {},
-  employeeIdEdit: undefined,
-  employeeDelete: null,
-  setEmployeeDelete: (value: AccountItem | null) => {},
+  setTableIdEdit: (value: number | undefined) => {},
+  tableIdEdit: undefined,
+  tableDelete: null,
+  setTableDelete: (value: TableItem | null) => {},
 });
 
-export const columns: ColumnDef<AccountType>[] = [
+export const columns: ColumnDef<TableItem>[] = [
   {
-    id: "Order",
-    header: "STT",
-    cell: ({ row }) => <div>{row.index + 1}</div>,
-  },
-  {
-    accessorKey: "id",
-    header: "ID",
-  },
-  {
-    accessorKey: "avatar",
-    header: "Avatar",
+    accessorKey: "number",
+    header: "Số bàn",
     cell: ({ row }) => (
-      <div>
-        <Avatar className="aspect-square w-[40px] h-[40px] ">
-          <AvatarImage
-            src={`${
-              envConfig?.NEXT_PUBLIC_API_ENDPOINT
-            }/static/avatars/${row.getValue("avatar")}`}
-          />
-          <AvatarFallback className="rounded-none">
-            {row.original.name}
-          </AvatarFallback>
-        </Avatar>
-      </div>
+      <div className="capitalize">{row.getValue("number")}</div>
     ),
   },
   {
-    accessorKey: "name",
-    header: "Tên",
-    cell: ({ row }) => <div className="capitalize">{row.getValue("name")}</div>,
+    accessorKey: "capacity",
+    header: "Sức chứa",
+    cell: ({ row }) => (
+      <div className="capitalize">{row.getValue("capacity")}</div>
+    ),
   },
   {
-    accessorKey: "email",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Email
-          <ChevronsUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      );
-    },
-    cell: ({ row }) => <div className="lowercase">{row.getValue("email")}</div>,
+    accessorKey: "status",
+    header: "Trạng thái",
+    cell: ({ row }) => (
+      <div>{getVietnameseTableStatus(row.getValue("status"))}</div>
+    ),
+  },
+  {
+    accessorKey: "token",
+    header: "QR Code",
+    cell: ({ row }) => <div>{row.getValue("number")}</div>,
   },
   {
     id: "actions",
-    header: "Actions",
     enableHiding: false,
     cell: function Actions({ row }) {
-      const { setEmployeeIdEdit, setEmployeeDelete } =
-        useContext(AccountTableContext);
+      const { setTableIdEdit, setTableDelete } = useContext(TableTableContext);
+      const openEditTable = () => {
+        setTableIdEdit(row.original.number);
+      };
 
+      const openDeleteTable = () => {
+        setTableDelete(row.original);
+      };
       return (
-        <div className="flex items-center gap-2">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setEmployeeIdEdit(row.original.id)}
-          >
-            <Pencil className="h-4 w-4 text-blue-600 hover:scale-110 transition" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setEmployeeDelete(row.original)}
-          >
-            <Trash2 className="h-4 w-4 text-red-600 hover:scale-110 transition" />
-          </Button>
-        </div>
+        <DropdownMenu modal={false}>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="h-8 w-8 p-0">
+              <span className="sr-only">Open menu</span>
+              <ChevronsUpDown className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={openEditTable}>Sửa</DropdownMenuItem>
+            <DropdownMenuItem onClick={openDeleteTable}>Xóa</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       );
     },
   },
 ];
 
-function AlertDialogDeleteAccount({
-  employeeDelete,
-  setEmployeeDelete,
+function AlertDialogDeleteTable({
+  tableDelete,
+  setTableDelete,
 }: {
-  employeeDelete: AccountItem | null;
-  setEmployeeDelete: (value: AccountItem | null) => void;
+  tableDelete: TableItem | null;
+  setTableDelete: (value: TableItem | null) => void;
 }) {
-  const deleteAccount = useDeleteAccountMutation();
-  const handleDelete = () => {
-    try {
-      if (employeeDelete) {
-        deleteAccount.mutateAsync(employeeDelete.id, {
-          onSuccess: () => {
-            setEmployeeDelete(null);
-          },
-        });
-        toast.success("Xóa nhân viên thành công");
-      }
-    } catch (error) {
-      handleErrorApi({
-        error,
-      });
-    }
-  };
   return (
     <AlertDialog
-      open={Boolean(employeeDelete)}
+      open={Boolean(tableDelete)}
       onOpenChange={(value) => {
         if (!value) {
-          setEmployeeDelete(null);
+          setTableDelete(null);
         }
       }}
     >
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Xóa nhân viên?</AlertDialogTitle>
+          <AlertDialogTitle>Xóa bàn ăn?</AlertDialogTitle>
           <AlertDialogDescription>
-            Tài khoản{" "}
+            Bàn{" "}
             <span className="bg-foreground text-primary-foreground rounded px-1">
-              {employeeDelete?.name}
+              {tableDelete?.number}
             </span>{" "}
             sẽ bị xóa vĩnh viễn
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction onClick={handleDelete}>Confirm</AlertDialogAction>
+          <AlertDialogAction>Continue</AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
@@ -196,22 +160,17 @@ function AlertDialogDeleteAccount({
 }
 // Số lượng item trên 1 trang
 const PAGE_SIZE = 10;
-export default function AccountTable() {
+export default function TableTable() {
   const searchParam = useSearchParams();
   const page = searchParam.get("page") ? Number(searchParam.get("page")) : 1;
   const pageIndex = page - 1;
-  const accountListQuery = useGetAccountList();
-  const data: AccountType[] = accountListQuery.data?.payload.data ?? [];
   // const params = Object.fromEntries(searchParam.entries())
-  const [employeeIdEdit, setEmployeeIdEdit] = useState<number | undefined>();
-  const [employeeDelete, setEmployeeDelete] = useState<AccountItem | null>(
-    null
-  );
+  const [tableIdEdit, setTableIdEdit] = useState<number | undefined>();
+  const [tableDelete, setTableDelete] = useState<TableItem | null>(null);
+  const data: any[] = [];
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
-    id: false, // 👈 hide ID column
-  });
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
   const [pagination, setPagination] = useState({
     pageIndex, // Gía trị mặc định ban đầu, không có ý nghĩa khi data được fetch bất đồng bộ
@@ -248,35 +207,28 @@ export default function AccountTable() {
   }, [table, pageIndex]);
 
   return (
-    <AccountTableContext.Provider
-      value={{
-        employeeIdEdit,
-        setEmployeeIdEdit,
-        employeeDelete,
-        setEmployeeDelete,
-      }}
+    <TableTableContext.Provider
+      value={{ tableIdEdit, setTableIdEdit, tableDelete, setTableDelete }}
     >
       <div className="w-full">
-        <EditEmployee
-          id={employeeIdEdit}
-          setId={setEmployeeIdEdit}
-          onSubmitSuccess={() => {}}
-        />
-        <AlertDialogDeleteAccount
-          employeeDelete={employeeDelete}
-          setEmployeeDelete={setEmployeeDelete}
+        <EditTable id={tableIdEdit} setId={setTableIdEdit} />
+        <AlertDialogDeleteTable
+          tableDelete={tableDelete}
+          setTableDelete={setTableDelete}
         />
         <div className="flex items-center py-4">
           <Input
-            placeholder="Filter emails..."
-            value={(table.getColumn("email")?.getFilterValue() as string) ?? ""}
+            placeholder="Lọc số bàn"
+            value={
+              (table.getColumn("number")?.getFilterValue() as string) ?? ""
+            }
             onChange={(event) =>
-              table.getColumn("email")?.setFilterValue(event.target.value)
+              table.getColumn("number")?.setFilterValue(event.target.value)
             }
             className="max-w-sm"
           />
           <div className="ml-auto flex items-center gap-2">
-            <AddEmployee />
+            <AddTable />
           </div>
         </div>
         <div className="rounded-md border">
@@ -339,11 +291,11 @@ export default function AccountTable() {
             <AutoPagination
               page={table.getState().pagination.pageIndex + 1}
               pageSize={table.getPageCount()}
-              pathname="/manage/accounts"
+              pathname="/manage/tables"
             />
           </div>
         </div>
       </div>
-    </AccountTableContext.Provider>
+    </TableTableContext.Provider>
   );
 }

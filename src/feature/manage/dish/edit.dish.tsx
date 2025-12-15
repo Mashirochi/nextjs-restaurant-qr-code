@@ -14,28 +14,36 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Upload } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
-import { Form, FormField, FormItem, FormMessage } from "@/components/ui/form";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage,
+} from "@/components/ui/form";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Switch } from "@/components/ui/switch";
+import { getVietnameseDishStatus, handleErrorApi } from "@/lib/utils";
 import {
-  UpdateEmployeeAccountBody,
-  UpdateEmployeeAccountBodyType,
-} from "@/type/schema/account.schema";
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import {
-  useGetEmployeeAccount,
-  useUpdateAccountMutation,
-  useUploadMediaMutation,
-} from "@/lib/query/useAccount";
-import envConfig from "@/lib/validateEnv";
-import { handleErrorApi } from "@/lib/utils";
+  UpdateDishBody,
+  UpdateDishBodyType,
+  DishType,
+  DishTypeValues,
+} from "@/type/schema/dish.schema";
+import { DishStatus, DishStatusValues } from "@/type/constant";
+import { useGetDishDetail, useUpdateDishMutation } from "@/lib/query/useDish";
+import { useUploadMediaMutation } from "@/lib/query/useAccount";
 import { toast } from "sonner";
+import envConfig from "@/lib/validateEnv";
 
-// Create a form-specific type that matches the expected structure
-type EditEmployeeFormValues = Omit<UpdateEmployeeAccountBodyType, "role"> & {
-  role?: "Owner" | "Employee";
-};
-
-export default function EditEmployee({
+export default function EditDish({
   id,
   setId,
   onSubmitSuccess,
@@ -45,61 +53,55 @@ export default function EditEmployee({
   onSubmitSuccess?: () => void;
 }) {
   const [file, setFile] = useState<File | null>(null);
-  const avatarInputRef = useRef<HTMLInputElement | null>(null);
-  const updateAccountMutation = useUpdateAccountMutation();
+  const imageInputRef = useRef<HTMLInputElement | null>(null);
+  const updateDishMutation = useUpdateDishMutation();
   const uploadMediaMutation = useUploadMediaMutation();
-  // Always call the hook, but it will only fetch data when id exists (enabled: !!id is in the hook)
-  const { data } = useGetEmployeeAccount(id ?? 0);
-
-  const form = useForm<EditEmployeeFormValues>({
-    resolver: zodResolver(UpdateEmployeeAccountBody),
+  const { data } = useGetDishDetail(id ?? 0);
+  const form = useForm<UpdateDishBodyType>({
+    resolver: zodResolver(UpdateDishBody),
     defaultValues: {
       name: "",
-      email: "",
-      avatar: undefined,
-      password: undefined,
-      confirmPassword: undefined,
-      changePassword: false,
-      role: undefined,
+      virtualPrice: 0,
+      basePrice: 0,
+      image: "",
+      status: DishStatus.Unavailable,
+      type: DishType.Thit,
     },
   });
-
-  const avatar = form.watch("avatar");
+  const image = form.watch("image");
   const name = form.watch("name");
-  const changePassword = form.watch("changePassword");
-  // Format the avatar URL to ensure it's correctly prefixed
-  const formatAvatarUrl = (avatarUrl: string | undefined) => {
-    if (!avatarUrl) return "";
+  // Format the image URL to ensure it's correctly prefixed
+  const formatImageUrl = (imageUrl: string | undefined) => {
+    if (!imageUrl) return "";
     // If it's already a full URL or already formatted, return as is
-    if (avatarUrl.startsWith("http") || avatarUrl.startsWith("/static/")) {
-      return avatarUrl;
+    if (imageUrl.startsWith("http") || imageUrl.startsWith("/static/")) {
+      return imageUrl;
     }
     // Otherwise, prepend the API endpoint and static path
-    return `${envConfig.NEXT_PUBLIC_API_ENDPOINT}/static/avatars/${avatarUrl}`;
+    return `${envConfig.NEXT_PUBLIC_API_ENDPOINT}/static/dishes/${imageUrl}`;
   };
 
   const previewAvatarFromFile = useMemo(() => {
     if (file) {
       return URL.createObjectURL(file);
     }
-    return formatAvatarUrl(avatar);
-  }, [file, avatar]);
+    return formatImageUrl(image);
+  }, [file, image]);
 
   useEffect(() => {
     if (id && data?.payload?.data) {
-      const { name, avatar, email } = data.payload.data;
+      const { name, image, virtualPrice, basePrice, status, type } =
+        data.payload.data;
       form.reset({
-        avatar: avatar ?? undefined,
         name,
-        email,
-        changePassword: false,
-        password: form.getValues("password"),
-        confirmPassword: form.getValues("confirmPassword"),
+        image: image ?? "",
+        virtualPrice,
+        basePrice: basePrice ?? 0,
+        status,
+        type,
       });
     }
   }, [id, data, form]);
-
-  if (!id) return null;
 
   const reset = () => {
     form.reset();
@@ -107,31 +109,32 @@ export default function EditEmployee({
     setId(undefined);
   };
 
-  const onSubmit = async (data: EditEmployeeFormValues) => {
-    if (updateAccountMutation.isPending || !id) return;
+  const onSubmit = async (data: UpdateDishBodyType) => {
+    if (updateDishMutation.isPending || !id) return;
     try {
-      let finalData: UpdateEmployeeAccountBodyType = {
+      // Convert string values to numbers
+      const processedData: UpdateDishBodyType = {
         name: data.name,
-        email: data.email,
-        avatar: data.avatar,
-        changePassword: data.changePassword,
-        password: data.password,
-        confirmPassword: data.confirmPassword,
-        role: data.role || "Employee",
+        image: data.image,
+        virtualPrice: Number(data.virtualPrice),
+        basePrice: data.basePrice ? Number(data.basePrice) : undefined,
+        status: data.status,
+        type: data.type,
       };
+      
+      let finalData: UpdateDishBodyType = processedData;
 
-      console.log(finalData);
       if (file) {
         try {
           const formData = new FormData();
           formData.append("file", file);
           const uploadResult = await uploadMediaMutation.mutateAsync({
             formData,
-            folder: "avatars",
+            folder: "dishes",
           });
           finalData = {
             ...finalData,
-            avatar: uploadResult.payload.data,
+            image: uploadResult.payload.data,
           };
         } catch (uploadError) {
           console.error("Error uploading file:", uploadError);
@@ -140,14 +143,14 @@ export default function EditEmployee({
         }
       }
 
-      updateAccountMutation.mutate(
+      updateDishMutation.mutate(
         {
           id,
           body: finalData,
         },
         {
           onSuccess: (result) => {
-            toast.success("Cập nhật thông tin thành công", {
+            toast.success("Cập nhật món ăn thành công", {
               description: result.payload.message,
               duration: 5000,
             });
@@ -162,6 +165,11 @@ export default function EditEmployee({
     }
   };
 
+  const isLoading =
+    updateDishMutation.isPending || uploadMediaMutation.isPending;
+
+  if (!id) return null;
+
   return (
     <Dialog
       open={Boolean(id)}
@@ -173,22 +181,22 @@ export default function EditEmployee({
     >
       <DialogContent className="sm:max-w-[600px] max-h-screen overflow-auto">
         <DialogHeader>
-          <DialogTitle>Cập nhật tài khoản</DialogTitle>
+          <DialogTitle>Cập nhật món ăn</DialogTitle>
           <DialogDescription>
-            Các trường tên, email, mật khẩu là bắt buộc
+            Các trường sau đây là bắ buộc: Tên, ảnh
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form
             noValidate
             className="grid auto-rows-max items-start gap-4 md:gap-8"
-            id="edit-employee-form"
+            id="edit-dish-form"
             onSubmit={form.handleSubmit(onSubmit)}
           >
             <div className="grid gap-4 py-4">
               <FormField
                 control={form.control}
-                name="avatar"
+                name="image"
                 render={({ field }) => (
                   <FormItem>
                     <div className="flex gap-2 items-start justify-start">
@@ -201,11 +209,12 @@ export default function EditEmployee({
                       <input
                         type="file"
                         accept="image/*"
-                        ref={avatarInputRef}
+                        ref={imageInputRef}
                         onChange={(e) => {
                           const file = e.target.files?.[0];
                           if (file) {
                             setFile(file);
+                            // Don't set a temporary URL here since we're using previewAvatarFromFile
                             field.onChange("");
                           }
                         }}
@@ -214,7 +223,7 @@ export default function EditEmployee({
                       <button
                         className="flex aspect-square w-[100px] items-center justify-center rounded-md border border-dashed"
                         type="button"
-                        onClick={() => avatarInputRef.current?.click()}
+                        onClick={() => imageInputRef.current?.click()}
                       >
                         <Upload className="h-4 w-4 text-muted-foreground" />
                         <span className="sr-only">Upload</span>
@@ -230,7 +239,7 @@ export default function EditEmployee({
                 render={({ field }) => (
                   <FormItem>
                     <div className="grid grid-cols-4 items-center justify-items-start gap-4">
-                      <Label htmlFor="name">Tên</Label>
+                      <Label htmlFor="name">Tên món ăn</Label>
                       <div className="col-span-3 w-full space-y-2">
                         <Input id="name" className="w-full" {...field} />
                         <FormMessage />
@@ -241,13 +250,18 @@ export default function EditEmployee({
               />
               <FormField
                 control={form.control}
-                name="email"
+                name="virtualPrice"
                 render={({ field }) => (
                   <FormItem>
                     <div className="grid grid-cols-4 items-center justify-items-start gap-4">
-                      <Label htmlFor="email">Email</Label>
+                      <Label htmlFor="virtualPrice">Giá ảo</Label>
                       <div className="col-span-3 w-full space-y-2">
-                        <Input id="email" className="w-full" {...field} />
+                        <Input
+                          id="virtualPrice"
+                          className="w-full"
+                          {...field}
+                          type="number"
+                        />
                         <FormMessage />
                       </div>
                     </div>
@@ -256,15 +270,17 @@ export default function EditEmployee({
               />
               <FormField
                 control={form.control}
-                name="changePassword"
+                name="basePrice"
                 render={({ field }) => (
                   <FormItem>
                     <div className="grid grid-cols-4 items-center justify-items-start gap-4">
-                      <Label htmlFor="email">Đổi mật khẩu</Label>
+                      <Label htmlFor="basePrice">Giá</Label>
                       <div className="col-span-3 w-full space-y-2">
-                        <Switch
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
+                        <Input
+                          id="basePrice"
+                          className="w-full"
+                          {...field}
+                          type="number"
                         />
                         <FormMessage />
                       </div>
@@ -272,57 +288,74 @@ export default function EditEmployee({
                   </FormItem>
                 )}
               />
-              {changePassword && (
-                <FormField
-                  control={form.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <div className="grid grid-cols-4 items-center justify-items-start gap-4">
-                        <Label htmlFor="password">Mật khẩu mới</Label>
-                        <div className="col-span-3 w-full space-y-2">
-                          <Input
-                            id="password"
-                            className="w-full"
-                            type="password"
-                            {...field}
-                          />
-                          <FormMessage />
-                        </div>
+              <FormField
+                control={form.control}
+                name="type"
+                render={({ field }) => (
+                  <FormItem>
+                    <div className="grid grid-cols-4 items-center justify-items-start gap-4">
+                      <Label>Loại món</Label>
+                      <div className="col-span-3 w-full space-y-2">
+                        <Select
+                          onValueChange={field.onChange}
+                          value={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Chọn loại món ăn" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {DishTypeValues.map((type) => (
+                              <SelectItem key={type} value={type}>
+                                {type}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
                       </div>
-                    </FormItem>
-                  )}
-                />
-              )}
-              {changePassword && (
-                <FormField
-                  control={form.control}
-                  name="confirmPassword"
-                  render={({ field }) => (
-                    <FormItem>
-                      <div className="grid grid-cols-4 items-center justify-items-start gap-4">
-                        <Label htmlFor="confirmPassword">
-                          Xác nhận mật khẩu mới
-                        </Label>
-                        <div className="col-span-3 w-full space-y-2">
-                          <Input
-                            id="confirmPassword"
-                            className="w-full"
-                            type="password"
-                            {...field}
-                          />
-                          <FormMessage />
-                        </div>
+                    </div>
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="status"
+                render={({ field }) => (
+                  <FormItem>
+                    <div className="grid grid-cols-4 items-center justify-items-start gap-4">
+                      <Label htmlFor="description">Trạng thái</Label>
+                      <div className="col-span-3 w-full space-y-2">
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Chọn trạng thái" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {DishStatusValues.map((status) => (
+                              <SelectItem key={status} value={status}>
+                                {getVietnameseDishStatus(status)}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </div>
-                    </FormItem>
-                  )}
-                />
-              )}
+
+                      <FormMessage />
+                    </div>
+                  </FormItem>
+                )}
+              />
             </div>
           </form>
         </Form>
         <DialogFooter>
-          <Button type="submit" form="edit-employee-form">
+          <Button type="submit" form="edit-dish-form">
             Lưu
           </Button>
         </DialogFooter>

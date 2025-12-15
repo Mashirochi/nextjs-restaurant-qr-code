@@ -47,9 +47,17 @@ export default function UpdateProfileForm() {
     }
   }, [form, data]);
 
+  // Reset file state when form resets
+  useEffect(() => {
+    setFile(null);
+  }, [data]);
+
   const onReset = () => {
     form.reset();
     setFile(null);
+    if (avatarInputRef.current) {
+      avatarInputRef.current.value = "";
+    }
   };
 
   const onSubmit = async (values: UpdateMeBodyType) => {
@@ -64,10 +72,9 @@ export default function UpdateProfileForm() {
           formData,
           folder: "avatars",
         });
-        const imageUrl = `${envConfig.NEXT_PUBLIC_API_ENDPOINT}/static/${uploadImageResult.payload.data}`;
         body = {
           ...values,
-          avatar: imageUrl,
+          avatar: uploadImageResult.payload.data,
         };
       }
       const result = await updateMeMutation.mutateAsync(body);
@@ -88,7 +95,20 @@ export default function UpdateProfileForm() {
     }
   };
 
-  const previewAvatar = file ? URL.createObjectURL(file) : avatar;
+  // Format the avatar URL to ensure it's correctly prefixed
+  const formatAvatarUrl = (avatarUrl: string | undefined) => {
+    if (!avatarUrl) return "";
+    // If it's already a full URL or already formatted, return as is
+    if (avatarUrl.startsWith("http") || avatarUrl.startsWith("/static/")) {
+      return avatarUrl;
+    }
+    // Otherwise, prepend the API endpoint and static path
+    return `${envConfig.NEXT_PUBLIC_API_ENDPOINT}/static/avatars/${avatarUrl}`;
+  };
+
+  const previewAvatar = file
+    ? URL.createObjectURL(file)
+    : formatAvatarUrl(avatar);
 
   const isLoading = updateMeMutation.isPending || uploadMediaMutation.isPending;
 
@@ -114,10 +134,8 @@ export default function UpdateProfileForm() {
                     <div className="flex gap-2 items-start justify-start">
                       <Avatar className="aspect-square w-[100px] h-[100px] rounded-md object-cover">
                         <AvatarImage src={previewAvatar} />
-                        <AvatarFallback className="rounded-none">
-                          {"avatar image"}
-                        </AvatarFallback>
                       </Avatar>
+
                       <input
                         type="file"
                         accept="image/*"
@@ -127,8 +145,6 @@ export default function UpdateProfileForm() {
                           const file = e.target?.files?.[0];
                           if (file) {
                             setFile(file);
-                            // Don't set a temporary URL here since we're using previewAvatar
-                            field.onChange("");
                           }
                         }}
                       />

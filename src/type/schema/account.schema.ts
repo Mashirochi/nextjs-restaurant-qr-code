@@ -35,7 +35,7 @@ export const CreateEmployeeAccountBody = z
   .object({
     name: z.string().trim().min(2).max(256),
     email: z.string().email(),
-    avatar: z.string().url().optional(),
+    avatar: z.string().optional(),
     password: z.string().min(6).max(100),
     confirmPassword: z.string().min(6).max(100),
   })
@@ -58,7 +58,7 @@ export const UpdateEmployeeAccountBody = z
   .object({
     name: z.string().trim().min(2).max(256),
     email: z.string().email(),
-    avatar: z.string().url().optional(),
+    avatar: z.string().optional(),
     changePassword: z.boolean().optional(),
     password: z.string().min(6).max(100).optional(),
     confirmPassword: z.string().min(6).max(100).optional(),
@@ -90,7 +90,7 @@ export type UpdateEmployeeAccountBodyType = z.TypeOf<
 export const UpdateMeBody = z
   .object({
     name: z.string().trim().min(2).max(256),
-    avatar: z.string().url().optional(),
+    avatar: z.string().optional(),
   })
   .strict();
 
