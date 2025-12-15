@@ -36,7 +36,6 @@ import {
   DishTypeValues,
 } from "@/type/schema/dish.schema";
 import { DishStatus, DishStatusValues } from "@/type/constant";
-import { Textarea } from "@/components/ui/textarea";
 import { getVietnameseDishStatus, handleErrorApi } from "@/lib/utils";
 import { useAddDishMutation } from "@/lib/query/useDish";
 import { useUploadMediaMutation } from "@/lib/query/useAccount";
@@ -52,8 +51,8 @@ export default function AddDish() {
     resolver: zodResolver(CreateDishBody),
     defaultValues: {
       name: "",
-      basePrice: 0,
-      virtualPrice: 0,
+      basePrice: "0",
+      virtualPrice: "0",
       image: "",
       status: DishStatus.Unavailable,
       type: DishType.Thit,
@@ -77,13 +76,8 @@ export default function AddDish() {
     if (addDishMutation.isPending) return;
     try {
       // Convert string values to numbers
-      const processedData = {
-        ...data,
-        virtualPrice: Number(data.virtualPrice),
-        basePrice: data.basePrice ? Number(data.basePrice) : undefined,
-      };
 
-      let finalData = processedData;
+      let finalData = data;
       if (file) {
         try {
           const formData = new FormData();
@@ -93,13 +87,13 @@ export default function AddDish() {
             folder: "dishes",
           });
           finalData = {
-            ...processedData,
+            ...data,
             image: uploadResult.payload.data,
           };
         } catch (uploadError) {
           console.error("Error uploading file:", uploadError);
           handleErrorApi({ error: uploadError, setError: form.setError });
-          return; // Stop submission if file upload fails
+          return;
         }
       }
       addDishMutation.mutate(finalData, {
@@ -304,8 +298,8 @@ export default function AddDish() {
           </form>
         </Form>
         <DialogFooter>
-          <Button type="submit" form="add-dish-form">
-            Thêm
+          <Button type="submit" form="add-dish-form" disabled={isLoading}>
+            {isLoading ? "Đang thêm..." : "Thêm"}
           </Button>
         </DialogFooter>
       </DialogContent>

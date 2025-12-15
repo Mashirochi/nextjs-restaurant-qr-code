@@ -10,7 +10,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { Resolver, useForm } from "react-hook-form";
 import {
   Form,
   FormControl,
@@ -18,7 +18,11 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
-import { getTableLink, getVietnameseTableStatus } from "@/lib/utils";
+import {
+  getTableLink,
+  getVietnameseTableStatus,
+  handleErrorApi,
+} from "@/lib/utils";
 import {
   Select,
   SelectContent,
@@ -28,11 +32,17 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import Link from "next/link";
-import { TableStatus } from "@/type/constant";
+import { TableStatus, TableStatusValues } from "@/type/constant";
 import {
   UpdateTableBody,
   UpdateTableBodyType,
 } from "@/type/schema/table.schema";
+import {
+  useGetTableDetail,
+  useUpdateTableMutation,
+} from "@/lib/query/useTable";
+import { toast } from "sonner";
+import { useEffect } from "react";
 
 export default function EditTable({
   id,
@@ -44,14 +54,63 @@ export default function EditTable({
   onSubmitSuccess?: () => void;
 }) {
   const form = useForm<UpdateTableBodyType>({
-    resolver: zodResolver(UpdateTableBody),
+    resolver: zodResolver(UpdateTableBody) as Resolver<UpdateTableBodyType>,
     defaultValues: {
       capacity: 2,
       status: TableStatus.Hidden,
       changeToken: false,
     },
   });
-  const tableNumber = 0;
+  const updateTableMutation = useUpdateTableMutation();
+  const { data } = useGetTableDetail(id ?? 0);
+
+  const tableNumber = id ?? 0;
+
+  const reset = () => {
+    form.reset();
+  };
+
+  const onSubmit = async (data: UpdateTableBodyType) => {
+    if (updateTableMutation.isPending || !id) return;
+    try {
+      updateTableMutation.mutate(
+        {
+          id,
+          body: data,
+        },
+        {
+          onSuccess: (result) => {
+            toast.success("Cập nhật món ăn thành công", {
+              description: result.payload.message,
+              duration: 5000,
+            });
+            reset();
+            setId(undefined);
+            onSubmitSuccess && onSubmitSuccess();
+          },
+        }
+      );
+    } catch (error) {
+      console.error("Error in form submission:", error);
+      handleErrorApi({ error, setError: form.setError });
+    }
+  };
+
+  const isLoading =
+    updateTableMutation.isPending || updateTableMutation.isPending;
+
+  useEffect(() => {
+    if (id && data?.payload?.data) {
+      const { capacity, number, status } = data.payload.data;
+      form.reset({
+        capacity,
+        status,
+        changeToken: false,
+      });
+    }
+  }, [id, data, form]);
+
+  if (!id) return null;
 
   return (
     <Dialog
@@ -77,23 +136,18 @@ export default function EditTable({
             noValidate
             className="grid auto-rows-max items-start gap-4 md:gap-8"
             id="edit-table-form"
+            onSubmit={form.handleSubmit(onSubmit)}
           >
             <div className="grid gap-4 py-4">
               <FormItem>
-                <div className="grid grid-cols-4 items-center justify-items-start gap-4">
-                  <Label htmlFor="name">Số hiệu bàn</Label>
-                  <div className="col-span-3 w-full space-y-2">
-                    <Input
-                      id="number"
-                      type="number"
-                      className="w-full"
-                      value={tableNumber}
-                      readOnly
-                    />
-                    <FormMessage />
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label>Số hiệu bàn</Label>
+                  <div className="col-span-3 w-full">
+                    <Input value={tableNumber} readOnly />
                   </div>
                 </div>
               </FormItem>
+
               <FormField
                 control={form.control}
                 name="capacity"
@@ -107,6 +161,7 @@ export default function EditTable({
                           className="w-full"
                           {...field}
                           type="number"
+                          onChange={(e) => field.onChange(+e.target.value)}
                         />
                         <FormMessage />
                       </div>
@@ -124,7 +179,7 @@ export default function EditTable({
                       <div className="col-span-3 w-full space-y-2">
                         <Select
                           onValueChange={field.onChange}
-                          defaultValue={field.value}
+                          value={field.value}
                         >
                           <FormControl>
                             <SelectTrigger>
@@ -139,9 +194,8 @@ export default function EditTable({
                             ))}
                           </SelectContent>
                         </Select>
+                        <FormMessage />
                       </div>
-
-                      <FormMessage />
                     </div>
                   </FormItem>
                 )}
@@ -151,45 +205,34 @@ export default function EditTable({
                 name="changeToken"
                 render={({ field }) => (
                   <FormItem>
-                    <div className="grid grid-cols-4 items-center justify-items-start gap-4">
-                      <Label htmlFor="price">Đổi QR Code</Label>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label>Đổi QR Code</Label>
                       <div className="col-span-3 w-full space-y-2">
-                        <div className="flex items-center space-x-2">
+                        <FormControl>
                           <Switch
-                            id="changeToken"
                             checked={field.value}
                             onCheckedChange={field.onChange}
                           />
-                        </div>
+                        </FormControl>
+                        <FormMessage />
                       </div>
-
-                      <FormMessage />
                     </div>
                   </FormItem>
                 )}
               />
               <FormItem>
                 <div className="grid grid-cols-4 items-center justify-items-start gap-4">
-                  <Label>QR Code</Label>
-                  <div className="col-span-3 w-full space-y-2"></div>
-                </div>
-              </FormItem>
-              <FormItem>
-                <div className="grid grid-cols-4 items-center justify-items-start gap-4">
-                  <Label>URL gọi món</Label>
+                  <Label>URL gọi món (guest)</Label>
                   <div className="col-span-3 w-full space-y-2">
                     <Link
-                      href={getTableLink({
-                        token: "123123123",
-                        tableNumber: tableNumber,
-                      })}
+                      href={getTableLink(tableNumber, "123123123")}
                       target="_blank"
                       className="break-all"
                     >
-                      {getTableLink({
-                        token: "123123123",
-                        tableNumber: tableNumber,
-                      })}
+                      {getTableLink(
+                        tableNumber,
+                        data?.payload?.data.token ?? ""
+                      )}
                     </Link>
                   </div>
                 </div>
@@ -198,8 +241,8 @@ export default function EditTable({
           </form>
         </Form>
         <DialogFooter>
-          <Button type="submit" form="edit-table-form">
-            Lưu
+          <Button type="submit" form="edit-table-form" disabled={isLoading}>
+            {isLoading ? "Đang cập nhật..." : "Cập nhật bàn ăn"}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronsUpDown, MoreHorizontal } from "lucide-react";
+import { ChevronsUpDown, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -14,15 +14,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
-
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { QRCodeCanvas } from "qrcode.react";
 import { Input } from "@/components/ui/input";
 import {
   Table,
@@ -32,7 +24,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -43,12 +35,19 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { getVietnameseTableStatus } from "@/lib/utils";
+import {
+  getTableLink,
+  getVietnameseTableStatus,
+  handleErrorApi,
+} from "@/lib/utils";
 import { useSearchParams } from "next/navigation";
 import { TableListResType } from "@/type/schema/table.schema";
 import EditTable from "./edit.table";
 import AddTable from "./add.table";
 import AutoPagination from "@/components/custom/auto.pagination";
+import { useDeleteTableMutation, useGetTableList } from "@/lib/query/useTable";
+import { toast } from "sonner";
+import ImagePreview from "@/components/custom/image.preview";
 
 type TableItem = TableListResType["data"][0];
 
@@ -88,36 +87,40 @@ export const columns: ColumnDef<TableItem>[] = [
   },
   {
     accessorKey: "token",
-    header: "QR Code",
-    cell: ({ row }) => <div>{row.getValue("number")}</div>,
+    header: () => <div className="text-center">QR Code</div>,
+    cell: ({ row }) => (
+      <div className="flex justify-center">
+        <div className="bg-white p-2 rounded-md">
+          <QRCodeCanvas
+            value={getTableLink(row.original.number, row.original.token)}
+            size={80}
+            level="H"
+          />
+        </div>
+      </div>
+    ),
   },
   {
     id: "actions",
     enableHiding: false,
     cell: function Actions({ row }) {
       const { setTableIdEdit, setTableDelete } = useContext(TableTableContext);
-      const openEditTable = () => {
+      const openEditDish = () => {
         setTableIdEdit(row.original.number);
       };
 
-      const openDeleteTable = () => {
+      const openDeleteDish = () => {
         setTableDelete(row.original);
       };
       return (
-        <DropdownMenu modal={false}>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <ChevronsUpDown className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={openEditTable}>Sửa</DropdownMenuItem>
-            <DropdownMenuItem onClick={openDeleteTable}>Xóa</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <div className="flex items-center gap-2">
+          <Button variant="ghost" size="icon" onClick={openEditDish}>
+            <Pencil className="h-4 w-4 text-blue-600 hover:scale-110 transition" />
+          </Button>
+          <Button variant="ghost" size="icon" onClick={openDeleteDish}>
+            <Trash2 className="h-4 w-4 text-red-600 hover:scale-110 transition" />
+          </Button>
+        </div>
       );
     },
   },
@@ -130,6 +133,23 @@ function AlertDialogDeleteTable({
   tableDelete: TableItem | null;
   setTableDelete: (value: TableItem | null) => void;
 }) {
+  const deleteTableQuery = useDeleteTableMutation();
+  const handleDeleteTable = () => {
+    try {
+      if (tableDelete) {
+        deleteTableQuery.mutateAsync(tableDelete.number, {
+          onSuccess: () => {
+            setTableDelete(null);
+          },
+        });
+        toast.success("Xóa bàn ăn thành công");
+      }
+    } catch (error) {
+      handleErrorApi({
+        error,
+      });
+    }
+  };
   return (
     <AlertDialog
       open={Boolean(tableDelete)}
@@ -152,7 +172,9 @@ function AlertDialogDeleteTable({
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction>Continue</AlertDialogAction>
+          <AlertDialogAction onClick={handleDeleteTable}>
+            Continue
+          </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
@@ -167,7 +189,6 @@ export default function TableTable() {
   // const params = Object.fromEntries(searchParam.entries())
   const [tableIdEdit, setTableIdEdit] = useState<number | undefined>();
   const [tableDelete, setTableDelete] = useState<TableItem | null>(null);
-  const data: any[] = [];
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
@@ -176,6 +197,9 @@ export default function TableTable() {
     pageIndex, // Gía trị mặc định ban đầu, không có ý nghĩa khi data được fetch bất đồng bộ
     pageSize: PAGE_SIZE, //default page size
   });
+
+  const listTableQuery = useGetTableList();
+  const data: TableItem[] = listTableQuery.data?.payload.data ?? [];
 
   const table = useReactTable({
     data,

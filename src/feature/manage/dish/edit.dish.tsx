@@ -61,8 +61,8 @@ export default function EditDish({
     resolver: zodResolver(UpdateDishBody),
     defaultValues: {
       name: "",
-      virtualPrice: 0,
-      basePrice: 0,
+      virtualPrice: "0",
+      basePrice: "0",
       image: "",
       status: DishStatus.Unavailable,
       type: DishType.Thit,
@@ -96,7 +96,7 @@ export default function EditDish({
         name,
         image: image ?? "",
         virtualPrice,
-        basePrice: basePrice ?? 0,
+        basePrice: basePrice ? basePrice : "",
         status,
         type,
       });
@@ -116,12 +116,12 @@ export default function EditDish({
       const processedData: UpdateDishBodyType = {
         name: data.name,
         image: data.image,
-        virtualPrice: Number(data.virtualPrice),
-        basePrice: data.basePrice ? Number(data.basePrice) : undefined,
+        virtualPrice: data.virtualPrice,
+        basePrice: data.basePrice ? data.basePrice : undefined,
         status: data.status,
         type: data.type,
       };
-      
+
       let finalData: UpdateDishBodyType = processedData;
 
       if (file) {
@@ -355,8 +355,8 @@ export default function EditDish({
           </form>
         </Form>
         <DialogFooter>
-          <Button type="submit" form="edit-dish-form">
-            Lưu
+          <Button type="submit" form="edit-dish-form" disabled={isLoading}>
+            {isLoading ? "Đang cập nhật..." : "Cập nhật món ăn"}
           </Button>
         </DialogFooter>
       </DialogContent>

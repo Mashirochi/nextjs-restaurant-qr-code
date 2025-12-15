@@ -12,8 +12,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { PlusCircle } from "lucide-react";
-import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { FormEvent, useState } from "react";
+import { Resolver, useForm } from "react-hook-form";
 import {
   Form,
   FormControl,
@@ -33,17 +33,50 @@ import {
   CreateTableBody,
   CreateTableBodyType,
 } from "@/type/schema/table.schema";
+import { getVietnameseTableStatus, handleErrorApi } from "@/lib/utils";
+import { useAddTableMutation } from "@/lib/query/useTable";
+import { toast } from "sonner";
 
 export default function AddTable() {
   const [open, setOpen] = useState(false);
   const form = useForm<CreateTableBodyType>({
-    resolver: zodResolver(CreateTableBody),
+    resolver: zodResolver(CreateTableBody) as Resolver<CreateTableBodyType>,
     defaultValues: {
-      number: 0,
+      number: 1,
       capacity: 2,
       status: TableStatus.Hidden,
     },
   });
+
+  const addTableMutation = useAddTableMutation();
+
+  const reset = () => {
+    form.reset();
+  };
+
+  const onSubmit = async (data: CreateTableBodyType) => {
+    if (addTableMutation.isPending) return;
+    try {
+      addTableMutation.mutate(data, {
+        onSuccess: () => {
+          reset();
+          setOpen(false);
+          toast.success("Thêm bàn ăn thành công");
+        },
+      });
+    } catch (error) {
+      console.error("Error in form submission:", error);
+      handleErrorApi({ error, setError: form.setError });
+    }
+  };
+
+  const isLoading = addTableMutation.isPending || addTableMutation.isPending;
+
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    form.handleSubmit(onSubmit)(event);
+  };
+
   return (
     <Dialog onOpenChange={setOpen} open={open}>
       <DialogTrigger asChild>
@@ -66,6 +99,7 @@ export default function AddTable() {
             noValidate
             className="grid auto-rows-max items-start gap-4 md:gap-8"
             id="add-table-form"
+            onSubmit={handleSubmit}
           >
             <div className="grid gap-4 py-4">
               <FormField
@@ -81,6 +115,7 @@ export default function AddTable() {
                           type="number"
                           className="w-full"
                           {...field}
+                          onChange={(e) => field.onChange(+e.target.value)}
                         />
                         <FormMessage />
                       </div>
@@ -101,6 +136,7 @@ export default function AddTable() {
                           className="w-full"
                           {...field}
                           type="number"
+                          onChange={(e) => field.onChange(+e.target.value)}
                         />
                         <FormMessage />
                       </div>
@@ -118,7 +154,7 @@ export default function AddTable() {
                       <div className="col-span-3 w-full space-y-2">
                         <Select
                           onValueChange={field.onChange}
-                          defaultValue={field.value}
+                          value={field.value}
                         >
                           <FormControl>
                             <SelectTrigger>
@@ -133,9 +169,8 @@ export default function AddTable() {
                             ))}
                           </SelectContent>
                         </Select>
+                        <FormMessage />
                       </div>
-
-                      <FormMessage />
                     </div>
                   </FormItem>
                 )}
@@ -144,8 +179,8 @@ export default function AddTable() {
           </form>
         </Form>
         <DialogFooter>
-          <Button type="submit" form="add-table-form">
-            Thêm
+          <Button type="submit" form="add-table-form" disabled={isLoading}>
+            {isLoading ? "Đang thêm..." : "Thêm bàn"}
           </Button>
         </DialogFooter>
       </DialogContent>

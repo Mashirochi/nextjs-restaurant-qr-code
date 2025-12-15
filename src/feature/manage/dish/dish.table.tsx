@@ -1,6 +1,6 @@
 "use client";
 
-import { MoreHorizontal, Trash2 } from "lucide-react";
+import { Pencil, Trash2 } from "lucide-react";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -14,15 +14,6 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
-
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import {
   Table,
@@ -147,7 +138,7 @@ export const columns: ColumnDef<DishItem>[] = [
       return (
         <div className="flex items-center gap-2">
           <Button variant="ghost" size="icon" onClick={openEditDish}>
-            <MoreHorizontal className="h-4 w-4 text-blue-600 hover:scale-110 transition" />
+            <Pencil className="h-4 w-4 text-blue-600 hover:scale-110 transition" />
           </Button>
           <Button variant="ghost" size="icon" onClick={openDeleteDish}>
             <Trash2 className="h-4 w-4 text-red-600 hover:scale-110 transition" />
