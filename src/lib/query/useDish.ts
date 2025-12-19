@@ -2,10 +2,14 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import dishRequest from "../api/dish.request";
 import { UpdateDishBodyType } from "@/type/schema/dish.schema";
 
-export const useGetDishList = () => {
+export const useGetDishList = (params?: {
+  page?: number;
+  take?: number;
+  filter?: any;
+}) => {
   return useQuery({
-    queryKey: ["dish-list"],
-    queryFn: dishRequest.list,
+    queryKey: ["dish-list", params],
+    queryFn: () => dishRequest.list(params),
   });
 };
 

@@ -42,6 +42,7 @@ import { useGetDishDetail, useUpdateDishMutation } from "@/lib/query/useDish";
 import { useUploadMediaMutation } from "@/lib/query/useAccount";
 import { toast } from "sonner";
 import envConfig from "@/lib/validateEnv";
+import revalidateApiRequest from "@/lib/api/revalidate";
 
 export default function EditDish({
   id,
@@ -62,7 +63,7 @@ export default function EditDish({
     defaultValues: {
       name: "",
       virtualPrice: "0",
-      basePrice: "0",
+      basePrice: undefined,
       image: "",
       status: DishStatus.Unavailable,
       type: DishType.Thit,
@@ -95,8 +96,8 @@ export default function EditDish({
       form.reset({
         name,
         image: image ?? "",
-        virtualPrice,
-        basePrice: basePrice ? basePrice : "",
+        virtualPrice: virtualPrice.toString(),
+        basePrice: basePrice ?? undefined,
         status,
         type,
       });
@@ -112,12 +113,12 @@ export default function EditDish({
   const onSubmit = async (data: UpdateDishBodyType) => {
     if (updateDishMutation.isPending || !id) return;
     try {
-      // Convert string values to numbers
+      // Keep data as strings since that's what the schema expects
       const processedData: UpdateDishBodyType = {
         name: data.name,
         image: data.image,
         virtualPrice: data.virtualPrice,
-        basePrice: data.basePrice ? data.basePrice : undefined,
+        basePrice: data.basePrice,
         status: data.status,
         type: data.type,
       };
@@ -159,6 +160,7 @@ export default function EditDish({
           },
         }
       );
+      await revalidateApiRequest("dishList");
     } catch (error) {
       console.error("Error in form submission:", error);
       handleErrorApi({ error, setError: form.setError });
@@ -355,8 +357,8 @@ export default function EditDish({
           </form>
         </Form>
         <DialogFooter>
-          <Button type="submit" form="edit-dish-form" disabled={isLoading}>
-            {isLoading ? "Đang cập nhật..." : "Cập nhật món ăn"}
+          <Button type="submit" form="edit-dish-form">
+            Lưu
           </Button>
         </DialogFooter>
       </DialogContent>

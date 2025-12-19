@@ -1,6 +1,12 @@
 "use client";
 
-import { ChevronsUpDown, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import {
+  ChevronsUpDown,
+  MoreHorizontal,
+  Pencil,
+  RotateCcw,
+  Trash2,
+} from "lucide-react";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -48,6 +54,16 @@ import AutoPagination from "@/components/custom/auto.pagination";
 import { useDeleteTableMutation, useGetTableList } from "@/lib/query/useTable";
 import { toast } from "sonner";
 import ImagePreview from "@/components/custom/image.preview";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  useChangeAllTokenTableMutation,
+  useUpdateTokenByTableNumberMutation,
+} from "@/lib/query/useTable";
 
 type TableItem = TableListResType["data"][0];
 
@@ -180,6 +196,7 @@ function AlertDialogDeleteTable({
     </AlertDialog>
   );
 }
+
 // Số lượng item trên 1 trang
 const PAGE_SIZE = 10;
 export default function TableTable() {
@@ -200,6 +217,10 @@ export default function TableTable() {
 
   const listTableQuery = useGetTableList();
   const data: TableItem[] = listTableQuery.data?.payload.data ?? [];
+
+  const changeAllTokenMutation = useChangeAllTokenTableMutation();
+  const updateTokenByTableNumberMutation =
+    useUpdateTokenByTableNumberMutation();
 
   const table = useReactTable({
     data,
@@ -230,6 +251,34 @@ export default function TableTable() {
     });
   }, [table, pageIndex]);
 
+  const handleChangeAllTokens = () => {
+    try {
+      changeAllTokenMutation.mutateAsync(undefined, {
+        onSuccess: () => {
+          toast.success("Đổi token tất cả bàn thành công");
+        },
+      });
+    } catch (error) {
+      handleErrorApi({
+        error,
+      });
+    }
+  };
+
+  const handleUpdateTokenByTableNumber = (tableNumber: number) => {
+    try {
+      updateTokenByTableNumberMutation.mutateAsync(tableNumber, {
+        onSuccess: () => {
+          toast.success(`Đổi token bàn ${tableNumber} thành công`);
+        },
+      });
+    } catch (error) {
+      handleErrorApi({
+        error,
+      });
+    }
+  };
+
   return (
     <TableTableContext.Provider
       value={{ tableIdEdit, setTableIdEdit, tableDelete, setTableDelete }}
@@ -240,7 +289,7 @@ export default function TableTable() {
           tableDelete={tableDelete}
           setTableDelete={setTableDelete}
         />
-        <div className="flex items-center py-4">
+        <div className="flex flex-col md:flex-row items-center justify-between py-4 gap-4">
           <Input
             placeholder="Lọc số bàn"
             value={
@@ -251,7 +300,21 @@ export default function TableTable() {
             }
             className="max-w-sm"
           />
-          <div className="ml-auto flex items-center gap-2">
+          <div className="flex items-center gap-2">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="ml-auto">
+                  <RotateCcw className="mr-2 h-4 w-4" />
+                  Đổi token
+                  <ChevronsUpDown className="ml-2 h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={handleChangeAllTokens}>
+                  Đổi token tất cả bàn
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
             <AddTable />
           </div>
         </div>
@@ -290,12 +353,23 @@ export default function TableTable() {
                         )}
                       </TableCell>
                     ))}
+                    <TableCell>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() =>
+                          handleUpdateTokenByTableNumber(row.original.number)
+                        }
+                      >
+                        Đổi token
+                      </Button>
+                    </TableCell>
                   </TableRow>
                 ))
               ) : (
                 <TableRow>
                   <TableCell
-                    colSpan={columns.length}
+                    colSpan={columns.length + 1}
                     className="h-24 text-center"
                   >
                     No results.

@@ -1,5 +1,5 @@
+import guestApiRequest from "@/lib/api/guest.request";
 import { cookies } from "next/headers";
-import authApiRequest from "@/lib/api/auth.request";
 
 export async function POST(request: Request) {
   const cookieStore = await cookies();
@@ -18,12 +18,13 @@ export async function POST(request: Request) {
     );
   }
   try {
-    const result = await authApiRequest.sLogout({
+    const result = await guestApiRequest.sLogout({
       accessToken,
       refreshToken,
     });
     return Response.json(result.payload);
   } catch (error) {
+    console.log(error);
     return Response.json(
       {
         message: "Lỗi khi gọi API đến server backend",

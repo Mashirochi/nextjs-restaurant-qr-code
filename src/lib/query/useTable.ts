@@ -48,3 +48,24 @@ export const useDeleteTableMutation = () => {
     },
   });
 };
+
+export const useChangeAllTokenTableMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: tableRequest.changeAllTokenTable,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["table-list"] });
+    },
+  });
+};
+
+export const useUpdateTokenByTableNumberMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (tableNumber: number) =>
+      tableRequest.updateTokenByTableNumber(tableNumber),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["table-list"] });
+    },
+  });
+};

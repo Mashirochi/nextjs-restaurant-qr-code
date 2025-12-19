@@ -40,6 +40,7 @@ import { getVietnameseDishStatus, handleErrorApi } from "@/lib/utils";
 import { useAddDishMutation } from "@/lib/query/useDish";
 import { useUploadMediaMutation } from "@/lib/query/useAccount";
 import { toast } from "sonner";
+import revalidateApiRequest from "@/lib/api/revalidate";
 
 export default function AddDish() {
   const [file, setFile] = useState<File | null>(null);
@@ -103,6 +104,7 @@ export default function AddDish() {
           toast.success("Thêm món ăn thành công");
         },
       });
+      await revalidateApiRequest("dishList");
     } catch (error) {
       console.error("Error in form submission:", error);
       handleErrorApi({ error, setError: form.setError });

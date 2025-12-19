@@ -42,3 +42,11 @@ export const TableParams = z.object({
   number: z.coerce.number(),
 });
 export type TableParamsType = z.TypeOf<typeof TableParams>;
+
+export type ChangeTokenResType = z.TypeOf<typeof TableListRes>;
+
+export const ChangeAllTokensRes = z.object({
+  message: z.string(),
+});
+
+export type ChangeAllTokensResType = z.TypeOf<typeof ChangeAllTokensRes>;

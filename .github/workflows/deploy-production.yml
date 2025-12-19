@@ -47,7 +47,7 @@ jobs:
 
             npm i --force
             npm run build
-            pm2 restart Nextjs
+            pm2 restart NextJs
             pm2 save
 
   notify:
@@ -79,7 +79,7 @@ jobs:
           to: ${{ secrets.TELEGRAM_TO }}
           token: ${{ secrets.TELEGRAM_TOKEN }}
           message: |
-            ❌ DEPLOY NEXTJS FAILED
+            ❌ ERROR WHEN DEPLOY NEXTJS FAILED
 
             👤 Actor: ${{ github.actor }}
             🧾 Commit: ${{ github.event.commits[0].message }}

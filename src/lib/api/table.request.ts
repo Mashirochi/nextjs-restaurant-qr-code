@@ -1,5 +1,6 @@
 import http from "../http";
 import {
+  ChangeAllTokensResType,
   CreateTableBodyType,
   TableListResType,
   TableResType,
@@ -14,6 +15,13 @@ const tableRequest = {
     http.put<TableResType>(`/tables/${id}`, body),
   getTable: (id: number) => http.get<TableResType>(`/tables/${id}`),
   deleteTable: (id: number) => http.delete<TableResType>(`/tables/${id}`),
+  changeAllTokenTable: () =>
+    http.post<ChangeAllTokensResType>("/tables/change-all-tokens", {}),
+  updateTokenByTableNumber: (tableNumber: number) =>
+    http.post<ChangeAllTokensResType>(
+      `/tables/${tableNumber}/change-token`,
+      {}
+    ),
 };
 
 export default tableRequest;

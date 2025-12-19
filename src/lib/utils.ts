@@ -102,5 +102,5 @@ export const getVietnameseTableStatus = (status: string) => {
 };
 
 export const getTableLink = (tableNumber: number, token: string) => {
-  return `${envConfig.NEXT_PUBLIC_URL}/tables/${tableNumber}?token=${token}`;
+  return `${envConfig.NEXT_PUBLIC_URL}/table/${tableNumber}?token=${token}`;
 };

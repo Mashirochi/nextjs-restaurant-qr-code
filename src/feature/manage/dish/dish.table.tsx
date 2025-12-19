@@ -36,7 +36,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { useSearchParams } from "next/navigation";
-import { DishListResType } from "@/type/schema/dish.schema";
+import { DishListResType, DishTypeValues } from "@/type/schema/dish.schema";
 import {
   formatCurrency,
   getVietnameseDishStatus,
@@ -48,6 +48,14 @@ import EditDish from "./edit.dish";
 import { toast } from "sonner";
 import { useDeleteDishMutation, useGetDishList } from "@/lib/query/useDish";
 import envConfig from "@/lib/validateEnv";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { DishStatus, DishStatusValues } from "@/type/constant";
 
 type DishItem = DishListResType["data"][0];
 
@@ -96,7 +104,7 @@ export const columns: ColumnDef<DishItem>[] = [
     header: "Giá ảo",
     cell: ({ row }) => (
       <div className="capitalize">
-        {formatCurrency(row.getValue("virtualPrice"))}
+        {formatCurrency(Number(row.getValue("virtualPrice")))}
       </div>
     ),
   },
@@ -106,7 +114,7 @@ export const columns: ColumnDef<DishItem>[] = [
     cell: ({ row }) => (
       <div className="capitalize">
         {row.getValue("basePrice")
-          ? formatCurrency(row.getValue("basePrice"))
+          ? formatCurrency(Number(row.getValue("basePrice")))
           : "Chưa đặt giá"}
       </div>
     ),
@@ -201,13 +209,34 @@ function AlertDialogDeleteDish({
     </AlertDialog>
   );
 }
+
 // Số lượng item trên 1 trang
 const PAGE_SIZE = 10;
 export default function DishTable() {
   const searchParam = useSearchParams();
   const page = searchParam.get("page") ? Number(searchParam.get("page")) : 1;
-  const pageIndex = page - 1;
-  const dishListQuery = useGetDishList();
+  const search = searchParam.get("search") || "";
+  const type = searchParam.get("type") || "";
+  const status = searchParam.get("status") || "";
+
+  // Filter state
+  const [searchFilter, setSearchFilter] = useState(search);
+  const [typeFilter, setTypeFilter] = useState(type);
+  const [statusFilter, setStatusFilter] = useState(status);
+
+  // Build filter object
+  const filter = {
+    ...(searchFilter && { search: searchFilter }),
+    ...(typeFilter && typeFilter !== "ALL" && { type: typeFilter }),
+    ...(statusFilter && statusFilter !== "ALL" && { status: statusFilter }),
+  };
+
+  const dishListQuery = useGetDishList({
+    page,
+    take: PAGE_SIZE,
+    filter,
+  });
+
   const data: DishItem[] = dishListQuery.data?.payload.data ?? [];
   const [dishIdEdit, setDishIdEdit] = useState<number | undefined>();
   const [dishDelete, setDishDelete] = useState<DishItem | null>(null);
@@ -216,7 +245,7 @@ export default function DishTable() {
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
   const [pagination, setPagination] = useState({
-    pageIndex, // Gía trị mặc định ban đầu, không có ý nghĩa khi data được fetch bất đồng bộ
+    pageIndex: page - 1, // Gía trị mặc định ban đầu, không có ý nghĩa khi data được fetch bất đồng bộ
     pageSize: PAGE_SIZE, //default page size
   });
 
@@ -244,10 +273,50 @@ export default function DishTable() {
 
   useEffect(() => {
     table.setPagination({
-      pageIndex,
+      pageIndex: page - 1,
       pageSize: PAGE_SIZE,
     });
-  }, [table, pageIndex]);
+  }, [table, page]);
+
+  // Handle filter changes
+  const handleSearchChange = (value: string) => {
+    setSearchFilter(value);
+    // Reset to first page when filter changes
+    const url = new URL(window.location.href);
+    url.searchParams.set("page", "1");
+    if (value) {
+      url.searchParams.set("search", value);
+    } else {
+      url.searchParams.delete("search");
+    }
+    window.history.replaceState({}, "", url.toString());
+  };
+
+  const handleTypeChange = (value: string) => {
+    setTypeFilter(value);
+    // Reset to first page when filter changes
+    const url = new URL(window.location.href);
+    url.searchParams.set("page", "1");
+    if (value && value !== "ALL") {
+      url.searchParams.set("type", value);
+    } else {
+      url.searchParams.delete("type");
+    }
+    window.history.replaceState({}, "", url.toString());
+  };
+
+  const handleStatusChange = (value: string) => {
+    setStatusFilter(value);
+    // Reset to first page when filter changes
+    const url = new URL(window.location.href);
+    url.searchParams.set("page", "1");
+    if (value && value !== "ALL") {
+      url.searchParams.set("status", value);
+    } else {
+      url.searchParams.delete("status");
+    }
+    window.history.replaceState({}, "", url.toString());
+  };
 
   return (
     <DishTableContext.Provider
@@ -259,15 +328,49 @@ export default function DishTable() {
           dishDelete={dishDelete}
           setDishDelete={setDishDelete}
         />
-        <div className="flex items-center py-4">
-          <Input
-            placeholder="Lọc tên"
-            value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
-            onChange={(event) =>
-              table.getColumn("name")?.setFilterValue(event.target.value)
-            }
-            className="max-w-sm"
-          />
+        <div className="flex flex-col md:flex-row items-center justify-between py-4 gap-4">
+          <div className="flex flex-col md:flex-row items-center gap-2 w-full md:w-auto">
+            <Input
+              placeholder="Tìm kiếm món ăn"
+              value={searchFilter}
+              onChange={(event) => handleSearchChange(event.target.value)}
+              className="max-w-sm"
+            />
+            <div className="flex gap-2 w-full md:w-auto">
+              <Select
+                value={typeFilter || "ALL"}
+                onValueChange={handleTypeChange}
+              >
+                <SelectTrigger className="w-full md:w-[180px]">
+                  <SelectValue placeholder="Loại món" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ALL">Tất cả loại</SelectItem>
+                  {DishTypeValues.map((typeItem) => (
+                    <SelectItem key={typeItem} value={typeItem}>
+                      {typeItem}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select
+                value={statusFilter || "ALL"}
+                onValueChange={handleStatusChange}
+              >
+                <SelectTrigger className="w-full md:w-[180px]">
+                  <SelectValue placeholder="Trạng thái" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ALL">Tất cả trạng thái</SelectItem>
+                  {DishStatusValues.map((statusItem) => (
+                    <SelectItem key={statusItem} value={statusItem}>
+                      {getVietnameseDishStatus(statusItem)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
           <div className="ml-auto flex items-center gap-2">
             <AddDish />
           </div>
@@ -315,7 +418,7 @@ export default function DishTable() {
                     colSpan={columns.length}
                     className="h-24 text-center"
                   >
-                    No results.
+                    Không tìm thấy kết quả.
                   </TableCell>
                 </TableRow>
               )}
@@ -331,7 +434,7 @@ export default function DishTable() {
           <div>
             <AutoPagination
               page={table.getState().pagination.pageIndex + 1}
-              pageSize={table.getPageCount()}
+              pageSize={PAGE_SIZE}
               pathname="/manage/dishes"
             />
           </div>
