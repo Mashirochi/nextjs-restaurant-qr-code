@@ -6,13 +6,15 @@ import { TableSchema } from "./table.schema";
 const DishSnapshotSchema = z.object({
   id: z.number(),
   name: z.string(),
-  price: z.number(),
+  virtualPrice: z.number(),
+  basePrice: z.number(),
   image: z.string(),
   status: z.enum(DishStatusValues),
   dishId: z.number().nullable(),
   createdAt: z.date(),
   updatedAt: z.date(),
 });
+
 export const OrderSchema = z.object({
   id: z.number(),
   guestId: z.number().nullable(),
