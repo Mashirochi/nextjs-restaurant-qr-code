@@ -149,8 +149,13 @@ export default function LoginForm() {
                 )}
               />
 
-              <Button type="submit" className="w-full" tabIndex={3}>
-                Đăng nhập
+              <Button
+                type="submit"
+                className="w-full"
+                tabIndex={3}
+                disabled={loginMutation.isPending}
+              >
+                {loginMutation.isPending ? "Đang đăng nhập..." : "Đăng nhập"}
               </Button>
               <Button
                 variant="outline"

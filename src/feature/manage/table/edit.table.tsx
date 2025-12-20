@@ -225,7 +225,10 @@ export default function EditTable({
                   <Label>URL gọi món (guest)</Label>
                   <div className="col-span-3 w-full space-y-2">
                     <Link
-                      href={getTableLink(tableNumber, "123123123")}
+                      href={getTableLink(
+                        tableNumber,
+                        data?.payload?.data.token ?? ""
+                      )}
                       target="_blank"
                       className="break-all"
                     >

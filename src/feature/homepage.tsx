@@ -1,12 +1,7 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DishSchema } from "@/type/schema/dish.schema";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -17,7 +12,7 @@ import { DishTypeValues } from "@/type/schema/dish.schema";
 import { useState } from "react";
 
 interface HomeProps {
-  dishList: z.infer<typeof DishSchema>[]; // Array of dish objects directly
+  dishList: z.infer<typeof DishSchema>[];
 }
 
 export default function Home(props: HomeProps) {
@@ -110,9 +105,7 @@ export default function Home(props: HomeProps) {
                       )}
                   </div>
                 </CardContent>
-                <CardFooter className="p-4 pt-0">
-                  <Button className="w-full">Order Now</Button>
-                </CardFooter>
+                {/* No order buttons on homepage as per requirements */}
               </Card>
             );
           })}
