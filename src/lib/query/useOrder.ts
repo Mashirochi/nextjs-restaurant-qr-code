@@ -2,14 +2,22 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import orderRequest from "../api/order.request";
 import {
   CreateOrdersBodyType,
+  GetOrdersQueryParamsType,
   UpdateOrderBodyType,
 } from "@/type/schema/order.schema";
 import guestApiRequest from "../api/guest.request";
 
-export const useGetOrderList = () => {
+export const useGetOrderList = (query: GetOrdersQueryParamsType) => {
   return useQuery({
-    queryKey: ["order-list"],
-    queryFn: orderRequest.list,
+    queryKey: ["order-list", query],
+    queryFn: () => orderRequest.list(query),
+  });
+};
+
+export const useGetOrderById = (id: number) => {
+  return useQuery({
+    queryKey: ["order-detail", id],
+    queryFn: () => orderRequest.getOrderById(id),
   });
 };
 

@@ -3,8 +3,10 @@ import { UseFormSetError } from "react-hook-form";
 import { twMerge } from "tailwind-merge";
 import { EntityError } from "./http";
 import { toast } from "sonner";
-import { DishStatus, TableStatus } from "@/type/constant";
+import { DishStatus, OrderStatus, TableStatus } from "@/type/constant";
 import envConfig from "./validateEnv";
+import { BookX, CookingPot, HandCoins, Loader, Truck } from "lucide-react";
+import { format } from "date-fns";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -101,6 +103,59 @@ export const getVietnameseTableStatus = (status: string) => {
   }
 };
 
+export const getVietnameseOrderStatus = (status: string) => {
+  switch (status) {
+    case OrderStatus.Pending:
+      return "Đang chờ xử lý";
+    case OrderStatus.Processing:
+      return "Đang chuẩn bị";
+    case OrderStatus.Delivered:
+      return "Đã giao hàng";
+    case OrderStatus.Paid:
+      return "Đã thanh toán";
+    case OrderStatus.Rejected:
+      return "Bị từ chối";
+    default:
+      return "Không xác định";
+  }
+};
 export const getTableLink = (tableNumber: number, token: string) => {
   return `${envConfig.NEXT_PUBLIC_URL}/table/${tableNumber}?token=${token}`;
+};
+
+export const removeAccents = (str: string) => {
+  return str
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/đ/g, "d")
+    .replace(/Đ/g, "D");
+};
+export const simpleMatchText = (text: string, filter: string) => {
+  return removeAccents(text.toLowerCase()).includes(
+    removeAccents(filter.toLowerCase())
+  );
+};
+
+export const formatDateTimeToLocaleString = (date: Date | string) => {
+  const d = typeof date === "string" ? new Date(date) : date;
+  return d.toLocaleString("vi-VN", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+  });
+};
+
+export const OrderStatusIcon = {
+  [OrderStatus.Pending]: Loader,
+  [OrderStatus.Processing]: CookingPot,
+  [OrderStatus.Rejected]: BookX,
+  [OrderStatus.Delivered]: Truck,
+  [OrderStatus.Paid]: HandCoins,
+};
+
+export const formatDateTimeToTimeString = (date: string | Date) => {
+  return format(date instanceof Date ? date : new Date(date), "HH:mm:ss");
 };

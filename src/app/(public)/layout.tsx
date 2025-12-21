@@ -6,6 +6,7 @@ import { DialogDescription, DialogTitle } from "@radix-ui/react-dialog";
 import NavItems from "@/components/custom/nav.items";
 import ModeToggle from "@/components/ui/mode-toggle";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
+import Footer from "@/components/custom/footer";
 
 export default function Layout({
   children,
@@ -67,6 +68,7 @@ export default function Layout({
       <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
         {children}
       </main>
+      <Footer />
     </div>
   );
 }

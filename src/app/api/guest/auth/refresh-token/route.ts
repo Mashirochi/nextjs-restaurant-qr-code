@@ -1,5 +1,5 @@
 import { cookies } from "next/headers";
-import authApiRequest from "@/lib/api/auth.request";
+import guestApiRequest from "@/lib/api/guest.request";
 import { jwtDecode } from "jwt-decode";
 
 export async function POST(request: Request) {
@@ -22,7 +22,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    const { payload } = await authApiRequest.sRefreshToken({
+    const { payload } = await guestApiRequest.sRefreshToken({
       refreshToken,
     });
 
