@@ -39,6 +39,18 @@ import { DishesDialog } from "./dishes-dialog";
 import { useGetOrderById, useUpdateOrderMutation } from "@/lib/query/useOrder";
 import { toast } from "sonner";
 
+interface DishSnapshot {
+  id: number;
+  name: string;
+  virtualPrice: number;
+  basePrice: number;
+  image: string;
+  status: "Available" | "Unavailable" | "Hidden";
+  dishId: number | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 export default function EditOrder({
   id,
   setId,
@@ -72,7 +84,14 @@ export default function EditOrder({
         ...values,
         orderId: id,
       };
-      const res = await updateOrderMutation.mutateAsync(body);
+      const res = await updateOrderMutation.mutateAsync({
+        id: body.orderId,
+        body: {
+          status: body.status,
+          dishId: body.dishId ?? 0, // Provide default value if dishId is undefined
+          quantity: body.quantity,
+        },
+      });
       toast.success("Cập nhật đơn hàng thành công.");
       onSubmitSuccess?.();
       reset();
@@ -98,10 +117,24 @@ export default function EditOrder({
       } = data.payload.data;
       form.reset({
         status,
-        dishId,
+        dishId: dishId ?? undefined,
         quantity,
       });
-      setSelectedDish(data.payload.data.dishSnapshot);
+      // Create a compatible dish object from dishSnapshot
+      const dishSnapshot = data.payload.data.dishSnapshot;
+      const compatibleDish = {
+        id: dishSnapshot.id,
+        name: dishSnapshot.name,
+        virtualPrice: dishSnapshot.virtualPrice.toString(),
+        basePrice: dishSnapshot.basePrice !== null ? dishSnapshot.basePrice.toString() : null,
+        image: dishSnapshot.image,
+        status: dishSnapshot.status,
+        // We're providing a default value for 'type' since it's required in DishListResType but not in dishSnapshot
+        type: "Thịt bò" as const, // Default value, will be overridden when user selects a dish
+        createdAt: dishSnapshot.createdAt,
+        updatedAt: dishSnapshot.updatedAt,
+      };
+      setSelectedDish(compatibleDish);
     }
   }, [data, id, form]);
 

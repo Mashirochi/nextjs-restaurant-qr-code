@@ -127,7 +127,14 @@ export default function OrderTable() {
     quantity: number;
   }) => {
     try {
-      await updateOrderMutation.mutateAsync(body);
+      await updateOrderMutation.mutateAsync({
+        id: body.orderId,
+        body: {
+          status: body.status,
+          dishId: body.dishId,
+          quantity: body.quantity,
+        },
+      });
     } catch (error) {
       handleErrorApi({
         error,
@@ -410,7 +417,7 @@ export default function OrderTable() {
               <div>
                 <AutoPagination
                   page={table.getState().pagination.pageIndex + 1}
-                  totalPages={table.getPageCount()}
+                  pageSize={table.getPageCount()}
                   pathname="/manage/orders"
                 />
               </div>
