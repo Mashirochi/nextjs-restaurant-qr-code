@@ -80,7 +80,7 @@ export default function EditTable({
         },
         {
           onSuccess: (result) => {
-            toast.success("Cập nhật món ăn thành công", {
+            toast.success("Cập nhật bàn ăn thành công", {
               description: result.payload.message,
               duration: 5000,
             });
@@ -96,8 +96,7 @@ export default function EditTable({
     }
   };
 
-  const isLoading =
-    updateTableMutation.isPending || updateTableMutation.isPending;
+  const isLoading = updateTableMutation.isPending;
 
   useEffect(() => {
     if (id && data?.payload?.data) {
@@ -161,7 +160,10 @@ export default function EditTable({
                           className="w-full"
                           {...field}
                           type="number"
-                          onChange={(e) => field.onChange(+e.target.value)}
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            field.onChange(value === "" ? "" : Number(value));
+                          }}
                         />
                         <FormMessage />
                       </div>

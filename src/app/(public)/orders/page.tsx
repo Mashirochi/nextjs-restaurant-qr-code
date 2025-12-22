@@ -1,7 +1,7 @@
 "use client";
 
 import { useGuestGetOrderList } from "@/lib/query/useOrder";
-import { formatCurrency } from "@/lib/utils";
+import { formatCurrency, getOrderStatusText } from "@/lib/utils";
 import { OrderStatus } from "@/type/constant";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -14,23 +14,6 @@ import { toast } from "sonner";
 
 export default function OrdersPage() {
   const { data, isLoading, isError, error, refetch } = useGuestGetOrderList();
-
-  const getOrderStatusText = (status: string) => {
-    switch (status) {
-      case OrderStatus.Pending:
-        return "Chờ xử lý";
-      case OrderStatus.Processing:
-        return "Đang chế biến";
-      case OrderStatus.Rejected:
-        return "Đã hủy";
-      case OrderStatus.Delivered:
-        return "Đã phục vụ";
-      case OrderStatus.Paid:
-        return "Đã thanh toán";
-      default:
-        return status;
-    }
-  };
 
   const getOrderStatusVariant = (status: string) => {
     switch (status) {

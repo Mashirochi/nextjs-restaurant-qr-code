@@ -159,3 +159,20 @@ export const OrderStatusIcon = {
 export const formatDateTimeToTimeString = (date: string | Date) => {
   return format(date instanceof Date ? date : new Date(date), "HH:mm:ss");
 };
+
+export const getOrderStatusText = (status: string) => {
+  switch (status) {
+    case OrderStatus.Pending:
+      return "Chờ xử lý";
+    case OrderStatus.Processing:
+      return "Đang chế biến";
+    case OrderStatus.Rejected:
+      return "Đã hủy";
+    case OrderStatus.Delivered:
+      return "Đã phục vụ";
+    case OrderStatus.Paid:
+      return "Đã thanh toán";
+    default:
+      return status;
+  }
+};

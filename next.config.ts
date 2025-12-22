@@ -2,6 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   /* config options here */
+  output: "standalone",
   images: {
     dangerouslyAllowLocalIP: true,
 
@@ -15,7 +16,6 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "api.betheo.id.vn",
-        port: "4000",
         pathname: "/**",
       },
     ],
