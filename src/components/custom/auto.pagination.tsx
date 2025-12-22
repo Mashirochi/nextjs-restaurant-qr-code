@@ -9,10 +9,14 @@ import {
 } from "@/components/ui/pagination";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { Button } from "../ui/button";
+import { ChevronLeft } from "lucide-react";
 interface Props {
   page: number;
   pageSize: number;
   pathname: string;
+  isLink?: boolean;
+  onClick?: (page: number) => void;
 }
 
 /**
@@ -37,7 +41,13 @@ Với range = 2 áp dụng cho khoảng cách đầu, cuối và xung quanh curr
  */
 
 const RANGE = 2;
-export default function AutoPagination({ page, pageSize, pathname }: Props) {
+export default function AutoPagination({
+  page,
+  pageSize,
+  pathname = "/",
+  isLink = true,
+  onClick = (page) => {},
+}: Props) {
   const renderPagination = () => {
     let dotAfter = false;
     let dotBefore = false;
@@ -93,12 +103,25 @@ export default function AutoPagination({ page, pageSize, pathname }: Props) {
         }
         return (
           <PaginationItem key={index}>
-            <PaginationLink
-              href={`${pathname}?page=${pageNumber}`}
-              isActive={pageNumber === page}
-            >
-              {pageNumber}
-            </PaginationLink>
+            {isLink && (
+              <PaginationLink
+                href={`${pathname}?page=${pageNumber}`}
+                isActive={pageNumber === page}
+              >
+                {pageNumber}
+              </PaginationLink>
+            )}
+            {!isLink && (
+              <Button
+                onClick={() => {
+                  onClick(pageNumber);
+                }}
+                variant={pageNumber === page ? "outline" : "ghost"}
+                className="w-9 h-9 p-0"
+              >
+                {pageNumber}
+              </Button>
+            )}
           </PaginationItem>
         );
       });
@@ -107,30 +130,67 @@ export default function AutoPagination({ page, pageSize, pathname }: Props) {
     <Pagination>
       <PaginationContent>
         <PaginationItem>
-          <PaginationPrevious
-            href={`${pathname}?page=${page - 1}`}
-            className={cn({
-              "cursor-not-allowed": page === 1,
-            })}
-            onClick={(e) => {
-              if (page === 1) e.preventDefault();
-            }}
-          />
+          {isLink && (
+            <PaginationPrevious
+              href={`${pathname}?page=${page - 1}`}
+              className={cn({
+                "cursor-not-allowed": page === 1,
+              })}
+              onClick={(e) => {
+                if (page === 1) e.preventDefault();
+              }}
+            />
+          )}
+          {!isLink && (
+            <Button
+              onClick={() => {
+                if (page > 1) {
+                  onClick(page - 1);
+                }
+              }}
+              className={cn("w-9 h-9 p-0", {
+                "cursor-not-allowed": page === 1,
+              })}
+              disabled={page === 1}
+              variant={"ghost"}
+            >
+              <ChevronLeft className="w-4 h-4" /> Previous
+            </Button>
+          )}
         </PaginationItem>
         {renderPagination()}
 
         <PaginationItem>
-          <PaginationNext
-            href={`${pathname}?page=${page + 1}`}
-            className={cn({
-              "cursor-not-allowed": page === pageSize,
-            })}
-            onClick={(e) => {
-              if (page === pageSize) {
-                e.preventDefault();
-              }
-            }}
-          />
+          {isLink && (
+            <PaginationNext
+              href={`${pathname}?page=${page + 1}`}
+              className={cn({
+                "cursor-not-allowed": page === pageSize,
+              })}
+              onClick={(e) => {
+                if (page === pageSize) {
+                  e.preventDefault();
+                }
+              }}
+            />
+          )}
+
+          {!isLink && (
+            <Button
+              onClick={() => {
+                if (page < pageSize) {
+                  onClick(page + 1);
+                }
+              }}
+              className={cn("w-9 h-9 p-0", {
+                "cursor-not-allowed": page === pageSize,
+              })}
+              disabled={page === pageSize}
+              variant={"ghost"}
+            >
+              Next <ChevronLeft className="w-4 h-4 rotate-180" />
+            </Button>
+          )}
         </PaginationItem>
       </PaginationContent>
     </Pagination>

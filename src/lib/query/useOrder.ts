@@ -3,6 +3,7 @@ import orderRequest from "../api/order.request";
 import {
   CreateOrdersBodyType,
   GetOrdersQueryParamsType,
+  PayGuestOrdersBodyType,
   UpdateOrderBodyType,
 } from "@/type/schema/order.schema";
 import guestApiRequest from "../api/guest.request";
@@ -52,5 +53,11 @@ export const useGuestGetOrderList = () => {
   return useQuery({
     queryKey: ["guest-order-list"],
     queryFn: guestApiRequest.getOrderList,
+  });
+};
+
+export const usePayGuestOrderMutation = () => {
+  return useMutation({
+    mutationFn: (body: PayGuestOrdersBodyType) => orderRequest.payCash(body),
   });
 };

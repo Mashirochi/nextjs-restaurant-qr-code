@@ -94,56 +94,58 @@ const orderTableColumns: ColumnDef<OrderItem>[] = [
   {
     id: "dishName",
     header: "Món ăn",
-    cell: ({ row }) => (
-      <div className="flex items-center gap-2">
-        <Popover>
-          <PopoverTrigger asChild>
-            <Image
-              priority
-              src={`${envConfig.NEXT_PUBLIC_API_ENDPOINT}/dishes/${row.original.dishSnapshot.image}`}
-              alt={row.original.dishSnapshot.name}
-              width={50}
-              height={50}
-              className="rounded-md object-cover w-[50px] h-[50px] cursor-pointer"
-            />
-          </PopoverTrigger>
-          <PopoverContent>
-            <div className="flex flex-wrap gap-2">
+    cell: ({ row }) => {
+      return (
+        <div className="flex items-center gap-2">
+          <Popover>
+            <PopoverTrigger asChild>
               <Image
                 priority
-                src={`${envConfig.NEXT_PUBLIC_API_ENDPOINT}/dishes/${row.original.dishSnapshot.image}`}
+                src={`${envConfig.NEXT_PUBLIC_API_ENDPOINT}/static/dishes/${row.original.dishSnapshot.image}`}
                 alt={row.original.dishSnapshot.name}
-                width={100}
-                height={100}
-                className="rounded-md object-cover w-[100px] h-[100px]"
+                width={50}
+                height={50}
+                className="rounded-md object-cover w-[50px] h-[50px] cursor-pointer"
               />
-              <div className="space-y-1 text-sm">
-                <h3 className="font-semibold">
-                  {row.original.dishSnapshot.name}
-                </h3>
-                <div className="italic">
-                  {formatCurrency(row.original.dishSnapshot.basePrice)}
+            </PopoverTrigger>
+            <PopoverContent>
+              <div className="flex flex-wrap gap-2">
+                <Image
+                  priority
+                  src={`${envConfig.NEXT_PUBLIC_API_ENDPOINT}/static/dishes/${row.original.dishSnapshot.image}`}
+                  alt={row.original.dishSnapshot.name}
+                  width={100}
+                  height={100}
+                  className="rounded-md object-cover w-[100px] h-[100px]"
+                />
+                <div className="space-y-1 text-sm">
+                  <h3 className="font-semibold">
+                    {row.original.dishSnapshot.name}
+                  </h3>
+                  <div className="italic">
+                    {formatCurrency(row.original.dishSnapshot.basePrice)}
+                  </div>
                 </div>
               </div>
-            </div>
-          </PopoverContent>
-        </Popover>
+            </PopoverContent>
+          </Popover>
 
-        <div className="space-y-2">
-          <div className="flex items-center gap-2">
-            <span>{row.original.dishSnapshot.name}</span>
-            <Badge className="px-1" variant={"secondary"}>
-              x{row.original.quantity}
-            </Badge>
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <span>{row.original.dishSnapshot.name}</span>
+              <Badge className="px-1" variant={"secondary"}>
+                x{row.original.quantity}
+              </Badge>
+            </div>
+            <span className="italic">
+              {formatCurrency(
+                row.original.dishSnapshot.basePrice * row.original.quantity
+              )}
+            </span>
           </div>
-          <span className="italic">
-            {formatCurrency(
-              row.original.dishSnapshot.basePrice * row.original.quantity
-            )}
-          </span>
         </div>
-      </div>
-    ),
+      );
+    },
   },
   {
     accessorKey: "status",

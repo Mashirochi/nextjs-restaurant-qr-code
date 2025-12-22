@@ -37,6 +37,7 @@ import Image from "next/image";
 import AutoPagination from "@/components/custom/auto.pagination";
 import { DishListResType } from "@/type/schema/dish.schema";
 import { useGetDishList } from "@/lib/query/useDish";
+import envConfig from "@/lib/validateEnv";
 
 type DishItem = DishListResType["data"][0];
 
@@ -47,7 +48,7 @@ export const columns: ColumnDef<DishItem>[] = [
     cell: ({ row }) => (
       <div className="flex items-center space-x-4">
         <Image
-          src={row.original.image}
+          src={`${envConfig.NEXT_PUBLIC_API_ENDPOINT}/static/dishes/${row.original.image}`}
           alt={row.original.name}
           width={50}
           height={50}
@@ -218,6 +219,13 @@ export function DishesDialog({
                   page={table.getState().pagination.pageIndex + 1}
                   pageSize={table.getPageCount()}
                   pathname="/manage/dishes"
+                  isLink={false}
+                  onClick={(page: number) =>
+                    table.setPagination({
+                      pageIndex: page - 1,
+                      pageSize: PAGE_SIZE,
+                    })
+                  }
                 />
               </div>
             </div>

@@ -3,10 +3,15 @@ import {
   AccountResType,
   ChangePasswordBodyType,
   CreateEmployeeAccountBodyType,
+  CreateGuestBodyType,
+  GetGuestListQueryParamsType,
+  GetListGuestsResType,
   UpdateEmployeeAccountBodyType,
   UpdateMeBodyType,
 } from "@/type/schema/account.schema";
 import http from "../http";
+import queryString from "query-string";
+import { toDate } from "date-fns";
 
 const AccountRequest = {
   me: () => http.get<AccountResType>("/accounts/me"),
@@ -22,6 +27,19 @@ const AccountRequest = {
   getEmployee: (id: number) => http.get<AccountResType>(`/accounts/${id}`),
   deleteEmployee: (id: number) =>
     http.delete<AccountResType>(`/accounts/${id}`),
+  guestList: async (params: GetGuestListQueryParamsType) => {
+    const query = queryString.stringify(
+      {
+        fromDate: params.fromDate?.toISOString(),
+        toDate: params.toDate?.toISOString(),
+      },
+      { skipNull: true }
+    );
+
+    return http.get<GetListGuestsResType>(`/accounts/guests?${query}`);
+  },
+  createGuest: (body: CreateGuestBodyType) =>
+    http.post<AccountResType>("/accounts/guests", body),
 };
 
 export default AccountRequest;

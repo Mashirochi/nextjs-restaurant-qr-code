@@ -62,7 +62,6 @@ export default function UpdateProfileForm() {
 
   const onSubmit = async (values: UpdateMeBodyType) => {
     if (updateMeMutation.isPending) return;
-    console.log("Submitting form with values:", values);
     try {
       let body = values;
       if (file) {

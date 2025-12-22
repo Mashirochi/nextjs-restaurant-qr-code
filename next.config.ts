@@ -5,6 +5,7 @@ const nextConfig: NextConfig = {
   output: "standalone",
   images: {
     dangerouslyAllowLocalIP: true,
+    qualities: [100, 75],
 
     remotePatterns: [
       {

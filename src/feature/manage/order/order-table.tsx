@@ -16,6 +16,8 @@ import { OrderStatusValues } from "@/type/constant";
 import { createContext, useEffect, useState } from "react";
 import {
   GetOrdersResType,
+  PayGuestOrdersBodyType,
+  PayGuestOrdersResType,
   UpdateOrderResType,
 } from "@/type/schema/order.schema";
 import { useSearchParams } from "next/navigation";
@@ -209,6 +211,16 @@ export default function OrderTable() {
       refetch();
     }
 
+    function onPayment(data: PayGuestOrdersResType["data"]) {
+      const { guest } = data[0];
+      toast.success(
+        `Khách hàng với tên "${guest?.name ?? "Không Biết Đặt Tên"}" tại bàn ${
+          guest?.tableNumber ?? "Không xác định"
+        } đã thanh toán thành công.`
+      );
+      refetch();
+    }
+
     function refetch() {
       const now = new Date();
       if (now >= fromDate && now <= toDate) {
@@ -218,13 +230,15 @@ export default function OrderTable() {
     socket.on("connect", onConnect);
     socket.on("update-order", onOrderUpdate);
     socket.on("new-order", onNewOrder);
+    socket.on("payment", onPayment);
     socket.on("disconnect", onDisconnect);
 
     return () => {
       socket.off("connect", onConnect);
-      socket.off("disconnect", onDisconnect);
       socket.off("update-order", onOrderUpdate);
       socket.off("new-order", onNewOrder);
+      socket.off("payment", onPayment);
+      socket.off("disconnect", onDisconnect);
     };
   }, [refetchOrderList, fromDate, toDate]);
 

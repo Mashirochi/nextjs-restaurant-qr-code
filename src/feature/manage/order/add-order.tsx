@@ -17,7 +17,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import Image from "next/image";
-import { cn, formatCurrency } from "@/lib/utils";
+import { cn, formatCurrency, handleErrorApi } from "@/lib/utils";
 import { CreateOrdersBodyType } from "@/type/schema/order.schema";
 import { GetListGuestsResType } from "@/type/schema/account.schema";
 import { DishListResType } from "@/type/schema/dish.schema";
@@ -25,6 +25,11 @@ import { GuestLoginBody, GuestLoginBodyType } from "@/type/schema/guest.schema";
 import { TablesDialog } from "./tables-dialog";
 import { DishStatus } from "@/type/constant";
 import GuestsDialog from "./guests-dialog";
+import { useGetDishList } from "@/lib/query/useDish";
+import { useCreateOrderMutation } from "@/lib/query/useOrder";
+import { useCreateGuestMutation } from "@/lib/query/useAccount";
+import QuantityDish from "../dish/quantity.dish";
+import envConfig from "@/lib/validateEnv";
 
 export default function AddOrder() {
   const [open, setOpen] = useState(false);
@@ -33,18 +38,22 @@ export default function AddOrder() {
   >(null);
   const [isNewGuest, setIsNewGuest] = useState(true);
   const [orders, setOrders] = useState<CreateOrdersBodyType["orders"]>([]);
-  const dishes: DishListResType["data"] = [];
+  const dishListQuery = useGetDishList();
+  const dishes = dishListQuery.data?.payload?.data || [];
 
-  // const totalPrice = useMemo(() => {
-  //   return dishes.reduce((result, dish) => {
-  //     const order = orders.find((order) => order.dishId === dish.id);
-  //     if (!order) return result;
-  //     if (dish.status === DishStatus.Unavailable) return result;
-  //     if (dish?.basePrice) return result + order.quantity * dish?.basePrice;
-  //   }, 0);
-  // }, [dishes, orders]);
+  const createOrderMutation = useCreateOrderMutation();
+  const createGuestMutation = useCreateGuestMutation();
 
-  const totalPrice = 0;
+  const totalPrice = useMemo(() => {
+    return dishes.reduce((result, dish) => {
+      const order = orders.find((order) => order.dishId === dish.id);
+      if (!order) return result;
+      if (dish.status === DishStatus.Unavailable) return result;
+      if (dish?.basePrice)
+        return result + order.quantity * Number(dish.basePrice);
+      return result;
+    }, 0);
+  }, [dishes, orders]);
 
   const form = useForm<GuestLoginBodyType>({
     resolver: zodResolver(GuestLoginBody),
@@ -71,7 +80,29 @@ export default function AddOrder() {
     });
   };
 
-  const handleOrder = async () => {};
+  const handleOrder = async () => {
+    try {
+      let guestId = selectedGuest?.id;
+      if (isNewGuest) {
+        const createGuestRes = await createGuestMutation.mutateAsync({
+          name,
+          tableNumber,
+        });
+        guestId = createGuestRes.payload.data.id;
+      }
+      await createOrderMutation.mutateAsync({
+        guestId: guestId!,
+        orders,
+      });
+      setOpen(false);
+      setSelectedGuest(null);
+      setOrders([]);
+      form.reset();
+    } catch (error) {
+      console.error("Error creating order:", error);
+      handleErrorApi({ error, setError: form.setError });
+    }
+  };
 
   return (
     <Dialog onOpenChange={setOpen} open={open}>
@@ -179,7 +210,7 @@ export default function AddOrder() {
                   </span>
                 )}
                 <Image
-                  src={dish.image}
+                  src={`${envConfig.NEXT_PUBLIC_API_ENDPOINT}/static/dishes/${dish.image}`}
                   alt={dish.name}
                   height={100}
                   width={100}
@@ -189,18 +220,18 @@ export default function AddOrder() {
               </div>
               <div className="space-y-1">
                 <h3 className="text-sm">{dish.name}</h3>
-                {/* <p className="text-xs font-semibold">
-                  {formatCurrency(+dish.basePrice! ?? 0)}
-                </p> */}
+                <p className="text-xs font-semibold">
+                  {formatCurrency(Number(dish.basePrice ?? 0))}
+                </p>
               </div>
               <div className="flex-shrink-0 ml-auto flex justify-center items-center">
-                {/* <Quantity
+                <QuantityDish
                   onChange={(value) => handleQuantityChange(dish.id, value)}
                   value={
                     orders.find((order) => order.dishId === dish.id)
                       ?.quantity ?? 0
                   }
-                /> */}
+                />
               </div>
             </div>
           ))}

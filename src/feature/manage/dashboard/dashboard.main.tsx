@@ -3,30 +3,32 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatCurrency } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { DishBarChart } from "./dish.barchart";
-import { RevenueLineChart } from "./revenue.linechart";
 import { endOfDay, format, startOfDay } from "date-fns";
-import React from "react";
+import { useState } from "react";
 import { useDashboardQuery } from "@/lib/api/dashboard.request";
+import { RevenueLineChart } from "./revenue.linechart";
+import { DishBarChart } from "./dish.barchart";
 
 const initFromDate = startOfDay(new Date());
 const initToDate = endOfDay(new Date());
-
 export default function DashboardMain() {
-  const [fromDate, setFromDate] = React.useState<Date>(initFromDate);
-  const [toDate, setToDate] = React.useState<Date>(initToDate);
+  const [fromDate, setFromDate] = useState(initFromDate);
+  const [toDate, setToDate] = useState(initToDate);
+  const { data } = useDashboardQuery({
+    fromDate,
+    toDate,
+  });
+  const revenue = data?.payload.data.revenue ?? 0;
+  const guestCount = data?.payload.data.guestCount ?? 0;
+  const orderCount = data?.payload.data.orderCount ?? 0;
+  const servingTableCount = data?.payload.data.servingTableCount ?? 0;
+  const revenueByDate = data?.payload.data.revenueByDate ?? [];
+  const dishIndicator = data?.payload.data.dishIndicator ?? [];
+
   const resetDateFilter = () => {
     setFromDate(initFromDate);
     setToDate(initToDate);
   };
-
-  const { data } = useDashboardQuery({ fromDate, toDate });
-  const {
-    revenue = 0,
-    guestCount = 0,
-    orderCount: order = 0,
-    servingTableCount = 0,
-  } = data?.payload?.data ?? {};
 
   return (
     <div className="space-y-4">
@@ -46,9 +48,8 @@ export default function DashboardMain() {
           <Input
             type="datetime-local"
             placeholder="Đến ngày"
-            className="text-sm"
-            value={format(toDate, "yyyy-MM-dd'T'HH:mm").replace(" ", "T")}
-            onChange={(event) => setFromDate(new Date(event.target.value))}
+            value={format(toDate, "yyyy-MM-dd HH:mm").replace(" ", "T")}
+            onChange={(event) => setToDate(new Date(event.target.value))}
           />
         </div>
         <Button className="" variant={"outline"} onClick={resetDateFilter}>
@@ -119,8 +120,8 @@ export default function DashboardMain() {
             </svg>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{order}</div>
-            <p className="text-xs text-muted-foreground">Đã thanh toán</p>
+            <div className="text-2xl font-bold">{orderCount}</div>
+            {/* <p className='text-xs text-muted-foreground'>Đã thanh toán</p> */}
           </CardContent>
         </Card>
         <Card>
@@ -148,10 +149,10 @@ export default function DashboardMain() {
       </div>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
         <div className="lg:col-span-4">
-          <RevenueLineChart />
+          <RevenueLineChart chartData={revenueByDate} />
         </div>
         <div className="lg:col-span-3">
-          <DishBarChart />
+          <DishBarChart chartData={dishIndicator} />
         </div>
       </div>
     </div>

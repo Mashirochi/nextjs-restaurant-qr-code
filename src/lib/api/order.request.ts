@@ -4,6 +4,8 @@ import {
   GetOrderDetailResType,
   GetOrdersQueryParamsType,
   GetOrdersResType,
+  PayGuestOrdersBodyType,
+  PayGuestOrdersResType,
   UpdateOrderBodyType,
   UpdateOrderResType,
 } from "@/type/schema/order.schema";
@@ -25,6 +27,8 @@ const orderRequest = {
     http.post<CreateOrdersResType>("/orders", body),
   getOrderById: (id: number) =>
     http.get<GetOrderDetailResType>(`/orders/${id}`),
+  payCash: (body: PayGuestOrdersBodyType) =>
+    http.post<PayGuestOrdersResType>(`/orders/pay`, body),
 };
 
 export default orderRequest;

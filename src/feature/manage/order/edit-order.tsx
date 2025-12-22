@@ -126,7 +126,10 @@ export default function EditOrder({
         id: dishSnapshot.id,
         name: dishSnapshot.name,
         virtualPrice: dishSnapshot.virtualPrice.toString(),
-        basePrice: dishSnapshot.basePrice !== null ? dishSnapshot.basePrice.toString() : null,
+        basePrice:
+          dishSnapshot.basePrice !== null
+            ? dishSnapshot.basePrice.toString()
+            : null,
         image: dishSnapshot.image,
         status: dishSnapshot.status,
         // We're providing a default value for 'type' since it's required in DishListResType but not in dishSnapshot

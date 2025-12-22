@@ -32,6 +32,7 @@ import { Input } from "@/components/ui/input";
 import { endOfDay, format, startOfDay } from "date-fns";
 import { GetListGuestsResType } from "@/type/schema/account.schema";
 import AutoPagination from "@/components/custom/auto.pagination";
+import { useGetListGuests } from "@/lib/query/useAccount";
 
 type GuestItem = GetListGuestsResType["data"][0];
 
@@ -89,7 +90,11 @@ export default function GuestsDialog({
   const [open, setOpen] = useState(false);
   const [fromDate, setFromDate] = useState(initFromDate);
   const [toDate, setToDate] = useState(initToDate);
-  const data: GetListGuestsResType["data"] = [];
+  const guestListQuery = useGetListGuests({
+    fromDate,
+    toDate,
+  });
+  const data = guestListQuery.data?.payload?.data || [];
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
@@ -269,7 +274,14 @@ export default function GuestsDialog({
                 <AutoPagination
                   page={table.getState().pagination.pageIndex + 1}
                   pageSize={table.getPageCount()}
-                  pathname="/manage/Guests"
+                  pathname="/manage/guests"
+                  isLink={false}
+                  onClick={(page: number) =>
+                    table.setPagination({
+                      pageIndex: page - 1,
+                      pageSize: PAGE_SIZE,
+                    })
+                  }
                 />
               </div>
             </div>

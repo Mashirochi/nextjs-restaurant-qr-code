@@ -9,7 +9,10 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import envConfig from "@/lib/validateEnv";
 import { useEffect, useState } from "react";
 import socket from "@/lib/websocket/socket";
-import { UpdateOrderResType } from "@/type/schema/order.schema";
+import {
+  PayGuestOrdersResType,
+  UpdateOrderResType,
+} from "@/type/schema/order.schema";
 import { toast } from "sonner";
 
 export default function OrdersPage() {
@@ -55,16 +58,28 @@ export default function OrdersPage() {
       refetch();
     }
 
+    function onPayment(data: PayGuestOrdersResType["data"]) {
+      const { guest } = data[0];
+      toast.success(
+        `Khách hàng với tên "${guest?.name ?? "Không Biết Đặt Tên"}" tại bàn ${
+          guest?.tableNumber ?? "Không xác định"
+        } đã thanh toán thành công.`
+      );
+      refetch();
+    }
+
     socket.on("connect", onConnect);
     socket.on("update-order", onOrderUpdate);
+    socket.on("payment", onPayment);
     socket.on("disconnect", onDisconnect);
 
     return () => {
       socket.off("connect", onConnect);
-      socket.off("disconnect", onDisconnect);
       socket.off("update-order", onOrderUpdate);
+      socket.off("payment", onPayment);
+      socket.off("disconnect", onDisconnect);
     };
-  }, []);
+  }, [refetch]);
 
   if (isLoading) {
     return (

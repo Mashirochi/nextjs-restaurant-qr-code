@@ -3,10 +3,14 @@ import { UseFormSetError } from "react-hook-form";
 import { twMerge } from "tailwind-merge";
 import { EntityError } from "./http";
 import { toast } from "sonner";
-import { DishStatus, OrderStatus, TableStatus } from "@/type/constant";
+import { DishStatus, OrderStatus, Role, TableStatus } from "@/type/constant";
 import envConfig from "./validateEnv";
 import { BookX, CookingPot, HandCoins, Loader, Truck } from "lucide-react";
 import { format } from "date-fns";
+import { jwtDecode } from "jwt-decode";
+import { TokenPayload } from "@/type/schema/jwt.type";
+import guestApiRequest from "./api/guest.request";
+import authApiRequest from "./api/auth.request";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -174,5 +178,54 @@ export const getOrderStatusText = (status: string) => {
       return "Đã thanh toán";
     default:
       return status;
+  }
+};
+
+export const decodeToken = (token: string) => {
+  return jwtDecode(token) as TokenPayload;
+};
+
+export const checkAndRefreshToken = async (param?: {
+  onError?: () => void;
+  onSuccess?: () => void;
+  force?: boolean;
+}) => {
+  const accessToken = getAccessTokenFromLocalStorage();
+  const refreshToken = getRefreshTokenFromLocalStorage();
+
+  // Chưa đăng nhập thì cũng không cho chạy
+  if (!accessToken || !refreshToken) return;
+
+  const decodedAccessToken = decodeToken(accessToken);
+  const decodedRefreshToken = decodeToken(refreshToken);
+  // Thời điểm hết hạn của token là tính theo epoch time (s)
+  // Còn khi các bạn dùng cú pháp new Date().getTime() thì nó sẽ trả về epoch time (ms)
+  const now = Math.round(new Date().getTime() / 1000);
+  // trường hợp refresh token hết hạn thì cho logout
+  if (decodedRefreshToken.exp <= now) {
+    removeTokensFromLocalStorage();
+    return param?.onError && param.onError();
+  }
+  // Ví dụ access token của chúng ta có thời gian hết hạn là 10s
+  // thì mình sẽ kiểm tra còn 1/3 thời gian (3s) thì mình sẽ cho refresh token lại
+  // Thời gian còn lại sẽ tính dựa trên công thức: decodedAccessToken.exp - now
+  // Thời gian hết hạn của access token dựa trên công thức: decodedAccessToken.exp - decodedAccessToken.iat
+  if (
+    param?.force ||
+    decodedAccessToken.exp - now <
+      (decodedAccessToken.exp - decodedAccessToken.iat) / 3
+  ) {
+    try {
+      const role = decodedRefreshToken.role;
+      const res =
+        role === Role.Guest
+          ? await guestApiRequest.refreshToken()
+          : await authApiRequest.refreshToken();
+      setAccessTokenToLocalStorage(res.payload.data.accessToken);
+      setRefreshTokenToLocalStorage(res.payload.data.refreshToken);
+      param?.onSuccess && param.onSuccess();
+    } catch (error) {
+      param?.onError && param.onError();
+    }
   }
 };

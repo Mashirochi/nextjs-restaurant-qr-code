@@ -1,14 +1,20 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { usePayGuestOrderMutation } from "@/lib/query/useOrder";
 import {
   OrderStatusIcon,
   formatCurrency,
   formatDateTimeToLocaleString,
   formatDateTimeToTimeString,
   getVietnameseOrderStatus,
+  handleErrorApi,
 } from "@/lib/utils";
+import envConfig from "@/lib/validateEnv";
 import { OrderStatus } from "@/type/constant";
-import { GetOrdersResType } from "@/type/schema/order.schema";
+import {
+  GetOrdersResType,
+  PayGuestOrdersResType,
+} from "@/type/schema/order.schema";
 import Image from "next/image";
 import { Fragment } from "react";
 
@@ -17,9 +23,11 @@ type Orders = GetOrdersResType["data"];
 export default function OrderGuestDetail({
   guest,
   orders,
+  onPaySuccess,
 }: {
   guest: Guest;
   orders: Orders;
+  onPaySuccess?: (data: PayGuestOrdersResType) => void;
 }) {
   const ordersFilterToPurchase = guest
     ? orders.filter(
@@ -31,6 +39,20 @@ export default function OrderGuestDetail({
   const purchasedOrderFilter = guest
     ? orders.filter((order) => order.status === OrderStatus.Paid)
     : [];
+  const payForGuestMutation = usePayGuestOrderMutation();
+
+  const pay = async () => {
+    if (payForGuestMutation.isPending || !guest) return;
+    try {
+      const res = await payForGuestMutation.mutateAsync({
+        guestId: guest.id,
+      });
+      onPaySuccess && onPaySuccess(res?.payload);
+    } catch (error) {
+      handleErrorApi({ error });
+      console.error("Error paying for guest orders:", error);
+    }
+  };
   return (
     <div className="space-y-2 text-sm">
       {guest && (
@@ -74,7 +96,7 @@ export default function OrderGuestDetail({
                 )}
               </span>
               <Image
-                src={order.dishSnapshot.image}
+                src={`${envConfig.NEXT_PUBLIC_API_ENDPOINT}/static/dishes/${order.dishSnapshot.image}`}
                 alt={order.dishSnapshot.name}
                 title={order.dishSnapshot.name}
                 width={30}
@@ -147,6 +169,7 @@ export default function OrderGuestDetail({
           size={"sm"}
           variant={"secondary"}
           disabled={ordersFilterToPurchase.length === 0}
+          onClick={pay}
         >
           Thanh toán tất cả ({ordersFilterToPurchase.length} đơn)
         </Button>
