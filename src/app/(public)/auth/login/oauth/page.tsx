@@ -2,8 +2,7 @@
 import { useSetTokenToCookieMutation } from "@/lib/query/useAuth";
 import { useAppStore } from "@/lib/store/app.store";
 import { decodeToken, generateSocketInstace } from "@/lib/utils";
-import { useSearchParams } from "next/navigation";
-import { useRouter } from "next/router";
+import { useSearchParams, useRouter } from "next/navigation";
 import { useEffect, useRef } from "react";
 import { toast } from "sonner";
 
