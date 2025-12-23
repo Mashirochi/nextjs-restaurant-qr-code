@@ -15,10 +15,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Form, FormField, FormItem, FormMessage } from "@/components/ui/form";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Link } from "lucide-react";
 import clsx from "clsx";
 import { useLoginMutation } from "@/lib/query/useAuth";
-import { handleErrorApi } from "@/lib/utils";
+import { getOauthGoogleUrl, handleErrorApi } from "@/lib/utils";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
@@ -58,6 +58,9 @@ export default function LoginForm() {
       });
     }
   };
+
+  //login with gg
+  const ggOauthUrl = getOauthGoogleUrl();
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
@@ -162,6 +165,7 @@ export default function LoginForm() {
                 className="w-full"
                 type="button"
                 tabIndex={4}
+                onClick={() => router.push(ggOauthUrl)}
               >
                 Đăng nhập bằng Google
               </Button>

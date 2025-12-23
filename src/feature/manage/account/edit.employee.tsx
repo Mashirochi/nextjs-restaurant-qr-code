@@ -14,7 +14,13 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Upload } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
-import { Form, FormField, FormItem, FormMessage } from "@/components/ui/form";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage,
+} from "@/components/ui/form";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Switch } from "@/components/ui/switch";
 import {
@@ -29,6 +35,14 @@ import {
 import envConfig from "@/lib/validateEnv";
 import { handleErrorApi } from "@/lib/utils";
 import { toast } from "sonner";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Role, RoleValues } from "@/type/constant";
 
 // Create a form-specific type that matches the expected structure
 type EditEmployeeFormValues = Omit<UpdateEmployeeAccountBodyType, "role"> & {
@@ -60,21 +74,18 @@ export default function EditEmployee({
       password: undefined,
       confirmPassword: undefined,
       changePassword: false,
-      role: undefined,
+      role: Role.Employee,
     },
   });
 
   const avatar = form.watch("avatar");
   const name = form.watch("name");
   const changePassword = form.watch("changePassword");
-  // Format the avatar URL to ensure it's correctly prefixed
   const formatAvatarUrl = (avatarUrl: string | undefined) => {
     if (!avatarUrl) return "";
-    // If it's already a full URL or already formatted, return as is
     if (avatarUrl.startsWith("http") || avatarUrl.startsWith("/static/")) {
       return avatarUrl;
     }
-    // Otherwise, prepend the API endpoint and static path
     return `${envConfig.NEXT_PUBLIC_API_ENDPOINT}/static/avatars/${avatarUrl}`;
   };
 
@@ -95,6 +106,7 @@ export default function EditEmployee({
         changePassword: false,
         password: form.getValues("password"),
         confirmPassword: form.getValues("confirmPassword"),
+        role: data.payload.data.role,
       });
     }
   }, [id, data, form]);
@@ -248,6 +260,40 @@ export default function EditEmployee({
                       <Label htmlFor="email">Email</Label>
                       <div className="col-span-3 w-full space-y-2">
                         <Input id="email" className="w-full" {...field} />
+                        <FormMessage />
+                      </div>
+                    </div>
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="role"
+                render={({ field }) => (
+                  <FormItem>
+                    <div className="grid grid-cols-4 items-center justify-items-start gap-4">
+                      <Label htmlFor="role">Vai trò</Label>
+                      <div className="col-span-3 w-full space-y-2">
+                        <Select
+                          onValueChange={field.onChange}
+                          value={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Chọn vai trò" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {RoleValues.map((role) => {
+                              if (role === Role.Guest) return null;
+                              return (
+                                <SelectItem key={role} value={role}>
+                                  {role}
+                                </SelectItem>
+                              );
+                            })}
+                          </SelectContent>
+                        </Select>
                         <FormMessage />
                       </div>
                     </div>

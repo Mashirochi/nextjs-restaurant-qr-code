@@ -25,3 +25,15 @@ export const useLogoutGuestMutation = () => {
     mutationFn: authApiRequest.logout,
   });
 };
+
+export const useRefreshTokenMutation = () => {
+  return useMutation({
+    mutationFn: authApiRequest.refreshToken,
+  });
+};
+
+export const useSetTokenToCookieMutation = () => {
+  return useMutation({
+    mutationFn: authApiRequest.setTokenToCookie,
+  });
+};
