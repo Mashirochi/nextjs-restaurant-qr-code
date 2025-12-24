@@ -18,9 +18,14 @@ import { Form, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { Eye, EyeOff, Link } from "lucide-react";
 import clsx from "clsx";
 import { useLoginMutation } from "@/lib/query/useAuth";
-import { getOauthGoogleUrl, handleErrorApi } from "@/lib/utils";
+import {
+  generateSocketInstance,
+  getOauthGoogleUrl,
+  handleErrorApi,
+} from "@/lib/utils";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { useAppStore } from "@/lib/store/app.store";
 
 export default function LoginForm() {
   const form = useForm<LoginBodyType>({
@@ -31,15 +36,28 @@ export default function LoginForm() {
     },
   });
   const loginMutation = useLoginMutation();
-
+  const setSocket = useAppStore((state) => state.setSocket);
+  const setRole = useAppStore((state) => state.setRole);
+  const setUser = useAppStore((state) => state.setUser);
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
-  // Updated onSubmit to handle form event
   const onSubmit = async (data: LoginBodyType) => {
     if (loginMutation.isPending) return;
     try {
       const res = await loginMutation.mutateAsync(data);
       if (res?.payload?.message) {
+        const { account, accessToken } = res.payload.data;
+        setUser({
+          id: account.id,
+          name: account.name,
+          email: account.email,
+        });
+
+        setRole(account.role);
+
+        // Set socket instance with the access token
+        setSocket(generateSocketInstance(accessToken));
+
         router.replace("/manage/dashboard");
         toast("Login succeed", {
           description: res.payload.message,
@@ -59,7 +77,6 @@ export default function LoginForm() {
     }
   };
 
-  //login with gg
   const ggOauthUrl = getOauthGoogleUrl();
 
   return (

@@ -1,5 +1,6 @@
 "use client";
 import { useLogoutMutation } from "@/lib/query/useAuth";
+import { useAppStore } from "@/lib/store/app.store";
 import { getRefreshTokenFromLocalStorage } from "@/lib/utils";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, Suspense } from "react";
@@ -10,6 +11,8 @@ const LogoutContent = () => {
   const ref = useRef<any>(null);
   const searchParams = useSearchParams();
   const refreshTokenFromUrl = searchParams.get("refreshToken");
+  const setRole = useAppStore((state) => state.setRole);
+  const disconnectSocket = useAppStore((state) => state.disconnectSocket);
 
   useEffect(() => {
     if (
@@ -23,6 +26,8 @@ const LogoutContent = () => {
       setTimeout(() => {
         ref.current == null;
       }, 1000);
+      setRole();
+      disconnectSocket();
       router.push("/auth/login");
     });
   }, [mutateAsync, refreshTokenFromUrl]);

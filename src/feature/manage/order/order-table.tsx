@@ -62,9 +62,9 @@ import EditOrder from "./edit-order";
 import { useGetOrderList, useUpdateOrderMutation } from "@/lib/query/useOrder";
 import { useGetTableList } from "@/lib/query/useTable";
 import TableSkeleton from "./table-skeleton";
-import socket from "@/lib/websocket/socket";
 import { toast } from "sonner";
 import { GuestCreateOrdersResType } from "@/type/schema/guest.schema";
+import { useAppStore } from "@/lib/store/app.store";
 
 export const OrderTableContext = createContext({
   setOrderIdEdit: (value: number | undefined) => {},
@@ -112,6 +112,7 @@ export default function OrderTable() {
     pageIndex,
     pageSize: PAGE_SIZE,
   });
+  const socket = useAppStore((state) => state.socket);
   const updateOrderMutation = useUpdateOrderMutation();
   const orderListQuery = useGetOrderList({
     fromDate,
@@ -179,12 +180,12 @@ export default function OrderTable() {
   };
 
   useEffect(() => {
-    if (socket.connected) {
+    if (socket?.connected) {
       onConnect();
     }
 
     function onConnect() {
-      console.log(socket.id);
+      console.log(socket?.id);
     }
 
     function onDisconnect() {}
@@ -227,18 +228,18 @@ export default function OrderTable() {
         refetchOrderList();
       }
     }
-    socket.on("connect", onConnect);
-    socket.on("update-order", onOrderUpdate);
-    socket.on("new-order", onNewOrder);
-    socket.on("payment", onPayment);
-    socket.on("disconnect", onDisconnect);
+    socket?.on("connect", onConnect);
+    socket?.on("update-order", onOrderUpdate);
+    socket?.on("new-order", onNewOrder);
+    socket?.on("payment", onPayment);
+    socket?.on("disconnect", onDisconnect);
 
     return () => {
-      socket.off("connect", onConnect);
-      socket.off("update-order", onOrderUpdate);
-      socket.off("new-order", onNewOrder);
-      socket.off("payment", onPayment);
-      socket.off("disconnect", onDisconnect);
+      socket?.off("connect", onConnect);
+      socket?.off("update-order", onOrderUpdate);
+      socket?.off("new-order", onNewOrder);
+      socket?.off("payment", onPayment);
+      socket?.off("disconnect", onDisconnect);
     };
   }, [refetchOrderList, fromDate, toDate]);
 

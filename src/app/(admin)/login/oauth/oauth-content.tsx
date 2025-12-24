@@ -1,7 +1,7 @@
 "use client";
 import { useSetTokenToCookieMutation } from "@/lib/query/useAuth";
 import { useAppStore } from "@/lib/store/app.store";
-import { decodeToken, generateSocketInstace } from "@/lib/utils";
+import { decodeToken, generateSocketInstance } from "@/lib/utils";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useEffect, useRef } from "react";
 import { toast } from "sonner";
@@ -24,7 +24,7 @@ export default function OauthContent() {
         mutateAsync({ accessToken, refreshToken })
           .then(() => {
             setRole(role);
-            setSocket(generateSocketInstace(accessToken));
+            setSocket(generateSocketInstance(accessToken));
             router.push("/manage/dashboard");
           })
           .catch((e) => {

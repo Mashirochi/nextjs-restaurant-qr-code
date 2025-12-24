@@ -9,6 +9,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { GuestLoginBody, GuestLoginBodyType } from "@/type/schema/guest.schema";
 import { useLoginGuestMutation } from "@/lib/query/useAuth";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { useAppStore } from "@/lib/store/app.store";
+import { generateSocketInstance } from "@/lib/utils";
 
 export default function GuestLoginForm() {
   const params = useParams<{ number: string }>();
@@ -25,10 +27,15 @@ export default function GuestLoginForm() {
       tableNumber: tableNumber,
     },
   });
-
+  const setRole = useAppStore((state) => state.setRole);
+  const setSocket = useAppStore((state) => state.setSocket);
   const onSubmit = async (values: GuestLoginBodyType) => {
     try {
-      await loginGuestMutation.mutateAsync(values);
+      const res = await loginGuestMutation.mutateAsync(values);
+      setRole(res.payload.data.guest.role);
+      const socketInstance = await setSocket(
+        generateSocketInstance(res.payload.data.accessToken)
+      );
       router.push(`/menu`);
     } catch (error) {
       console.error("Login failed:", error);

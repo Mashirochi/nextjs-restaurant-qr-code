@@ -250,7 +250,7 @@ export const getOauthGoogleUrl = () => {
   return `${rootUrl}?${qs.toString()}`;
 };
 
-export const generateSocketInstace = (accessToken: string) => {
+export const generateSocketInstance = (accessToken: string) => {
   return io(envConfig.NEXT_PUBLIC_API_ENDPOINT, {
     auth: {
       Authorization: `Bearer ${accessToken}`,

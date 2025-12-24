@@ -6,9 +6,11 @@ import { Package2, PanelLeft } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { menuItems } from "./nav.links";
+import { useAppStore } from "@/lib/store/app.store";
 
 export default function MobileNavLinks() {
   const pathname = usePathname();
+  const role = useAppStore((state) => state.role);
   return (
     <Sheet>
       <SheetTrigger asChild>
@@ -28,6 +30,7 @@ export default function MobileNavLinks() {
           </Link>
           {menuItems.map((Item, index) => {
             const isActive = pathname === Item.href;
+            if (!Item.role.includes(role as "Owner" | "Employee")) return null;
             return (
               <Link
                 key={index}

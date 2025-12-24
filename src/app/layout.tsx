@@ -2,9 +2,10 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
-
 import "./globals.css";
 import ReactQueryProvider from "@/lib/react.query.provider";
+import RefreshToken from "@/feature/auth/refresh.token";
+import ListenLogoutSocket from "@/feature/auth/listen.logout.socket";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,6 +33,8 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <ReactQueryProvider>
+          <RefreshToken />
+          <ListenLogoutSocket />
           <ThemeProvider
             attribute="class"
             defaultTheme="system"

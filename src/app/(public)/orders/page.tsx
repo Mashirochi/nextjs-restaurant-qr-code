@@ -8,12 +8,12 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import envConfig from "@/lib/validateEnv";
 import { useEffect, useState } from "react";
-import socket from "@/lib/websocket/socket";
 import {
   PayGuestOrdersResType,
   UpdateOrderResType,
 } from "@/type/schema/order.schema";
 import { toast } from "sonner";
+import { useAppStore } from "@/lib/store/app.store";
 
 export default function OrdersPage() {
   const { data, isLoading, isError, error, refetch } = useGuestGetOrderList();
@@ -35,13 +35,15 @@ export default function OrdersPage() {
     }
   };
 
+  const socket = useAppStore((state) => state.socket);
+
   useEffect(() => {
-    if (socket.connected) {
+    if (socket?.connected) {
       onConnect();
     }
 
     function onConnect() {
-      console.log(socket.id);
+      console.log(socket?.id);
     }
 
     function onDisconnect() {}
@@ -68,16 +70,16 @@ export default function OrdersPage() {
       refetch();
     }
 
-    socket.on("connect", onConnect);
-    socket.on("update-order", onOrderUpdate);
-    socket.on("payment", onPayment);
-    socket.on("disconnect", onDisconnect);
+    socket?.on("connect", onConnect);
+    socket?.on("update-order", onOrderUpdate);
+    socket?.on("payment", onPayment);
+    socket?.on("disconnect", onDisconnect);
 
     return () => {
-      socket.off("connect", onConnect);
-      socket.off("update-order", onOrderUpdate);
-      socket.off("payment", onPayment);
-      socket.off("disconnect", onDisconnect);
+      socket?.off("connect", onConnect);
+      socket?.off("update-order", onOrderUpdate);
+      socket?.off("payment", onPayment);
+      socket?.off("disconnect", onDisconnect);
     };
   }, [refetch]);
 

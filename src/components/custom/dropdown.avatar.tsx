@@ -16,17 +16,22 @@ import { handleErrorApi } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { useAccountMe } from "@/lib/query/useAccount";
 import envConfig from "@/lib/validateEnv";
+import { useAppStore } from "@/lib/store/app.store";
 
 export default function DropdownAvatar() {
   const logoutMutation = useLogoutMutation();
   const router = useRouter();
   const { data } = useAccountMe();
   const account = data?.payload?.data;
+  const setRole = useAppStore((state) => state.setRole);
+  const disconnectSocket = useAppStore((state) => state.disconnectSocket);
 
   const logout = async () => {
     if (logoutMutation.isPending) return;
     try {
       await logoutMutation.mutateAsync();
+      setRole();
+      disconnectSocket();
       router.push("/");
     } catch (error) {
       handleErrorApi({ error });

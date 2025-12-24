@@ -17,49 +17,58 @@ import {
   Salad,
   Table,
 } from "lucide-react";
+import { Role } from "@/type/constant";
+import { useAppStore } from "@/lib/store/app.store";
 
 export const menuItems = [
   {
     title: "Dashboard",
     Icon: Home,
     href: "/manage/dashboard",
+    role: [Role.Owner, Role.Employee],
   },
   {
     title: "Đơn hàng",
     Icon: ShoppingCart,
     href: "/manage/orders",
+    role: [Role.Owner, Role.Employee],
   },
   {
     title: "Bàn ăn",
     Icon: Table,
     href: "/manage/tables",
+    role: [Role.Owner, Role.Employee],
   },
   {
     title: "Món ăn",
     Icon: Salad,
     href: "/manage/dishes",
+    role: [Role.Owner, Role.Employee],
   },
 
   {
     title: "Phân tích",
     Icon: LineChart,
     href: "/manage/analytics",
+    role: [Role.Owner, Role.Employee],
   },
   {
     title: "Nhân viên",
     Icon: Users2,
     href: "/manage/accounts",
+    role: [Role.Owner],
   },
   {
     title: "Setting",
     Icon: SettingsIcon,
     href: "/manage/setting",
+    role: [Role.Owner, Role.Employee],
   },
 ];
 
 export default function NavLinks() {
   const pathname = usePathname();
-
+  const role = useAppStore((state) => state.role);
   return (
     <TooltipProvider>
       <aside className="fixed inset-y-0 left-0 z-10 hidden w-14 flex-col border-r bg-background sm:flex">
@@ -74,6 +83,7 @@ export default function NavLinks() {
 
           {menuItems.map((Item, index) => {
             const isActive = pathname === Item.href;
+            if (!Item.role.includes(role as "Owner" | "Employee")) return null;
             return (
               <Tooltip key={index}>
                 <TooltipTrigger asChild>

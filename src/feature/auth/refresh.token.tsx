@@ -1,30 +1,66 @@
 "use client";
 
-import {
-  checkAndRefreshToken,
-  getRefreshTokenFromLocalStorage,
-} from "@/lib/utils";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useAppStore } from "@/lib/store/app.store";
+import { checkAndRefreshToken } from "@/lib/utils";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
 
+// Những page sau sẽ không check refesh token
+const UNAUTHENTICATED_PATH = [
+  "/auth/login",
+  "/auth/logout",
+  "/auth/refresh-token",
+];
 export default function RefreshToken() {
+  const pathname = usePathname();
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const refreshTokenFromUrl = searchParams.get("refreshToken");
-  const redirectPathname = searchParams.get("redirect");
+  const socket = useAppStore((state) => state.socket);
+  const disconnectSocket = useAppStore((state) => state.disconnectSocket);
+
   useEffect(() => {
-    if (
-      refreshTokenFromUrl &&
-      refreshTokenFromUrl === getRefreshTokenFromLocalStorage()
-    ) {
+    if (UNAUTHENTICATED_PATH.includes(pathname)) return;
+    let interval: any = null;
+    const onRefreshToken = (force?: boolean) => {
       checkAndRefreshToken({
-        onSuccess: () => {
-          router.push(redirectPathname || "/");
+        onError: () => {
+          clearInterval(interval);
+          disconnectSocket();
+          router.push("/auth/login");
         },
+        force,
       });
-    } else {
-      router.push("/");
+    };
+
+    onRefreshToken();
+    // Timeout interval phải bé hơn thời gian hết hạn của access token
+    // Ví dụ thời gian hết hạn access token là 10s thì 1s mình sẽ cho check 1 lần
+    const TIMEOUT = 1000;
+    interval = setInterval(onRefreshToken, TIMEOUT);
+
+    if (socket?.connected) {
+      onConnect();
     }
-  }, [router, refreshTokenFromUrl, redirectPathname]);
-  return <div>Refresh token....</div>;
+
+    function onConnect() {
+      console.log(socket?.id);
+    }
+
+    function onDisconnect() {
+      console.log("disconnect");
+    }
+
+    function onRefreshTokenSocket() {
+      onRefreshToken(true);
+    }
+    socket?.on("connect", onConnect);
+    socket?.on("disconnect", onDisconnect);
+    socket?.on("refresh-token", onRefreshTokenSocket);
+    return () => {
+      clearInterval(interval);
+      socket?.off("connect", onConnect);
+      socket?.off("disconnect", onDisconnect);
+      socket?.off("refresh-token", onRefreshTokenSocket);
+    };
+  }, [pathname, router, socket, disconnectSocket]);
+  return null;
 }
