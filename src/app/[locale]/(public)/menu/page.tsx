@@ -12,7 +12,7 @@ export default async function MenuPage({
 
   // Enable static rendering
   setRequestLocale(locale);
-  
+
   const res = await dishRequest.list({
     page: 1,
     take: 500,

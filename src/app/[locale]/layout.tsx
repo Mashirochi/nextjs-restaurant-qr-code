@@ -45,7 +45,7 @@ export default async function RootLayout({
 
   // Enable static rendering
   setRequestLocale(locale);
-  
+
   const messages = await getMessages();
   return (
     <html lang={locale} suppressHydrationWarning>
