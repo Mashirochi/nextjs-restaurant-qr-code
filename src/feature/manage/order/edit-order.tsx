@@ -39,18 +39,6 @@ import { DishesDialog } from "./dishes-dialog";
 import { useGetOrderById, useUpdateOrderMutation } from "@/lib/query/useOrder";
 import { toast } from "sonner";
 
-interface DishSnapshot {
-  id: number;
-  name: string;
-  virtualPrice: number;
-  basePrice: number;
-  image: string;
-  status: "Available" | "Unavailable" | "Hidden";
-  dishId: number | null;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
 export default function EditOrder({
   id,
   setId,
@@ -64,8 +52,10 @@ export default function EditOrder({
     DishListResType["data"][0] | null
   >(null);
   const updateOrderMutation = useUpdateOrderMutation();
-  const { data } = useGetOrderById(id!);
-
+  const { data } = useGetOrderById({
+    id: id as number,
+    enabled: Boolean(id),
+  });
   const form = useForm<UpdateOrderBodyType>({
     resolver: zodResolver(UpdateOrderBody),
     defaultValues: {

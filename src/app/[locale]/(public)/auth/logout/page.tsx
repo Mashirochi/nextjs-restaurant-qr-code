@@ -2,8 +2,9 @@
 import { useLogoutMutation } from "@/lib/query/useAuth";
 import { useAppStore } from "@/lib/store/app.store";
 import { getRefreshTokenFromLocalStorage } from "@/lib/utils";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "@/lib/i18n/navigation";
 import { useEffect, useRef, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 
 const LogoutContent = () => {
   const { mutateAsync } = useLogoutMutation();

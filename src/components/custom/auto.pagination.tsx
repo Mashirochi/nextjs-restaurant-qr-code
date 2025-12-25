@@ -8,7 +8,7 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { cn } from "@/lib/utils";
-import Link from "next/link";
+import { Link } from "@/lib/i18n/navigation";
 import { Button } from "../ui/button";
 import { ChevronLeft } from "lucide-react";
 interface Props {

@@ -8,9 +8,10 @@ import { Form, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { GuestLoginBody, GuestLoginBodyType } from "@/type/schema/guest.schema";
 import { useLoginGuestMutation } from "@/lib/query/useAuth";
-import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "@/lib/i18n/navigation";
 import { useAppStore } from "@/lib/store/app.store";
 import { generateSocketInstance } from "@/lib/utils";
+import { useParams, useSearchParams } from "next/navigation";
 
 export default function GuestLoginForm() {
   const params = useParams<{ number: string }>();

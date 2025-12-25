@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { Menu, Package2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -7,12 +6,27 @@ import NavItems from "@/components/custom/nav.items";
 import ModeToggle from "@/components/ui/mode-toggle";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import Footer from "@/components/custom/footer";
+import { Link } from "@/lib/i18n/navigation";
+import SwitchLanguage from "@/components/ui/switch-language";
+import { hasLocale } from "next-intl";
+import { notFound } from "next/navigation";
+import { setRequestLocale } from "next-intl/server";
+import { routing } from "@/lib/i18n/routing";
 
-export default function Layout({
+export default async function Layout({
   children,
+  params,
 }: Readonly<{
   children: React.ReactNode;
+  params: Promise<{ locale: string }>;
 }>) {
+  const { locale } = await params;
+  if (!hasLocale(routing.locales, locale)) {
+    notFound();
+  }
+
+  // Enable static rendering
+  setRequestLocale(locale);
   return (
     <div className="flex min-h-screen w-full flex-col relative">
       <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6">
@@ -61,7 +75,8 @@ export default function Layout({
             </DialogDescription>
           </SheetContent>
         </Sheet>
-        <div className="ml-auto">
+        <div className="ml-auto flex items-center gap-4">
+          <SwitchLanguage />
           <ModeToggle />
         </div>
       </header>

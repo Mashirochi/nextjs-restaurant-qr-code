@@ -31,7 +31,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import Link from "next/link";
+import { Link } from "@/lib/i18n/navigation";
 import { TableStatus, TableStatusValues } from "@/type/constant";
 import {
   UpdateTableBody,

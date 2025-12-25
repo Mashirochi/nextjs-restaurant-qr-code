@@ -2,9 +2,10 @@
 import { useSetTokenToCookieMutation } from "@/lib/query/useAuth";
 import { useAppStore } from "@/lib/store/app.store";
 import { decodeToken, generateSocketInstance } from "@/lib/utils";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useRouter } from "@/lib/i18n/navigation";
 import { useEffect, useRef } from "react";
 import { toast } from "sonner";
+import { useSearchParams } from "next/navigation";
 
 export default function OauthContent() {
   const { mutateAsync } = useSetTokenToCookieMutation();

@@ -15,10 +15,17 @@ export const useGetOrderList = (query: GetOrdersQueryParamsType) => {
   });
 };
 
-export const useGetOrderById = (id: number) => {
+export const useGetOrderById = ({
+  id,
+  enabled,
+}: {
+  id: number;
+  enabled: boolean;
+}) => {
   return useQuery({
-    queryKey: ["order-detail", id],
     queryFn: () => orderRequest.getOrderById(id),
+    queryKey: ["order-detail", id],
+    enabled,
   });
 };
 

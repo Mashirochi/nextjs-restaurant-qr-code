@@ -2,7 +2,7 @@
 import { useLogoutMutation } from "@/lib/query/useAuth";
 import { useAppStore } from "@/lib/store/app.store";
 import { handleErrorApi } from "@/lib/utils";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter } from "@/lib/i18n/navigation";
 import { useEffect } from "react";
 
 const UNAUTHENTICATED_PATH = ["/login", "/logout", "/refresh-token"];

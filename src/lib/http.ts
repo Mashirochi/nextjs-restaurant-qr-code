@@ -7,7 +7,7 @@ import {
 } from "@/lib/utils";
 import envConfig from "./validateEnv";
 import { LoginResType } from "@/type/schema/auth.schema";
-import { redirect } from "next/navigation";
+import { redirect } from "@/lib/i18n/navigation";
 type CustomOptions = Omit<RequestInit, "method"> & {
   baseUrl?: string | undefined;
 };
@@ -154,7 +154,11 @@ const request = async <Response>(
         const accessToken = (options?.headers as any)?.Authorization.split(
           "Bearer "
         )[1];
-        redirect(`/login?accessToken=${accessToken}`);
+        const locale = getCookie("NEXT_LOCALE") || "en";
+        redirect({
+          href: `/auth/login?accessToken=${accessToken}`,
+          locale,
+        });
       }
     } else {
       throw new HttpError(data);

@@ -10,10 +10,10 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
+import { Link } from "@/lib/i18n/navigation";
 import { useLogoutMutation } from "@/lib/query/useAuth";
 import { handleErrorApi } from "@/lib/utils";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/lib/i18n/navigation";
 import { useAccountMe } from "@/lib/query/useAccount";
 import envConfig from "@/lib/validateEnv";
 import { useAppStore } from "@/lib/store/app.store";

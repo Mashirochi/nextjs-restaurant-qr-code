@@ -35,7 +35,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { useSearchParams } from "next/navigation";
 import { AccountListResType, AccountType } from "@/type/schema/account.schema";
 import EditEmployee from "./edit.employee";
 import AddEmployee from "./add.employee";
@@ -47,6 +46,7 @@ import {
 import envConfig from "@/lib/validateEnv";
 import { toast } from "sonner";
 import { handleErrorApi } from "@/lib/utils";
+import { useSearchParams } from "next/navigation";
 
 type AccountItem = AccountListResType["data"][0];
 

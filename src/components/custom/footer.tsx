@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "@/lib/i18n/navigation";
 import {
   Facebook,
   Instagram,
@@ -14,13 +14,13 @@ export default function Footer() {
       <div className="container py-12 md:py-16 lg:py-20">
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
           {/* Company Info */}
-          <div className="space-y-4">
+          <div className="space-y-4 ml-5">
             <h3 className="text-lg font-semibold">Restaurant Name</h3>
             <p className="text-sm text-muted-foreground">
               Bringing you the finest dining experience with authentic flavors
               and exceptional service since 2010.
             </p>
-            <div className="flex space-x-4">
+            <div className="flex space-x-4 mt-1">
               <Link
                 href="#"
                 className="text-muted-foreground hover:text-foreground transition-colors"

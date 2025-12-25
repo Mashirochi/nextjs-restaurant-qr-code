@@ -15,8 +15,8 @@ import { RoleType } from "@/type/schema/jwt.type";
 import { Role } from "@/type/constant";
 import { useAppStore } from "@/lib/store/app.store";
 import { useLogoutMutation } from "@/lib/query/useAuth";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
+import { Link, useRouter } from "@/lib/i18n/navigation";
+import { useTranslations } from "next-intl";
 
 const menuItems: {
   title: string;
@@ -25,26 +25,26 @@ const menuItems: {
   hideWhenLogin?: boolean;
 }[] = [
   {
-    title: "Home",
+    title: "NavItem.home",
     href: "/",
   },
   {
-    title: "Menu",
+    title: "NavItem.menu",
     href: "/guest/menu",
     role: [Role.Guest],
   },
   {
-    title: "Orders",
+    title: "NavItem.orders",
     href: "/guest/orders",
     role: [Role.Guest],
   },
   {
-    title: "Login",
+    title: "NavItem.login",
     href: "/auth/login",
     hideWhenLogin: true,
   },
   {
-    title: "manage",
+    title: "NavItem.manage",
     href: "/manage/dashboard",
     role: [Role.Owner, Role.Employee],
   },
@@ -56,6 +56,7 @@ export default function NavItems({ className }: { className?: string }) {
   const disconnectSocket = useAppStore((state) => state.disconnectSocket);
   const logoutMutation = useLogoutMutation();
   const router = useRouter();
+  const t = useTranslations();
   const logout = async () => {
     if (logoutMutation.isPending) return;
     try {
@@ -81,7 +82,7 @@ export default function NavItems({ className }: { className?: string }) {
         if (isAuth || canShow) {
           return (
             <Link href={item.href} key={item.href} className={className}>
-              {item.title}
+              {t(item.title)}
             </Link>
           );
         }
@@ -90,22 +91,24 @@ export default function NavItems({ className }: { className?: string }) {
       {role && (
         <AlertDialog>
           <AlertDialogTrigger asChild>
-            <div>Logout</div>
+            <div>{t("NavItem.logout")}</div>
           </AlertDialogTrigger>
           <AlertDialogContent>
             <AlertDialogHeader>
               <AlertDialogTitle>
-                Are you sure you want to log out?
+                {t("NavItem.logoutDialog.logoutQuestion")}
               </AlertDialogTitle>
               <AlertDialogDescription>
-                Cancel to stay logged in.
+                {t("NavItem.logoutDialog.logoutCancel")}
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel>
-                Signing out may result in loss of your orders
+                {t("NavItem.logoutDialog.logoutConfirm")}
               </AlertDialogCancel>
-              <AlertDialogAction onClick={logout}>OK</AlertDialogAction>
+              <AlertDialogAction onClick={logout}>
+                {t("NavItem.logoutDialog.logoutCancel")}
+              </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>

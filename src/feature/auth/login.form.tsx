@@ -15,7 +15,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Form, FormField, FormItem, FormMessage } from "@/components/ui/form";
-import { Eye, EyeOff, Link } from "lucide-react";
+import { Eye, EyeOff } from "lucide-react";
 import clsx from "clsx";
 import { useLoginMutation } from "@/lib/query/useAuth";
 import {
@@ -24,8 +24,9 @@ import {
   handleErrorApi,
 } from "@/lib/utils";
 import { toast } from "sonner";
-import { useRouter } from "next/navigation";
+// import { useRouter } from "@/lib/i18n/navigation";
 import { useAppStore } from "@/lib/store/app.store";
+import { useRouter } from "@/lib/i18n/navigation";
 
 export default function LoginForm() {
   const form = useForm<LoginBodyType>({

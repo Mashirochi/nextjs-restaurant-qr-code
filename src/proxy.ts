@@ -1,12 +1,13 @@
-import { NextResponse, NextRequest } from "next/server";
+import { NextRequest } from "next/server";
 import { decodeToken } from "./lib/utils";
 import { Role } from "./type/constant";
+import createMiddleware from "next-intl/middleware";
 
-const guestPath = ["/guest"];
-const unAuthPath = ["/auth/login"];
-const managePath = ["/manage"];
+const guestPath = ["/vi/guest", "/en/guest"];
+const unAuthPath = ["/vi/auth/login", "/en/auth/login"];
+const managePath = ["/vi/manage", "/en/manage"];
+const onlyOwnerPath = ["/vi/manage/accounts", "/en/manage/accounts"];
 const privatePath = [...managePath, ...guestPath];
-const onlyOwnerPath = ["/manage/accounts"];
 
 // This function can be marked `async` if using `await` inside
 export function proxy(request: NextRequest) {
@@ -14,16 +15,28 @@ export function proxy(request: NextRequest) {
   const refreshToken = request.cookies.get("refreshToken")?.value;
   const { pathname } = request.nextUrl;
 
+  const handleI18nRouting = createMiddleware({
+    locales: ["en", "vi"],
+    defaultLocale: "en",
+  });
+
+  const response = handleI18nRouting(request);
+
   // Chưa đăng nhập thì không cho vào private path
   if (privatePath.some((path) => pathname.startsWith(path) && !refreshToken)) {
-    return NextResponse.redirect(new URL("/auth/login", request.url));
+    const url = new URL("/auth/login", request.url);
+    url.searchParams.set("redirect", pathname ?? "");
+    response.headers.set("x-middleware-rewrite", url.toString());
+    return response;
   }
 
   // Đăng nhập rồi thì không vào login nữa
   if (refreshToken) {
     // Đang ở trang login mà đã đăng nhập rồi
     if (unAuthPath.some((path) => pathname.startsWith(path))) {
-      return NextResponse.redirect(new URL("/", request.url));
+      const url = new URL("/", request.url);
+      response.headers.set("x-middleware-rewrite", url.toString());
+      return response;
     }
 
     // Đăng nhập rồi nhưng access token hết hạn
@@ -33,7 +46,8 @@ export function proxy(request: NextRequest) {
       const url = new URL("/api/auth/refresh-token", request.url);
       url.searchParams.set("refreshToken", refreshToken ?? "");
       url.searchParams.set("redirect", pathname ?? "");
-      return NextResponse.redirect(url);
+      response.headers.set("x-middleware-rewrite", url.toString());
+      return response;
     }
 
     // Không đúng role thì về trang chủ
@@ -54,15 +68,18 @@ export function proxy(request: NextRequest) {
       isGuestGoToManagePath ||
       isNotOwnerGoToOwnerPath
     ) {
-      return NextResponse.redirect(new URL("/", request.url));
+      const url = new URL("/", request.url);
+      response.headers.set("x-middleware-rewrite", url.toString());
+      return response;
     }
+    return response;
   }
 
   // Nếu không vào case nào thì cho middleware đi tiếp
-  return NextResponse.next();
+  return response;
 }
 
 // path need proxy
 export const config = {
-  matcher: ["/manage/:path*", "/auth/login"],
+  matcher: ["/", "/(vi|en)/:path*"],
 };

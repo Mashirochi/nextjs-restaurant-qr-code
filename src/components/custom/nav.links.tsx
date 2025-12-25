@@ -7,8 +7,9 @@ import {
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { Package2, Settings, Settings2, SettingsIcon } from "lucide-react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { Link } from "@/lib/i18n/navigation";
+
+import { usePathname } from "@/lib/i18n/navigation";
 import {
   Home,
   LineChart,
