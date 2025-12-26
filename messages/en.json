@@ -2,7 +2,29 @@
   "ErrorMessage": {
     "invalidEmail": "Invalid email",
     "required": "This field is required",
-    "minmaxPassword": "Password must be between 6 and 100 characters"
+    "minmaxPassword": "Password must be between 6 and 100 characters",
+    "invalidType": "Invalid type",
+    "unrecognizedKeys": "Unrecognized key(s) in object",
+    "invalidUnion": "Invalid input",
+    "invalidEnumValue": "Invalid enum value",
+    "invalidArguments": "Invalid function arguments",
+    "invalidReturnType": "Invalid function return type",
+    "invalidDate": "Invalid date",
+    "invalidString": "Invalid string",
+    "invalidUrl": "Invalid URL",
+    "tooSmall": {
+      "string": "String must contain at least {{minimum}} character(s)",
+      "number": "Number must be greater than or equal to {{minimum}}",
+      "array": "Array must contain at least {{minimum}} item(s)"
+    },
+    "tooBig": {
+      "string": "String must contain at most {{maximum}} character(s)",
+      "number": "Number must be less than or equal to {{maximum}}",
+      "array": "Array must contain at most {{maximum}} item(s)"
+    },
+    "custom": "Invalid input",
+    "notMultipleOf": "Number must be a multiple of {{multipleOf}}",
+    "default": "Invalid input"
   },
   "Brand": {
     "title": "Big Boy Restaurant",
@@ -30,7 +52,8 @@
   },
   "Common": {
     "noDishesAvailable": "No dishes available",
-    "checkBackLater": "Please check back later for our delicious offerings"
+    "checkBackLater": "Please check back later for our delicious offerings",
+    "loginFailed": "Login failed"
   },
   "Login": {
     "title": "Login",
@@ -64,15 +87,49 @@
   },
   "Orders": {
     "title": "Orders",
-    "description": "Manage orders"
+    "description": "Manage orders",
+    "myOrdersTitle": "My Orders",
+    "loadingOrders": "Loading order information...",
+    "orderUpdatedToast": "Order \"{{dishName}}\" (x{{quantity}}) has been updated to status: {{status}}",
+    "paymentSuccessToast": "Customer with name \"{{guestName}}\" at table {{tableNumber}} has successfully paid.",
+    "unknownGuestName": "Unknown Name",
+    "unknownTable": "Unknown",
+    "errorTitle": "Data Loading Error",
+    "errorLoadingOrders": "Could not load order information. Please try again later.",
+    "orderCount": "You have {{count}} orders",
+    "noOrders": "You have no orders",
+    "noOrdersTitle": "No Orders",
+    "noOrdersMessage": "You haven't placed any orders. Go to the menu to place an order!",
+    "quantity": "Quantity: {{count}}",
+    "totalPrice": "Total Price",
+    "unitPrice": "Unit Price",
+    "orderTime": "Ordered at: {{time}}",
+    "orderCode": "Order Code: #{{id}}"
   },
   "Setting": {
     "title": "Setting",
     "description": "Manage your account settings"
   },
+  "SettingTabs": {
+    "profileTab": "Profile Information",
+    "passwordTab": "Change Password",
+    "paymentTab": "Payment History",
+    "paymentTabEmpty": "Payment history will be displayed here"
+  },
   "Tables": {
     "title": "Tables",
     "description": "Manage tables"
+  },
+  "Analytics": {
+    "title": "Analytics",
+    "description": "Analyze metrics"
+  },
+  "OrderStatus": {
+    "Pending": "Pending",
+    "Processing": "Processing",
+    "Rejected": "Rejected",
+    "Delivered": "Delivered",
+    "Paid": "Paid"
   },
   "SwitchLanguage": {
     "title": "Switch language",
@@ -91,5 +148,113 @@
       "logoutCancel": "Cancel",
       "logoutConfirm": "Signing out may result in loss of your orders"
     }
+  },
+  "RefreshToken": {
+    "title": "Refresh token",
+    "description": "Refresh login token"
+  },
+  "Oauth": {
+    "title": "OAuth",
+    "description": "OAuth authentication"
+  },
+  "About": {
+    "title": "About Our Restaurant",
+    "description": "Discover our story, passion, and commitment to culinary excellence",
+    "ourStoryTitle": "Our Story",
+    "ourStoryIntro": "Founded with a passion for authentic flavors and exceptional dining experiences, our restaurant has been serving the community for over a decade. What started as a small family-owned establishment has grown into a beloved local favorite.",
+    "ourStoryMission": "Our journey began with a simple mission: to bring people together through delicious food, warm hospitality, and memorable experiences. Every dish we serve tells a story of tradition, innovation, and dedication to quality.",
+    "ourPhilosophyTitle": "Our Philosophy",
+    "ourPhilosophyIntro": "We believe that great food is more than just ingredients—it's about passion, craftsmanship, and respect for tradition. Our chefs combine time-honored techniques with modern innovation to create dishes that delight the senses.",
+    "ourPhilosophySustainability": "Sustainability and community are at the heart of everything we do. We source locally whenever possible, support regional farmers and producers, and strive to minimize our environmental impact.",
+    "meetOurTeamTitle": "Meet Our Team",
+    "chefTitle": "Chef Executive",
+    "chefSpecialty": "Master of Culinary Arts",
+    "chefDescription": "With over 20 years of experience, our executive chef brings creativity and expertise to every dish.",
+    "managerTitle": "General Manager",
+    "managerSpecialty": "Hospitality Expert",
+    "managerDescription": "Ensuring every guest has an exceptional experience is our manager's top priority.",
+    "pastryChefTitle": "Pastry Chef",
+    "pastryChefSpecialty": "Sweet Creations Specialist",
+    "pastryChefDescription": "Our pastry chef transforms simple ingredients into extraordinary desserts.",
+    "ourCommitmentTitle": "Our Commitment",
+    "qualityIngredientsTitle": "Quality Ingredients",
+    "qualityIngredientsDesc": "We source the finest ingredients from trusted suppliers and local farms. Our commitment to quality means we never compromise on freshness or flavor.",
+    "exceptionalServiceTitle": "Exceptional Service",
+    "exceptionalServiceDesc": "Our staff is trained to provide attentive, personalized service that makes every guest feel welcome and valued.",
+    "communityEngagementTitle": "Community Engagement",
+    "communityEngagementDesc": "We actively participate in local events and support community initiatives, believing that a strong restaurant is part of a strong community.",
+    "continuousInnovationTitle": "Continuous Innovation",
+    "continuousInnovationDesc": "While honoring traditional recipes, we constantly explore new flavors and techniques to keep our menu exciting and fresh.",
+    "visitUsTitle": "Visit Us Today",
+    "visitUsDescription": "Experience the perfect blend of tradition and innovation. Join us for an unforgettable culinary journey that celebrates the best of local flavors and international cuisine.",
+    "viewMenu": "View Our Menu",
+    "contactUs": "Contact Us"
+  },
+  "PrivacyPolicy": {
+    "title": "Privacy Policy",
+    "lastUpdated": "Last updated: 12/2025",
+    "introductionTitle": "Introduction",
+    "introductionDesc": "We respect your privacy and are committed to protecting your personal data. This privacy policy explains how we collect, use, and safeguard your information when you visit our website or use our services.",
+    "infoWeCollectTitle": "Information We Collect",
+    "infoWeCollectDesc": "We may collect, use, store and transfer different kinds of personal data about you which we have grouped together as follows:",
+    "identityData": "Identity Data including first name, last name, username or similar identifier",
+    "contactData": "Contact Data including billing address, delivery address, email address and telephone numbers",
+    "financialData": "Financial Data including bank account and payment card details",
+    "transactionData": "Transaction Data including details about payments to and from you and other details of products and services you have purchased from us",
+    "technicalData": "Technical Data including internet protocol (IP) address, your login data, browser type and version, time zone setting and location, browser plug-in types and versions, operating system and platform and other technology on the devices you use to access this website",
+    "profileData": "Profile Data including your username and password, purchases or orders made by you, your interests, preferences, feedback and survey responses",
+    "usageData": "Usage Data including information about how you use our website, products and services",
+    "marketingData": "Marketing and Communications Data including your preferences in receiving marketing from us and our third parties and your communication preferences",
+    "howWeUseTitle": "How We Use Your Information",
+    "howWeUseDesc": "We will only use your personal data when the law allows us to. Most commonly, we will use your personal data in the following circumstances:",
+    "contractUse": "Where we need to perform the contract we are about to enter into or have entered into with you",
+    "legalUse": "Where we need to comply with a legal or regulatory obligation",
+    "legitimateUse": "Where it is necessary for our legitimate interests (or those of a third party) and your interests and fundamental rights do not override those interests",
+    "consentUse": "Where we have your consent to do so",
+    "cookiesTitle": "Cookies",
+    "cookiesDesc": "We use cookies and similar tracking technologies to track the activity on our Service and store certain information. Cookies are files with small amount of data which may include an anonymous unique identifier.",
+    "dataSecurityTitle": "Data Security",
+    "dataSecurityDesc": "We have put in place appropriate security measures to prevent your personal data from being accidentally lost, used or accessed in an unauthorized way, altered or disclosed.",
+    "dataRetentionTitle": "Data Retention",
+    "dataRetentionDesc": "We will only retain your personal data for as long as necessary to fulfil the purposes we collected it for, including for the purposes of satisfying any legal, accounting, or reporting requirements.",
+    "legalRightsTitle": "Your Legal Rights",
+    "legalRightsDesc": "Under certain circumstances, you have rights under data protection laws in relation to your personal data, including the right to request access, correction, erasure, restriction, transfer, or to object to processing.",
+    "contactTitle": "Contact Us",
+    "contactDesc": "If you have any questions about this Privacy Policy, please contact us at:"
+  },
+  "TermsOfService": {
+    "title": "Terms of Service",
+    "lastUpdated": "Last updated: 12/2025",
+    "introductionTitle": "Introduction",
+    "introductionDesc": "Welcome to our restaurant services. These terms of service (\"Terms\") govern your access to and use of our website, mobile applications, and related services (collectively, the \"Services\").",
+    "introductionAgreement": "By accessing or using our Services, you agree to be bound by these Terms and all applicable laws and regulations. If you do not agree with any part of these Terms, you must not use our Services.",
+    "useOfServicesTitle": "Use of Services",
+    "useOfServicesDesc": "You agree to use our Services only for lawful purposes and in accordance with these Terms. You agree not to:",
+    "useOfServicesViolate": "Violate any applicable laws or regulations",
+    "useOfServicesInfringe": "Infringe upon the rights of others",
+    "useOfServicesHarmful": "Transmit any material that is harmful, offensive, or otherwise objectionable",
+    "useOfServicesUnauthorized": "Attempt to gain unauthorized access to our systems or networks",
+    "useOfServicesInterfere": "Interfere with the proper functioning of our Services",
+    "accountsTitle": "Accounts",
+    "accountsDesc": "When you create an account with us, you must provide accurate and complete information. You are responsible for maintaining the confidentiality of your account and password and for restricting access to your computer or device.",
+    "ordersAndPaymentsTitle": "Orders and Payments",
+    "ordersAndPaymentsDesc": "By placing an order through our Services, you are making an offer to purchase the selected items. All orders are subject to acceptance by us, and we reserve the right to refuse any order for any reason.",
+    "ordersAndPaymentsCharges": "You agree to pay all charges incurred by your account, including applicable taxes. We may automatically charge your selected payment method for orders placed through our Services.",
+    "intellectualPropertyTitle": "Intellectual Property",
+    "intellectualPropertyDesc": "All content included in or made available through our Services, such as text, graphics, logos, images, audio clips, digital downloads, data compilations, and software, is the property of our restaurant or its licensors and protected by copyright and other intellectual property laws.",
+    "limitationOfLiabilityTitle": "Limitation of Liability",
+    "limitationOfLiabilityDesc": "To the fullest extent permitted by law, our restaurant shall not be liable for any indirect, incidental, special, consequential or punitive damages, including without limitation, loss of profits, data, use, goodwill, or other intangible losses, resulting from:",
+    "limitationOfLiabilityAccess": "Your access to or use of or inability to access or use the Services",
+    "limitationOfLiabilityConduct": "Any conduct or content of any third party on the Services",
+    "limitationOfLiabilityContent": "Any content obtained from the Services",
+    "limitationOfLiabilityUnauthorized": "Unauthorized access, use or alteration of your transmissions or content",
+    "modificationsToServicesTitle": "Modifications to Services",
+    "modificationsToServicesDesc": "We reserve the right to modify, suspend, or discontinue our Services at any time without notice. We shall not be liable to you or any third party for any modification, suspension, or discontinuance of the Services.",
+    "governingLawTitle": "Governing Law",
+    "governingLawDesc": "These Terms shall be governed and construed in accordance with the laws of [Your Jurisdiction], without regard to its conflict of law provisions.",
+    "changesToTermsTitle": "Changes to Terms",
+    "changesToTermsDesc": "We reserve the right, at our sole discretion, to modify or replace these Terms at any time. If a revision is material, we will provide at least 30 days' notice prior to any new terms taking effect.",
+    "contactUsTitle": "Contact Us",
+    "contactUsDesc": "If you have any questions about these Terms, please contact us at:"
   }
 }

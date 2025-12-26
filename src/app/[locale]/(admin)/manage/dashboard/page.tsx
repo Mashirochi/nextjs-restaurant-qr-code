@@ -7,6 +7,21 @@ import {
 } from "@/components/ui/card";
 import DashboardMain from "@/feature/manage/dashboard/dashboard.main";
 import { setRequestLocale } from "next-intl/server";
+import { getTranslations } from "next-intl/server";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "Dashboard" });
+
+  return {
+    title: t("title"),
+    description: t("description"),
+  };
+}
 
 export default async function DashboardPage({
   params,
@@ -18,13 +33,15 @@ export default async function DashboardPage({
   // Enable static rendering
   setRequestLocale(locale);
 
+  const t = await getTranslations({ locale, namespace: "Dashboard" });
+
   return (
     <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8">
       <div className="space-y-2">
         <Card x-chunk="dashboard-06-chunk-0">
           <CardHeader>
-            <CardTitle>Dashboard</CardTitle>
-            <CardDescription>Phân tích các chỉ số</CardDescription>
+            <CardTitle>{t("title")}</CardTitle>
+            <CardDescription>{t("description")}</CardDescription>
           </CardHeader>
           <CardContent>
             <DashboardMain />

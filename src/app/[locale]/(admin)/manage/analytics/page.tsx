@@ -1,5 +1,3 @@
-import { Suspense } from "react";
-import OauthContentClient from "./oauth-content";
 import { setRequestLocale } from "next-intl/server";
 import { getTranslations } from "next-intl/server";
 
@@ -9,7 +7,7 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: "Oauth" });
+  const t = await getTranslations({ locale, namespace: "Analytics" });
 
   return {
     title: t("title"),
@@ -17,7 +15,7 @@ export async function generateMetadata({
   };
 }
 
-export default async function OauthPage({
+export default async function AnalyticsPage({
   params,
 }: {
   params: Promise<{ locale: string }>;
@@ -27,11 +25,7 @@ export default async function OauthPage({
   // Enable static rendering
   setRequestLocale(locale);
 
-  const t = await getTranslations({ locale, namespace: "Oauth" });
+  const t = await getTranslations({ locale, namespace: "Analytics" });
 
-  return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <OauthContentClient t={t} />
-    </Suspense>
-  );
+  return <div>{t("title")}</div>;
 }

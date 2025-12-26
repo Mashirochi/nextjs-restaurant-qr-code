@@ -2,7 +2,29 @@
   "ErrorMessage": {
     "invalidEmail": "Email không hợp lệ",
     "required": "Trường này không được để trống",
-    "minmaxPassword": "Mật khẩu phải từ 6 đến 100 ký tự"
+    "minmaxPassword": "Mật khẩu phải từ 6 đến 100 ký tự",
+    "invalidType": "Loại không hợp lệ",
+    "unrecognizedKeys": "Khóa không xác định trong đối tượng",
+    "invalidUnion": "Giá trị không hợp lệ",
+    "invalidEnumValue": "Giá trị enum không hợp lệ",
+    "invalidArguments": "Đối số hàm không hợp lệ",
+    "invalidReturnType": "Kiểu trả về của hàm không hợp lệ",
+    "invalidDate": "Ngày không hợp lệ",
+    "invalidString": "Chuỗi không hợp lệ",
+    "invalidUrl": "URL không hợp lệ",
+    "tooSmall": {
+      "string": "Chuỗi phải chứa ít nhất {{minimum}} ký tự",
+      "number": "Số phải lớn hơn hoặc bằng {{minimum}}",
+      "array": "Mảng phải chứa ít nhất {{minimum}} phần tử"
+    },
+    "tooBig": {
+      "string": "Chuỗi phải chứa tối đa {{maximum}} ký tự",
+      "number": "Số phải nhỏ hơn hoặc bằng {{maximum}}",
+      "array": "Mảng phải chứa tối đa {{maximum}} phần tử"
+    },
+    "custom": "Giá trị không hợp lệ",
+    "notMultipleOf": "Số phải là bội số của {{multipleOf}}",
+    "default": "Giá trị không hợp lệ"
   },
   "Brand": {
     "title": "Nhà hàng Big Boy",
@@ -30,7 +52,8 @@
   },
   "Common": {
     "noDishesAvailable": "Không có món ăn nào",
-    "checkBackLater": "Vui lòng quay lại sau để xem các món ăn ngon của chúng tôi"
+    "checkBackLater": "Vui lòng quay lại sau để xem các món ăn ngon của chúng tôi",
+    "loginFailed": "Đăng nhập thất bại"
   },
   "DishDetail": {
     "notFound": "Món ăn không tồn tại"
@@ -64,15 +87,49 @@
   },
   "Orders": {
     "title": "Đơn hàng",
-    "description": "Quản lý đơn hàng"
+    "description": "Quản lý đơn hàng",
+    "myOrdersTitle": "Đơn hàng của tôi",
+    "loadingOrders": "Đang tải thông tin đơn hàng...",
+    "orderUpdatedToast": "Đơn hàng \"{{dishName}}\" (x{{quantity}}) đã được cập nhật trạng thái: {{status}}",
+    "paymentSuccessToast": "Khách hàng với tên \"{{guestName}}\" tại bàn {{tableNumber}} đã thanh toán thành công.",
+    "unknownGuestName": "Không Biết Đặt Tên",
+    "unknownTable": "Không xác định",
+    "errorTitle": "Lỗi tải dữ liệu",
+    "errorLoadingOrders": "Không thể tải thông tin đơn hàng. Vui lòng thử lại sau.",
+    "orderCount": "Bạn có {{count}} đơn hàng",
+    "noOrders": "Bạn chưa có đơn hàng nào",
+    "noOrdersTitle": "Chưa có đơn hàng",
+    "noOrdersMessage": "Bạn chưa đặt bất kỳ món ăn nào. Hãy đến thực đơn để đặt món!",
+    "quantity": "Số lượng: {{count}}",
+    "totalPrice": "Giá tiền",
+    "unitPrice": "Đơn giá",
+    "orderTime": "Đặt lúc: {{time}}",
+    "orderCode": "Mã đơn: #{{id}}"
   },
   "Setting": {
     "title": "Cài đặt",
     "description": "Quản lý cài đặt tài khoản của bạn"
   },
+  "SettingTabs": {
+    "profileTab": "Thông tin tài khoản",
+    "passwordTab": "Đổi mật khẩu",
+    "paymentTab": "Lịch sử thanh toán",
+    "paymentTabEmpty": "Lịch sử thanh toán sẽ được hiển thị ở đây"
+  },
   "Tables": {
     "title": "Bàn ăn",
     "description": "Quản lý bàn ăn"
+  },
+  "Analytics": {
+    "title": "Phân tích",
+    "description": "Phân tích các chỉ số"
+  },
+  "OrderStatus": {
+    "Pending": "Chờ xử lý",
+    "Processing": "Đang chế biến",
+    "Rejected": "Đã hủy",
+    "Delivered": "Đã phục vụ",
+    "Paid": "Đã thanh toán"
   },
   "SwitchLanguage": {
     "title": "Chuyển ngôn ngữ",
@@ -91,5 +148,113 @@
       "logoutCancel": "Hủy",
       "logoutConfirm": "Đăng xuất có thể dẫn đến mất dữ liệu đơn hàng của bạn"
     }
+  },
+  "RefreshToken": {
+    "title": "Làm mới token",
+    "description": "Làm mới token đăng nhập"
+  },
+  "Oauth": {
+    "title": "OAuth",
+    "description": "Xác thực OAuth"
+  },
+  "About": {
+    "title": "Về nhà hàng của chúng tôi",
+    "description": "Khám phá câu chuyện, đam mê và cam kết với sự xuất sắc trong ẩm thực",
+    "ourStoryTitle": "Câu chuyện của chúng tôi",
+    "ourStoryIntro": "Được thành lập với niềm đam mê cho hương vị đích thực và trải nghiệm ẩm thực xuất sắc, nhà hàng của chúng tôi đã phục vụ cộng đồng hơn một thập kỷ. Từ một cơ sở nhỏ do gia đình điều hành, chúng tôi đã phát triển thành điểm đến yêu thích trong cộng đồng địa phương.",
+    "ourStoryMission": "Hành trình của chúng tôi bắt đầu với một sứ mệnh đơn giản: kết nối mọi người thông qua món ăn ngon, sự hiếu khách ấm áp và những trải nghiệm đáng nhớ. Mỗi món ăn chúng tôi phục vụ đều kể một câu chuyện về truyền thống, đổi mới và sự tận tụy.",
+    "ourPhilosophyTitle": "Tư tưởng của chúng tôi",
+    "ourPhilosophyIntro": "Chúng tôi tin rằng món ăn ngon không chỉ là nguyên liệu – đó là đam mê, kỹ thuật và sự tôn trọng truyền thống. Đầu bếp của chúng tôi kết hợp các kỹ thuật truyền thống với đổi mới hiện đại để tạo ra những món ăn làm hài lòng các giác quan.",
+    "ourPhilosophySustainability": "Bền vững và cộng đồng là cốt lõi trong tất cả những gì chúng tôi làm. Chúng tôi ưu tiên nguồn cung cấp địa phương khi có thể, hỗ trợ nông dân và nhà sản xuất trong khu vực, và nỗ lực giảm thiểu tác động môi trường.",
+    "meetOurTeamTitle": "Gặp gỡ đội ngũ của chúng tôi",
+    "chefTitle": "Đầu bếp trưởng",
+    "chefSpecialty": "Nghệ thuật ẩm thực",
+    "chefDescription": "Với hơn 20 năm kinh nghiệm, đầu bếp trưởng của chúng tôi mang lại sự sáng tạo và chuyên môn cho từng món ăn.",
+    "managerTitle": "Quản lý tổng",
+    "managerSpecialty": "Chuyên gia dịch vụ",
+    "managerDescription": "Đảm bảo mọi khách hàng có trải nghiệm đặc biệt là ưu tiên hàng đầu của quản lý chúng tôi.",
+    "pastryChefTitle": "Đầu bếp làm bánh",
+    "pastryChefSpecialty": "Chuyên gia sáng tạo món ngọt",
+    "pastryChefDescription": "Đầu bếp làm bánh của chúng tôi biến những nguyên liệu đơn giản thành những món tráng miệng tuyệt vời.",
+    "ourCommitmentTitle": "Cam kết của chúng tôi",
+    "qualityIngredientsTitle": "Nguyên liệu chất lượng",
+    "qualityIngredientsDesc": "Chúng tôi tìm nguồn nguyên liệu tốt nhất từ các nhà cung cấp đáng tin cậy và nông trại địa phương. Cam kết của chúng tôi với chất lượng có nghĩa là chúng tôi không bao giờ thỏa hiệp về độ tươi ngon hoặc hương vị.",
+    "exceptionalServiceTitle": "Dịch vụ xuất sắc",
+    "exceptionalServiceDesc": "Nhân viên của chúng tôi được đào tạo để cung cấp dịch vụ chu đáo, cá nhân hóa làm cho mọi khách hàng cảm thấy được chào đón và trân trọng.",
+    "communityEngagementTitle": "Gắn kết cộng đồng",
+    "communityEngagementDesc": "Chúng tôi tích cực tham gia vào các sự kiện địa phương và hỗ trợ các sáng kiến cộng đồng, tin rằng một nhà hàng mạnh là một phần của một cộng đồng mạnh mẽ.",
+    "continuousInnovationTitle": "Đổi mới liên tục",
+    "continuousInnovationDesc": "Trong khi tôn vinh các công thức truyền thống, chúng tôi liên tục khám phá hương vị và kỹ thuật mới để giữ cho thực đơn luôn thú vị và tươi mới.",
+    "visitUsTitle": "Ghé thăm chúng tôi ngay hôm nay",
+    "visitUsDescription": "Trải nghiệm sự kết hợp hoàn hảo giữa truyền thống và đổi mới. Hãy tham gia cùng chúng tôi cho một hành trình ẩm thực đáng nhớ tôn vinh những hương vị địa phương và ẩm thực quốc tế tốt nhất.",
+    "viewMenu": "Xem thực đơn",
+    "contactUs": "Liên hệ với chúng tôi"
+  },
+  "PrivacyPolicy": {
+    "title": "Chính sách bảo mật",
+    "lastUpdated": "Cập nhật lần cuối: 12/2025",
+    "introductionTitle": "Giới thiệu",
+    "introductionDesc": "Chúng tôi tôn trọng quyền riêng tư của bạn và cam kết bảo vệ dữ liệu cá nhân của bạn. Chính sách bảo mật này giải thích cách chúng tôi thu thập, sử dụng và bảo vệ thông tin của bạn khi bạn truy cập trang web của chúng tôi hoặc sử dụng dịch vụ của chúng tôi.",
+    "infoWeCollectTitle": "Thông tin chúng tôi thu thập",
+    "infoWeCollectDesc": "Chúng tôi có thể thu thập, sử dụng, lưu trữ và chuyển các loại dữ liệu cá nhân khác nhau về bạn mà chúng tôi đã nhóm lại như sau:",
+    "identityData": "Dữ liệu nhận dạng bao gồm tên đầu tiên, họ, tên người dùng hoặc định danh tương tự",
+    "contactData": "Dữ liệu liên hệ bao gồm địa chỉ thanh toán, địa chỉ giao hàng, địa chỉ email và số điện thoại",
+    "financialData": "Dữ liệu tài chính bao gồm chi tiết tài khoản ngân hàng và thẻ thanh toán",
+    "transactionData": "Dữ liệu giao dịch bao gồm chi tiết về các khoản thanh toán đến và đi từ bạn và các chi tiết khác về sản phẩm và dịch vụ mà bạn đã mua từ chúng tôi",
+    "technicalData": "Dữ liệu kỹ thuật bao gồm địa chỉ giao thức internet (IP), dữ liệu đăng nhập của bạn, loại và phiên bản trình duyệt, cài đặt múi giờ và vị trí, loại và phiên bản plugin trình duyệt, hệ điều hành và nền tảng và các công nghệ khác trên thiết bị bạn sử dụng để truy cập trang web này",
+    "profileData": "Dữ liệu hồ sơ bao gồm tên người dùng và mật khẩu của bạn, các đơn hàng đã mua bởi bạn, sở thích, sở thích, phản hồi và câu trả lời khảo sát của bạn",
+    "usageData": "Dữ liệu sử dụng bao gồm thông tin về cách bạn sử dụng trang web, sản phẩm và dịch vụ của chúng tôi",
+    "marketingData": "Dữ liệu tiếp thị và truyền thông bao gồm sở thích của bạn trong việc nhận tiếp thị từ chúng tôi và các bên thứ ba và tùy chọn truyền thông của bạn",
+    "howWeUseTitle": "Cách chúng tôi sử dụng thông tin của bạn",
+    "howWeUseDesc": "Chúng tôi sẽ chỉ sử dụng dữ liệu cá nhân của bạn khi luật pháp cho phép. Thông thường nhất, chúng tôi sẽ sử dụng dữ liệu cá nhân của bạn trong các trường hợp sau:",
+    "contractUse": "Khi chúng tôi cần thực hiện hợp đồng mà chúng tôi sắp hoặc đã ký với bạn",
+    "legalUse": "Khi chúng tôi cần tuân thủ nghĩa vụ pháp lý hoặc quy định",
+    "legitimateUse": "Khi cần thiết để bảo vệ lợi ích hợp pháp của chúng tôi (hoặc của bên thứ ba) và lợi ích và quyền cơ bản của bạn không lấn át những lợi ích đó",
+    "consentUse": "Khi chúng tôi có sự đồng ý của bạn để thực hiện",
+    "cookiesTitle": "Cookie",
+    "cookiesDesc": "Chúng tôi sử dụng cookie và các công nghệ theo dõi tương tự để theo dõi hoạt động trên Dịch vụ của chúng tôi và lưu trữ một số thông tin nhất định. Cookie là các tệp có lượng dữ liệu nhỏ có thể bao gồm một định danh duy nhất ẩn danh.",
+    "dataSecurityTitle": "Bảo mật dữ liệu",
+    "dataSecurityDesc": "Chúng tôi đã thực hiện các biện pháp bảo mật thích hợp để ngăn dữ liệu cá nhân của bạn bị mất, sử dụng, truy cập trái phép, thay đổi hoặc tiết lộ một cách tình cờ.",
+    "dataRetentionTitle": "Lưu trữ dữ liệu",
+    "dataRetentionDesc": "Chúng tôi sẽ chỉ lưu giữ dữ liệu cá nhân của bạn trong thời gian cần thiết để đạt được mục đích mà chúng tôi thu thập, bao gồm cả mục đích đáp ứng bất kỳ yêu cầu pháp lý, kế toán hoặc báo cáo nào.",
+    "legalRightsTitle": "Quyền lợi pháp lý của bạn",
+    "legalRightsDesc": "Trong một số trường hợp nhất định, bạn có quyền theo luật bảo vệ dữ liệu liên quan đến dữ liệu cá nhân của mình, bao gồm quyền yêu cầu truy cập, sửa chữa, xóa, hạn chế, chuyển hoặc phản đối việc xử lý.",
+    "contactTitle": "Liên hệ với chúng tôi",
+    "contactDesc": "Nếu bạn có bất kỳ câu hỏi nào về Chính sách bảo mật này, vui lòng liên hệ với chúng tôi tại:"
+  },
+  "TermsOfService": {
+    "title": "Điều khoản dịch vụ",
+    "lastUpdated": "Cập nhật lần cuối: 12/2025",
+    "introductionTitle": "Giới thiệu",
+    "introductionDesc": "Chào mừng bạn đến với dịch vụ nhà hàng của chúng tôi. Những điều khoản dịch vụ này (\"Điều khoản\") điều chỉnh quyền truy cập và sử dụng trang web, ứng dụng di động và các dịch vụ liên quan của chúng tôi (gọi chung là \"Dịch vụ\").",
+    "introductionAgreement": "Bằng cách truy cập hoặc sử dụng Dịch vụ của chúng tôi, bạn đồng ý bị ràng buộc bởi các Điều khoản này và tất cả các luật và quy định áp dụng. Nếu bạn không đồng ý với bất kỳ phần nào của các Điều khoản này, bạn không được sử dụng Dịch vụ của chúng tôi.",
+    "useOfServicesTitle": "Sử dụng dịch vụ",
+    "useOfServicesDesc": "Bạn đồng ý sử dụng Dịch vụ của chúng tôi chỉ cho các mục đích hợp pháp và theo đúng các Điều khoản này. Bạn đồng ý không:",
+    "useOfServicesViolate": "Vi phạm bất kỳ luật hoặc quy định nào áp dụng",
+    "useOfServicesInfringe": "Xâm phạm quyền của người khác",
+    "useOfServicesHarmful": "Gửi bất kỳ tài liệu nào có hại, gây phản cảm hoặc có thể phản đối khác",
+    "useOfServicesUnauthorized": "Cố gắng truy cập trái phép vào hệ thống hoặc mạng của chúng tôi",
+    "useOfServicesInterfere": "Can thiệp vào hoạt động đúng đắn của Dịch vụ của chúng tôi",
+    "accountsTitle": "Tài khoản",
+    "accountsDesc": "Khi bạn tạo tài khoản với chúng tôi, bạn phải cung cấp thông tin chính xác và đầy đủ. Bạn chịu trách nhiệm duy trì tính bảo mật của tài khoản và mật khẩu của mình và hạn chế quyền truy cập vào máy tính hoặc thiết bị của bạn.",
+    "ordersAndPaymentsTitle": "Đơn hàng và Thanh toán",
+    "ordersAndPaymentsDesc": "Bằng cách đặt hàng thông qua Dịch vụ của chúng tôi, bạn đang đưa ra đề nghị mua các mặt hàng đã chọn. Tất cả các đơn hàng đều phải được chúng tôi chấp nhận, và chúng tôi có quyền từ chối bất kỳ đơn hàng nào vì bất kỳ lý do nào.",
+    "ordersAndPaymentsCharges": "Bạn đồng ý thanh toán tất cả các khoản phí phát sinh trong tài khoản của mình, bao gồm các loại thuế áp dụng. Chúng tôi có thể tự động tính phí phương thức thanh toán đã chọn của bạn cho các đơn hàng được đặt thông qua Dịch vụ của chúng tôi.",
+    "intellectualPropertyTitle": "Sở hữu trí tuệ",
+    "intellectualPropertyDesc": "Tất cả nội dung được bao gồm hoặc có sẵn thông qua Dịch vụ của chúng tôi, chẳng hạn như văn bản, đồ họa, logo, hình ảnh, đoạn âm thanh, bản tải về kỹ thuật số, bản tổng hợp dữ liệu và phần mềm, đều là tài sản của nhà hàng chúng tôi hoặc các bên cấp phép của nó và được bảo vệ bởi luật bản quyền và các luật sở hữu trí tuệ khác.",
+    "limitationOfLiabilityTitle": "Hạn chế trách nhiệm pháp lý",
+    "limitationOfLiabilityDesc": "Theo đúng mức tối đa được pháp luật cho phép, nhà hàng của chúng tôi sẽ không chịu trách nhiệm đối với bất kỳ thiệt hại gián tiếp, ngẫu nhiên, đặc biệt, mang tính hệ quả hoặc trừng phạt nào, bao gồm nhưng không giới hạn, mất lợi nhuận, dữ liệu, quyền sử dụng, thiện chí hoặc các tổn thất vô hình khác, phát sinh từ:",
+    "limitationOfLiabilityAccess": "Việc bạn truy cập hoặc sử dụng hoặc không thể truy cập hoặc sử dụng Dịch vụ",
+    "limitationOfLiabilityConduct": "Bất kỳ hành vi hoặc nội dung nào của bên thứ ba nào trên Dịch vụ",
+    "limitationOfLiabilityContent": "Bất kỳ nội dung nào thu được từ Dịch vụ",
+    "limitationOfLiabilityUnauthorized": "Truy cập, sử dụng hoặc thay đổi trái phép các bản truyền hoặc nội dung của bạn",
+    "modificationsToServicesTitle": "Sửa đổi Dịch vụ",
+    "modificationsToServicesDesc": "Chúng tôi có quyền sửa đổi, tạm ngưng hoặc ngừng Dịch vụ của mình bất kỳ lúc nào mà không cần thông báo. Chúng tôi sẽ không chịu trách nhiệm với bạn hoặc bất kỳ bên thứ ba nào đối với bất kỳ sự sửa đổi, tạm ngưng hoặc ngừng cung cấp Dịch vụ nào.",
+    "governingLawTitle": "Luật điều chỉnh",
+    "governingLawDesc": "Những Điều khoản này sẽ được điều chỉnh và giải thích theo luật của [Khu vực của bạn], không tính đến các điều khoản xung đột pháp lý của nó.",
+    "changesToTermsTitle": "Thay đổi Điều khoản",
+    "changesToTermsDesc": "Chúng tôi có quyền, theo quyết định riêng của mình, sửa đổi hoặc thay thế những Điều khoản này bất kỳ lúc nào. Nếu sửa đổi là quan trọng, chúng tôi sẽ cung cấp ít nhất 30 ngày thông báo trước khi các điều khoản mới có hiệu lực.",
+    "contactUsTitle": "Liên hệ với chúng tôi",
+    "contactUsDesc": "Nếu bạn có bất kỳ câu hỏi nào về những Điều khoản này, vui lòng liên hệ với chúng tôi tại:"
   }
 }

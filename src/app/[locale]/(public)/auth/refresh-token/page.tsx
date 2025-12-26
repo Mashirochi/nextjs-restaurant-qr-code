@@ -1,16 +1,31 @@
 import RefreshToken from "@/feature/auth/refresh.token";
-import { Metadata } from "next";
 import { Suspense } from "react";
+import { getTranslations } from "next-intl/server";
 
-export const metadata: Metadata = {
-  title: "Refresh token redirect",
-  description: "Refresh token redirect",
-  robots: {
-    index: false,
-  },
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "RefreshToken" });
 
-export default function RefreshTokenPage() {
+  return {
+    title: t("title"),
+    description: t("description"),
+    robots: {
+      index: false,
+    },
+  };
+}
+
+export default async function RefreshTokenPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+
   return (
     <Suspense fallback={<div>Loading...</div>}>
       <RefreshToken />

@@ -1,74 +1,55 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Link } from "@/lib/i18n/navigation";
-import { setRequestLocale } from "next-intl/server";
+import { useTranslations } from "next-intl";
+import { getTranslations } from "next-intl/server";
 
-export default async function AboutPage({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}) {
-  const { locale } = await params;
+export async function generateMetadata() {
+  const t = await getTranslations("About");
+  return {
+    title: t("title"),
+    description: t("description"),
+  };
+}
 
-  // Enable static rendering
-  setRequestLocale(locale);
+export default function AboutPage() {
+  const t = useTranslations("About");
 
   return (
     <div className="container mx-auto py-8">
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold mb-4">About Our Restaurant</h1>
-          <p className="text-lg text-muted-foreground">
-            Discover our story, passion, and commitment to culinary excellence
-          </p>
+          <h1 className="text-4xl font-bold mb-4">{t("title")}</h1>
+          <p className="text-lg text-muted-foreground">{t("description")}</p>
         </div>
 
         <div className="grid gap-8 md:grid-cols-2 mb-12">
           <Card>
             <CardHeader>
-              <CardTitle className="text-2xl">Our Story</CardTitle>
+              <CardTitle className="text-2xl">{t("ourStoryTitle")}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <p>
-                Founded with a passion for authentic flavors and exceptional
-                dining experiences, our restaurant has been serving the
-                community for over a decade. What started as a small
-                family-owned establishment has grown into a beloved local
-                favorite.
-              </p>
-              <p>
-                Our journey began with a simple mission: to bring people
-                together through delicious food, warm hospitality, and memorable
-                experiences. Every dish we serve tells a story of tradition,
-                innovation, and dedication to quality.
-              </p>
+              <p>{t("ourStoryIntro")}</p>
+              <p>{t("ourStoryMission")}</p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-2xl">Our Philosophy</CardTitle>
+              <CardTitle className="text-2xl">
+                {t("ourPhilosophyTitle")}
+              </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <p>
-                We believe that great food is more than just ingredients—it's
-                about passion, craftsmanship, and respect for tradition. Our
-                chefs combine time-honored techniques with modern innovation to
-                create dishes that delight the senses.
-              </p>
-              <p>
-                Sustainability and community are at the heart of everything we
-                do. We source locally whenever possible, support regional
-                farmers and producers, and strive to minimize our environmental
-                impact.
-              </p>
+              <p>{t("ourPhilosophyIntro")}</p>
+              <p>{t("ourPhilosophySustainability")}</p>
             </CardContent>
           </Card>
         </div>
 
         <Card className="mb-12">
           <CardHeader>
-            <CardTitle className="text-2xl">Meet Our Team</CardTitle>
+            <CardTitle className="text-2xl">{t("meetOurTeamTitle")}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="grid gap-6 md:grid-cols-3">
@@ -76,38 +57,31 @@ export default async function AboutPage({
                 <div className="bg-muted rounded-full w-24 h-24 mx-auto mb-4 flex items-center justify-center">
                   <span className="text-4xl">👨‍🍳</span>
                 </div>
-                <h3 className="text-xl font-semibold">Chef Executive</h3>
-                <p className="text-muted-foreground">Master of Culinary Arts</p>
-                <p className="mt-2 text-sm">
-                  With over 20 years of experience, our executive chef brings
-                  creativity and expertise to every dish.
-                </p>
+                <h3 className="text-xl font-semibold">{t("chefTitle")}</h3>
+                <p className="text-muted-foreground">{t("chefSpecialty")}</p>
+                <p className="mt-2 text-sm">{t("chefDescription")}</p>
               </div>
 
               <div className="text-center">
                 <div className="bg-muted rounded-full w-24 h-24 mx-auto mb-4 flex items-center justify-center">
                   <span className="text-4xl">👩‍💼</span>
                 </div>
-                <h3 className="text-xl font-semibold">General Manager</h3>
-                <p className="text-muted-foreground">Hospitality Expert</p>
-                <p className="mt-2 text-sm">
-                  Ensuring every guest has an exceptional experience is our
-                  manager's top priority.
-                </p>
+                <h3 className="text-xl font-semibold">{t("managerTitle")}</h3>
+                <p className="text-muted-foreground">{t("managerSpecialty")}</p>
+                <p className="mt-2 text-sm">{t("managerDescription")}</p>
               </div>
 
               <div className="text-center">
                 <div className="bg-muted rounded-full w-24 h-24 mx-auto mb-4 flex items-center justify-center">
                   <span className="text-4xl">👩‍🍳</span>
                 </div>
-                <h3 className="text-xl font-semibold">Pastry Chef</h3>
+                <h3 className="text-xl font-semibold">
+                  {t("pastryChefTitle")}
+                </h3>
                 <p className="text-muted-foreground">
-                  Sweet Creations Specialist
+                  {t("pastryChefSpecialty")}
                 </p>
-                <p className="mt-2 text-sm">
-                  Our pastry chef transforms simple ingredients into
-                  extraordinary desserts.
-                </p>
+                <p className="mt-2 text-sm">{t("pastryChefDescription")}</p>
               </div>
             </div>
           </CardContent>
@@ -115,68 +89,54 @@ export default async function AboutPage({
 
         <Card className="mb-12">
           <CardHeader>
-            <CardTitle className="text-2xl">Our Commitment</CardTitle>
+            <CardTitle className="text-2xl">
+              {t("ourCommitmentTitle")}
+            </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="grid gap-6 md:grid-cols-2">
               <div>
                 <h3 className="text-xl font-semibold mb-3">
-                  Quality Ingredients
+                  {t("qualityIngredientsTitle")}
                 </h3>
-                <p>
-                  We source the finest ingredients from trusted suppliers and
-                  local farms. Our commitment to quality means we never
-                  compromise on freshness or flavor.
-                </p>
+                <p>{t("qualityIngredientsDesc")}</p>
               </div>
 
               <div>
                 <h3 className="text-xl font-semibold mb-3">
-                  Exceptional Service
+                  {t("exceptionalServiceTitle")}
                 </h3>
-                <p>
-                  Our staff is trained to provide attentive, personalized
-                  service that makes every guest feel welcome and valued.
-                </p>
+                <p>{t("exceptionalServiceDesc")}</p>
               </div>
 
               <div>
                 <h3 className="text-xl font-semibold mb-3">
-                  Community Engagement
+                  {t("communityEngagementTitle")}
                 </h3>
-                <p>
-                  We actively participate in local events and support community
-                  initiatives, believing that a strong restaurant is part of a
-                  strong community.
-                </p>
+                <p>{t("communityEngagementDesc")}</p>
               </div>
 
               <div>
                 <h3 className="text-xl font-semibold mb-3">
-                  Continuous Innovation
+                  {t("continuousInnovationTitle")}
                 </h3>
-                <p>
-                  While honoring traditional recipes, we constantly explore new
-                  flavors and techniques to keep our menu exciting and fresh.
-                </p>
+                <p>{t("continuousInnovationDesc")}</p>
               </div>
             </div>
           </CardContent>
         </Card>
 
         <div className="text-center">
-          <h2 className="text-3xl font-bold mb-6">Visit Us Today</h2>
+          <h2 className="text-3xl font-bold mb-6">{t("visitUsTitle")}</h2>
           <p className="text-lg mb-8 max-w-2xl mx-auto">
-            Experience the perfect blend of tradition and innovation. Join us
-            for an unforgettable culinary journey that celebrates the best of
-            local flavors and international cuisine.
+            {t("visitUsDescription")}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button asChild size="lg">
-              <Link href="/menu">View Our Menu</Link>
+              <Link href="/menu">{t("viewMenu")}</Link>
             </Button>
             <Button asChild size="lg" variant="outline">
-              <Link href="/contact">Contact Us</Link>
+              <Link href="/contact">{t("contactUs")}</Link>
             </Button>
           </div>
         </div>

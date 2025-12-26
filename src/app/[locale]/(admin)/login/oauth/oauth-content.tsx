@@ -7,7 +7,11 @@ import { useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { useSearchParams } from "next/navigation";
 
-export default function OauthContent() {
+type OauthContentProps = {
+  t: (key: string) => string;
+};
+
+export default function OauthContent({ t }: OauthContentProps) {
   const { mutateAsync } = useSetTokenToCookieMutation();
   const router = useRouter();
   const count = useRef(0);
@@ -29,7 +33,7 @@ export default function OauthContent() {
             router.push("/manage/dashboard");
           })
           .catch((e) => {
-            toast.error("Đăng nhập thất bại");
+            toast.error(t("loginFailed"));
             console.error(e);
           });
         count.current++;
@@ -37,7 +41,7 @@ export default function OauthContent() {
     } else {
       if (count.current === 0) {
         setTimeout(() => {
-          toast.error("Đăng nhập thất bại");
+          toast.error(t("loginFailed"));
         });
         count.current++;
       }
@@ -50,6 +54,7 @@ export default function OauthContent() {
     setSocket,
     message,
     mutateAsync,
+    t,
   ]);
   return null;
 }
