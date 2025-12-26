@@ -28,10 +28,11 @@ export default async function OauthPage({
   setRequestLocale(locale);
 
   const t = await getTranslations({ locale, namespace: "Oauth" });
+  const loginFailed = await getTranslations({ locale, namespace: "Common" });
 
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      <OauthContentClient t={t} />
+      <OauthContentClient loginFailedText={loginFailed("loginFailed")} />
     </Suspense>
   );
 }

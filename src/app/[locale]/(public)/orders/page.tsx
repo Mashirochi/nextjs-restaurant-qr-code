@@ -1,19 +1,3 @@
-"use client";
-
-import { useGuestGetOrderList } from "@/lib/query/useOrder";
-import { formatCurrency, getOrderStatusText } from "@/lib/utils";
-import { OrderStatus } from "@/type/constant";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import envConfig from "@/lib/validateEnv";
-import { useEffect, useState } from "react";
-import {
-  PayGuestOrdersResType,
-  UpdateOrderResType,
-} from "@/type/schema/order.schema";
-import { toast } from "sonner";
-import { useAppStore } from "@/lib/store/app.store";
 import { getTranslations } from "next-intl/server";
 import OrdersPageClient from "./orders-client";
 
@@ -44,7 +28,30 @@ export default async function OrdersPage({
     namespace: "OrderStatus",
   });
 
-  return (
-    <OrdersPageClient t={t} tCommon={tCommon} tOrderStatus={tOrderStatus} />
-  );
+  // Get all the translated strings on the server side
+  const translatedStrings = {
+    myOrdersTitle: t("myOrdersTitle"),
+    loadingOrders: t("loadingOrders"),
+    errorTitle: t("errorTitle"),
+    errorLoadingOrders: t("errorLoadingOrders"),
+    noOrders: t("noOrders"),
+    noOrdersTitle: t("noOrdersTitle"),
+    noOrdersMessage: t("noOrdersMessage"),
+    quantityTemplate: t("quantity", { count: 1 }), // Template with a sample value
+    totalPrice: t("totalPrice"),
+    unitPrice: t("unitPrice"),
+    unknownGuestName: t("unknownGuestName"),
+    unknownTable: t("unknownTable"),
+    orderTimeTemplate: t("orderTime", { time: "TIME_PLACEHOLDER" }), // Template with placeholder
+    orderCodeTemplate: t("orderCode", { id: 1 }), // Template with a sample value
+    orderCountTemplate: t("orderCount", { count: 1 }), // Template with a sample value
+    // Order status translations
+    pending: tOrderStatus("Pending"),
+    processing: tOrderStatus("Processing"),
+    rejected: tOrderStatus("Rejected"),
+    delivered: tOrderStatus("Delivered"),
+    paid: tOrderStatus("Paid"),
+  };
+
+  return <OrdersPageClient translations={translatedStrings} />;
 }

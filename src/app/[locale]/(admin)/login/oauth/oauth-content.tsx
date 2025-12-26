@@ -8,10 +8,10 @@ import { toast } from "sonner";
 import { useSearchParams } from "next/navigation";
 
 type OauthContentProps = {
-  t: (key: string) => string;
+  loginFailedText: string;
 };
 
-export default function OauthContent({ t }: OauthContentProps) {
+export default function OauthContent({ loginFailedText }: OauthContentProps) {
   const { mutateAsync } = useSetTokenToCookieMutation();
   const router = useRouter();
   const count = useRef(0);
@@ -33,7 +33,7 @@ export default function OauthContent({ t }: OauthContentProps) {
             router.push("/manage/dashboard");
           })
           .catch((e) => {
-            toast.error(t("loginFailed"));
+            toast.error(loginFailedText);
             console.error(e);
           });
         count.current++;
@@ -41,7 +41,7 @@ export default function OauthContent({ t }: OauthContentProps) {
     } else {
       if (count.current === 0) {
         setTimeout(() => {
-          toast.error(t("loginFailed"));
+          toast.error(loginFailedText);
         });
         count.current++;
       }
@@ -54,7 +54,7 @@ export default function OauthContent({ t }: OauthContentProps) {
     setSocket,
     message,
     mutateAsync,
-    t,
+    loginFailedText,
   ]);
   return null;
 }

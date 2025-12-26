@@ -15,15 +15,32 @@ import {
 import { toast } from "sonner";
 import { useAppStore } from "@/lib/store/app.store";
 type OrdersPageClientProps = {
-  t: (key: string, values?: Record<string, any>) => string;
-  tCommon: (key: string, values?: Record<string, any>) => string;
-  tOrderStatus: (key: string, values?: Record<string, any>) => string;
+  translations: {
+    myOrdersTitle: string;
+    loadingOrders: string;
+    errorTitle: string;
+    errorLoadingOrders: string;
+    noOrders: string;
+    noOrdersTitle: string;
+    noOrdersMessage: string;
+    quantityTemplate: string;
+    totalPrice: string;
+    unitPrice: string;
+    unknownGuestName: string;
+    unknownTable: string;
+    orderTimeTemplate: string;
+    orderCodeTemplate: string;
+    orderCountTemplate: string;
+    pending: string;
+    processing: string;
+    rejected: string;
+    delivered: string;
+    paid: string;
+  };
 };
 
 export default function OrdersPageClient({
-  t,
-  tCommon,
-  tOrderStatus,
+  translations,
 }: OrdersPageClientProps) {
   const { data, isLoading, isError, error, refetch } = useGuestGetOrderList();
 
@@ -59,12 +76,23 @@ export default function OrdersPageClient({
 
     function onOrderUpdate(data: UpdateOrderResType["data"]) {
       const { dishSnapshot, quantity, status } = data;
+      // Note: We need to handle dynamic order status translation differently
+      // since we don't have the translation function passed anymore
+      const statusText =
+        status === "Pending"
+          ? translations.pending
+          : status === "Processing"
+          ? translations.processing
+          : status === "Rejected"
+          ? translations.rejected
+          : status === "Delivered"
+          ? translations.delivered
+          : status === "Paid"
+          ? translations.paid
+          : status;
+
       toast.success(
-        `${t("orderUpdatedToast", {
-          dishName: dishSnapshot.name,
-          quantity,
-          status: tOrderStatus(status),
-        })}`
+        `Đơn hàng "${dishSnapshot.name}" (x${quantity}) đã được cập nhật trạng thái: ${statusText}`
       );
       refetch();
     }
@@ -72,10 +100,11 @@ export default function OrdersPageClient({
     function onPayment(data: PayGuestOrdersResType["data"]) {
       const { guest } = data[0];
       toast.success(
-        `${t("paymentSuccessToast", {
-          guestName: guest?.name ?? t("unknownGuestName"),
-          tableNumber: guest?.tableNumber ?? t("unknownTable"),
-        })}`
+        `Khách hàng với tên "${
+          guest?.name ?? translations.unknownGuestName
+        }" tại bàn ${
+          guest?.tableNumber ?? translations.unknownTable
+        } đã thanh toán thành công.`
       );
       refetch();
     }
@@ -91,14 +120,16 @@ export default function OrdersPageClient({
       socket?.off("payment", onPayment);
       socket?.off("disconnect", onDisconnect);
     };
-  }, [refetch, t, tOrderStatus]);
+  }, [refetch, translations]);
 
   if (isLoading) {
     return (
       <div className="container mx-auto py-8">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold mb-2">{t("myOrdersTitle")}</h1>
-          <p className="text-muted-foreground">{t("loadingOrders")}</p>
+          <h1 className="text-3xl font-bold mb-2">
+            {translations.myOrdersTitle}
+          </h1>
+          <p className="text-muted-foreground">{translations.loadingOrders}</p>
         </div>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {[...Array(3)].map((_, index) => (
@@ -126,13 +157,15 @@ export default function OrdersPageClient({
     return (
       <div className="container mx-auto py-8">
         <div className="text-center">
-          <h1 className="text-3xl font-bold mb-2">{t("myOrdersTitle")}</h1>
+          <h1 className="text-3xl font-bold mb-2">
+            {translations.myOrdersTitle}
+          </h1>
           <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-6 max-w-md mx-auto">
             <h3 className="font-semibold text-lg mb-2 text-destructive">
-              {t("errorTitle")}
+              {translations.errorTitle}
             </h3>
             <p className="text-destructive/80">
-              {(error as Error)?.message || t("errorLoadingOrders")}
+              {(error as Error)?.message || translations.errorLoadingOrders}
             </p>
           </div>
         </div>
@@ -145,11 +178,16 @@ export default function OrdersPageClient({
   return (
     <div className="container mx-auto py-8">
       <div className="text-center mb-8">
-        <h1 className="text-3xl font-bold mb-2">{t("myOrdersTitle")}</h1>
+        <h1 className="text-3xl font-bold mb-2">
+          {translations.myOrdersTitle}
+        </h1>
         <p className="text-muted-foreground">
           {orders.length > 0
-            ? t("orderCount", { count: orders.length })
-            : t("noOrders")}
+            ? translations.orderCountTemplate.replace(
+                "1",
+                orders.length.toString()
+              )
+            : translations.noOrders}
         </p>
       </div>
 
@@ -171,8 +209,12 @@ export default function OrdersPageClient({
               />
             </svg>
           </div>
-          <h3 className="text-xl font-semibold mb-2">{t("noOrdersTitle")}</h3>
-          <p className="text-muted-foreground mb-4">{t("noOrdersMessage")}</p>
+          <h3 className="text-xl font-semibold mb-2">
+            {translations.noOrdersTitle}
+          </h3>
+          <p className="text-muted-foreground mb-4">
+            {translations.noOrdersMessage}
+          </p>
         </div>
       ) : (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -193,13 +235,18 @@ export default function OrdersPageClient({
                     {order.dishSnapshot.name}
                   </CardTitle>
                   <p className="text-sm text-muted-foreground">
-                    {t("quantity", { count: order.quantity })}
+                    {translations.quantityTemplate.replace(
+                      "1",
+                      order.quantity.toString()
+                    )}
                   </p>
                 </div>
               </CardHeader>
               <CardContent className="flex-1">
                 <div className="flex justify-between items-center mb-2">
-                  <span className="font-medium">{t("totalPrice")}:</span>
+                  <span className="font-medium">
+                    {translations.totalPrice}:
+                  </span>
 
                   <div className="flex items-center gap-2">
                     {order?.dishSnapshot?.virtualPrice && (
@@ -219,7 +266,7 @@ export default function OrdersPageClient({
                 </div>
 
                 <div className="flex justify-between items-center mb-4">
-                  <span className="font-medium">{t("unitPrice")}:</span>
+                  <span className="font-medium">{translations.unitPrice}:</span>
 
                   <div className="flex items-center gap-1">
                     <span>{formatCurrency(order.dishSnapshot.basePrice)}</span>
@@ -230,15 +277,31 @@ export default function OrdersPageClient({
                   variant={getOrderStatusVariant(order.status) as any}
                   className="w-full justify-center py-2 text-sm"
                 >
-                  {tOrderStatus(order.status)}
+                  {order.status === "Pending"
+                    ? translations.pending
+                    : order.status === "Processing"
+                    ? translations.processing
+                    : order.status === "Rejected"
+                    ? translations.rejected
+                    : order.status === "Delivered"
+                    ? translations.delivered
+                    : order.status === "Paid"
+                    ? translations.paid
+                    : order.status}
                 </Badge>
                 <div className="mt-4 text-xs text-muted-foreground">
                   <p>
-                    {t("orderTime", {
-                      time: new Date(order.createdAt).toLocaleString("vi-VN"),
-                    })}
+                    {translations.orderTimeTemplate.replace(
+                      "TIME_PLACEHOLDER",
+                      new Date(order.createdAt).toLocaleString("vi-VN")
+                    )}
                   </p>
-                  <p>{t("orderCode", { id: order.id })}</p>
+                  <p>
+                    {translations.orderCodeTemplate.replace(
+                      "1",
+                      order.id.toString()
+                    )}
+                  </p>
                 </div>
               </CardContent>
             </Card>
