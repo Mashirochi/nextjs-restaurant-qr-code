@@ -146,7 +146,10 @@ export default function LetterTable({
             ) : (
               <TableRow>
                 <TableCell
-                  colSpan={columns(props).length}
+                  colSpan={
+                    columns({ idLabel, titleLabel, linkLabel, noLettersLabel })
+                      .length
+                  }
                   className="h-24 text-center"
                 >
                   {noLettersLabel}

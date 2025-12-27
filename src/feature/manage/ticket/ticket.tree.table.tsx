@@ -43,7 +43,7 @@ export const columns = (
     accessorKey: "date",
     header: () => props.dateLabel,
     cell: ({ row }) => (
-      <div>{new Date(row.original.date).toISOString().split('T')[0]}</div>
+      <div>{new Date(row.original.date).toISOString().split("T")[0]}</div>
     ),
   },
   {
@@ -156,7 +156,15 @@ export default function TicketTreeTable({
             ) : (
               <TableRow>
                 <TableCell
-                  colSpan={columns(props).length}
+                  colSpan={
+                    columns({
+                      idLabel,
+                      dateLabel,
+                      performedByLabel,
+                      notesLabel,
+                      noTicketsLabel,
+                    }).length
+                  }
                   className="h-24 text-center"
                 >
                   {noTicketsLabel}
