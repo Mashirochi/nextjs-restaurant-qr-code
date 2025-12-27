@@ -38,7 +38,7 @@ export default function OauthContent() {
       if (count.current === 0) {
         setTimeout(() => {
           toast.error("Login failed");
-          router.push("/login");
+          router.push("/auth/login");
         });
         count.current++;
       }

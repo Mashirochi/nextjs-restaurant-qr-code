@@ -50,6 +50,9 @@ const decrypt = (data: string): string => {
 const encryptedStorage = {
   getItem: (name: string): any => {
     try {
+      if (typeof window === "undefined" || !window.localStorage) {
+        return null;
+      }
       const str = window.localStorage.getItem(name);
       if (!str) return null;
       const decryptedStr = decrypt(str);
@@ -61,6 +64,9 @@ const encryptedStorage = {
   },
   setItem: (name: string, value: any): void => {
     try {
+      if (typeof window === "undefined" || !window.localStorage) {
+        return;
+      }
       const str = JSON.stringify(value);
       const encryptedStr = encrypt(str);
       window.localStorage.setItem(name, encryptedStr);
