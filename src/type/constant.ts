@@ -9,9 +9,15 @@ export const Role = {
   Owner: "Owner",
   Employee: "Employee",
   Guest: "Guest",
+  Pthao: "Pthao",
 } as const;
 
-export const RoleValues = [Role.Owner, Role.Employee, Role.Guest] as const;
+export const RoleValues = [
+  Role.Owner,
+  Role.Employee,
+  Role.Guest,
+  Role.Pthao,
+] as const;
 
 export const DishStatus = {
   Available: "Available",
@@ -54,3 +60,31 @@ export const OrderStatusValues = [
 ] as const;
 
 export const ManagerRoom = "manager" as const;
+
+export const DishType = {
+  ThitBo: "Thịt bò",
+  HaiSan: "Hải sản",
+  RauNam: "Rau & nấm",
+  ThitNoiTang: "Thịt nội tạng",
+  DauHuDoVien: "Đậu hũ & đồ viên",
+  Lau: "Lẩu",
+  Thit: "Thịt",
+  DauHuVaDoVien: "Đậu hũ và đồ viên",
+  My: "Mỳ",
+  HaCao: "Há cảo",
+  ThitHeoCuu: "Thịt heo & cừu",
+} as const;
+
+export const DishTypeValues = [
+  DishType.ThitBo,
+  DishType.HaiSan,
+  DishType.RauNam,
+  DishType.ThitNoiTang,
+  DishType.DauHuDoVien,
+  DishType.Lau,
+  DishType.Thit,
+  DishType.DauHuVaDoVien,
+  DishType.My,
+  DishType.HaCao,
+  DishType.ThitHeoCuu,
+] as const;

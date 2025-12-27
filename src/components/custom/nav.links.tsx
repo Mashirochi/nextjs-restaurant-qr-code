@@ -6,7 +6,13 @@ import {
   TooltipProvider,
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
-import { Package2, Settings, Settings2, SettingsIcon } from "lucide-react";
+import {
+  Package2,
+  Settings,
+  Settings2,
+  SettingsIcon,
+  TreePine,
+} from "lucide-react";
 import { Link } from "@/lib/i18n/navigation";
 
 import { usePathname } from "@/lib/i18n/navigation";
@@ -17,6 +23,8 @@ import {
   Users2,
   Salad,
   Table,
+  Ticket,
+  Mail,
 } from "lucide-react";
 import { Role } from "@/type/constant";
 import { useAppStore } from "@/lib/store/app.store";
@@ -60,10 +68,28 @@ export const menuItems = [
     role: [Role.Owner],
   },
   {
+    title: "NavItem.ticket",
+    Icon: Ticket,
+    href: "/manage/ticket",
+    role: [Role.Owner, Role.Employee],
+  },
+  {
+    title: "NavItem.cactus",
+    Icon: TreePine,
+    href: "/manage/cactus",
+    role: [Role.Owner, Role.Employee],
+  },
+  {
+    title: "NavItem.letter",
+    Icon: Mail,
+    href: "/manage/letter",
+    role: [Role.Owner, Role.Employee],
+  },
+  {
     title: "Setting",
     Icon: SettingsIcon,
     href: "/manage/setting",
-    role: [Role.Owner, Role.Employee],
+    role: [Role.Owner, Role.Employee, Role.Pthao],
   },
 ];
 

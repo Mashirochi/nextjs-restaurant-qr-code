@@ -143,6 +143,9 @@
     "login": "Đăng nhập",
     "logout": "Đăng xuất",
     "manage": "Quản lý",
+    "ticket": "Vé",
+    "cactus": "Xương rồng",
+    "letter": "Thư",
     "logoutDialog": {
       "logoutQuestion": "Bạn có chắc chắn muốn đăng xuất?",
       "logoutCancel": "Hủy",
@@ -256,5 +259,40 @@
     "changesToTermsDesc": "Chúng tôi có quyền, theo quyết định riêng của mình, sửa đổi hoặc thay thế những Điều khoản này bất kỳ lúc nào. Nếu sửa đổi là quan trọng, chúng tôi sẽ cung cấp ít nhất 30 ngày thông báo trước khi các điều khoản mới có hiệu lực.",
     "contactUsTitle": "Liên hệ với chúng tôi",
     "contactUsDesc": "Nếu bạn có bất kỳ câu hỏi nào về những Điều khoản này, vui lòng liên hệ với chúng tôi tại:"
+  },
+  "Ticket": {
+    "title": "Quản lý vé",
+    "description": "Gửi vé và quản lý yêu cầu hỗ trợ",
+    "sectionTitle": "Gửi vé mới",
+    "content": "Điền vào biểu mẫu để gửi vé hỗ trợ",
+    "emailLabel": "Email",
+    "emailPlaceholder": "Nhập địa chỉ email của bạn",
+    "contentLabel": "Nội dung",
+    "contentPlaceholder": "Mô tả vấn đề hoặc yêu cầu của bạn",
+    "imageUploadLabel": "Tải lên hình ảnh (tối đa 10)",
+    "submit": "Gửi vé",
+    "treeTitle": "Cây vé",
+    "id": "ID",
+    "date": "Ngày",
+    "performedBy": "Thực hiện bởi",
+    "notes": "Ghi chú",
+    "noTickets": "Không tìm thấy vé nào",
+    "letter": "Thư"
+  },
+  "Cactus": {
+    "title": "Quản lý xương rồng",
+    "description": "Quản lý các mục liên quan đến xương rồng",
+    "sectionTitle": "Mục xương rồng",
+    "content": "Nội dung trang quản lý xương rồng"
+  },
+  "Letter": {
+    "title": "Quản lý thư",
+    "description": "Quản lý thư từ và thư tín",
+    "sectionTitle": "Danh sách thư",
+    "id": "ID",
+    "titleColumn": "Tiêu đề",
+    "link": "Liên kết",
+    "noLetters": "Không tìm thấy thư nào",
+    "content": "Nội dung"
   }
 }

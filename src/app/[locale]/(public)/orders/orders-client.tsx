@@ -23,14 +23,10 @@ type OrdersPageClientProps = {
     noOrders: string;
     noOrdersTitle: string;
     noOrdersMessage: string;
-    quantityTemplate: string;
     totalPrice: string;
     unitPrice: string;
     unknownGuestName: string;
     unknownTable: string;
-    orderTimeTemplate: string;
-    orderCodeTemplate: string;
-    orderCountTemplate: string;
     pending: string;
     processing: string;
     rejected: string;
@@ -61,6 +57,7 @@ export default function OrdersPageClient({
     }
   };
 
+  console.log(translations);
   const socket = useAppStore((state) => state.socket);
 
   useEffect(() => {
@@ -174,7 +171,7 @@ export default function OrdersPageClient({
   }
 
   const orders = data?.payload?.data || [];
-
+  console.log("check orders", orders);
   return (
     <div className="container mx-auto py-8">
       <div className="text-center mb-8">
@@ -182,12 +179,7 @@ export default function OrdersPageClient({
           {translations.myOrdersTitle}
         </h1>
         <p className="text-muted-foreground">
-          {orders.length > 0
-            ? translations.orderCountTemplate.replace(
-                "1",
-                orders.length.toString()
-              )
-            : translations.noOrders}
+          {orders.length > 0 ? "" : translations.noOrders}
         </p>
       </div>
 
@@ -235,10 +227,7 @@ export default function OrdersPageClient({
                     {order.dishSnapshot.name}
                   </CardTitle>
                   <p className="text-sm text-muted-foreground">
-                    {translations.quantityTemplate.replace(
-                      "1",
-                      order.quantity.toString()
-                    )}
+                    {order.quantity}
                   </p>
                 </div>
               </CardHeader>
@@ -290,18 +279,12 @@ export default function OrdersPageClient({
                     : order.status}
                 </Badge>
                 <div className="mt-4 text-xs text-muted-foreground">
-                  <p>
+                  {/* <p>
                     {translations.orderTimeTemplate.replace(
                       "TIME_PLACEHOLDER",
                       new Date(order.createdAt).toLocaleString("vi-VN")
                     )}
-                  </p>
-                  <p>
-                    {translations.orderCodeTemplate.replace(
-                      "1",
-                      order.id.toString()
-                    )}
-                  </p>
+                  </p> */}
                 </div>
               </CardContent>
             </Card>

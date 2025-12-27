@@ -135,9 +135,6 @@ export default function AboutPage() {
             <Button asChild size="lg">
               <Link href="/menu">{t("viewMenu")}</Link>
             </Button>
-            <Button asChild size="lg" variant="outline">
-              <Link href="/contact">{t("contactUs")}</Link>
-            </Button>
           </div>
         </div>
       </div>

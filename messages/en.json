@@ -143,6 +143,9 @@
     "login": "Login",
     "logout": "Logout",
     "manage": "Manage",
+    "ticket": "Ticket",
+    "cactus": "Cactus",
+    "letter": "Letter",
     "logoutDialog": {
       "logoutQuestion": "Are you sure you want to log out?",
       "logoutCancel": "Cancel",
@@ -256,5 +259,40 @@
     "changesToTermsDesc": "We reserve the right, at our sole discretion, to modify or replace these Terms at any time. If a revision is material, we will provide at least 30 days' notice prior to any new terms taking effect.",
     "contactUsTitle": "Contact Us",
     "contactUsDesc": "If you have any questions about these Terms, please contact us at:"
+  },
+  "Ticket": {
+    "title": "Ticket Management",
+    "description": "Submit tickets and manage support requests",
+    "sectionTitle": "Submit New Ticket",
+    "content": "Fill out the form to submit a support ticket",
+    "emailLabel": "Email",
+    "emailPlaceholder": "Enter your email address",
+    "contentLabel": "Content",
+    "contentPlaceholder": "Describe your issue or request",
+    "imageUploadLabel": "Upload Images (up to 10)",
+    "submit": "Submit Ticket",
+    "treeTitle": "Ticket Tree",
+    "id": "ID",
+    "date": "Date",
+    "performedBy": "Performed By",
+    "notes": "Notes",
+    "noTickets": "No tickets found",
+    "letter": "Letter"
+  },
+  "Cactus": {
+    "title": "Cactus Management",
+    "description": "Manage cactus-related items",
+    "sectionTitle": "Cactus Section",
+    "content": "Cactus management page content"
+  },
+  "Letter": {
+    "title": "Letter Management",
+    "description": "Manage letters and correspondence",
+    "sectionTitle": "Letter List",
+    "id": "ID",
+    "titleColumn": "Title",
+    "link": "Link",
+    "noLetters": "No letters found",
+    "content": "Content"
   }
 }

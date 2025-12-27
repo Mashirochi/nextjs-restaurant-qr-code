@@ -1,10 +1,11 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import Image from "next/image";
 import {
   Sheet,
   SheetContent,
@@ -15,7 +16,7 @@ import {
 import { formatCurrency, getVietnameseDishStatus } from "@/lib/utils";
 import envConfig from "@/lib/validateEnv";
 import { DishStatus } from "@/type/constant";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { DishSchema, DishTypeValues } from "@/type/schema/dish.schema";
 import z from "zod";
 import { Funnel, ShoppingCart, Trash2 } from "lucide-react";
@@ -38,48 +39,18 @@ export default function MenuClient(props: Dish) {
   const [cart, setCart] = useState<Record<number, number>>({});
   const [selectedType, setSelectedType] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [displayedDishes, setDisplayedDishes] = useState<
-    z.infer<typeof DishSchema>[]
-  >(initialDishes.slice(0, 20));
   const [allDishes] = useState<z.infer<typeof DishSchema>[]>(initialDishes);
-  const [loadingMore, setLoadingMore] = useState(false);
   const { mutateAsync } = useGuestCreateOrderMutation();
-  const filteredDishes = displayedDishes.filter((dish) => {
-    const matchesType = selectedType ? dish.type === selectedType : true;
-    const matchesSearch = dish.name
-      .toLowerCase()
-      .includes(searchTerm.toLowerCase());
-    return matchesType && matchesSearch;
-  });
 
-  // Load more dishes when scrolling to bottom
-  const loadMoreDishes = useCallback(() => {
-    if (loadingMore || displayedDishes.length >= allDishes.length) return;
-
-    setLoadingMore(true);
-
-    // Simulate API delay
-    setTimeout(() => {
-      const currentLength = displayedDishes.length;
-      const nextDishes = allDishes.slice(currentLength, currentLength + 20);
-      setDisplayedDishes((prev) => [...prev, ...nextDishes]);
-      setLoadingMore(false);
-    }, 500);
-  }, [displayedDishes.length, allDishes, loadingMore]);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      if (
-        window.innerHeight + document.documentElement.scrollTop >=
-        document.documentElement.offsetHeight - 1000
-      ) {
-        loadMoreDishes();
-      }
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [loadMoreDishes]);
+  const filteredDishes = useMemo(() => {
+    return allDishes.filter((dish) => {
+      const matchesSearch = dish.name
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase());
+      const matchesType = selectedType === null || dish.type === selectedType;
+      return matchesSearch && matchesType;
+    });
+  }, [allDishes, searchTerm, selectedType]);
 
   const updateQuantity = (dishId: number, delta: number) => {
     setCart((prev) => {
@@ -104,12 +75,14 @@ export default function MenuClient(props: Dish) {
 
   const totalRealPrice = cartItems.reduce(
     (sum, item) =>
-      sum + Number(item.basePrice ?? item.virtualPrice) * item.quantity,
+      sum +
+      (Number(item.basePrice) || Number(item.virtualPrice)) * item.quantity,
     0
   );
 
   const totalVirtualPrice = cartItems.reduce(
-    (sum, item) => sum + Number(item.virtualPrice) * item.quantity,
+    (sum, item) =>
+      sum + Number(item.virtualPrice || item.basePrice) * item.quantity,
     0
   );
 
@@ -238,15 +211,15 @@ export default function MenuClient(props: Dish) {
                         <p className="font-medium">{item.name}</p>
                         <p className="text-sm text-muted-foreground">
                           {formatCurrency(
-                            Number(item.basePrice ?? item.virtualPrice)
+                            Number(item.basePrice) || Number(item.virtualPrice)
                           )}{" "}
                           x {item.quantity}
                         </p>
                       </div>
                       <p className="font-semibold">
                         {formatCurrency(
-                          Number(item.basePrice ?? item.virtualPrice) *
-                            item.quantity
+                          (Number(item.basePrice) ||
+                            Number(item.virtualPrice)) * item.quantity
                         )}
                       </p>
                     </div>
@@ -307,16 +280,25 @@ export default function MenuClient(props: Dish) {
               <Card key={uniqueKey} className="flex flex-col">
                 <CardHeader className="p-0">
                   <div className="relative">
-                    <Avatar className="w-full h-48 rounded-t-lg rounded-b-none">
-                      <AvatarImage
+                    <div className="w-full h-48 rounded-t-lg rounded-b-none relative">
+                      <Image
                         src={`${envConfig.NEXT_PUBLIC_API_ENDPOINT}/static/dishes/${dish.image}`}
                         alt={dish.name}
-                        className="object-cover w-full h-full"
+                        fill
+                        priority={index < 4}
+                        className="object-cover"
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                        placeholder="blur"
+                        blurDataURL={`data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjQ4IiB2aWV3Qm94PSIwIDAgNDAwIDQ4IiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iNDgiIGZpbGw9IiM5OTkiLz48L3N2Zz4=`}
                       />
-                      <AvatarFallback className="rounded-t-lg rounded-b-none bg-muted">
+                      <div
+                        className="absolute inset-0 flex items-center justify-center 
+     bg-black/40 opacity-0 hover:opacity-100 transition 
+     rounded-t-lg text-white text-sm"
+                      >
                         {dish.name}
-                      </AvatarFallback>
-                    </Avatar>
+                      </div>
+                    </div>
                     <Badge
                       className="absolute top-2 right-2"
                       variant={
@@ -334,14 +316,16 @@ export default function MenuClient(props: Dish) {
                   <div className="mt-4">
                     <p className="text-lg font-bold text-primary">
                       {formatCurrency(
-                        Number(dish.basePrice ?? dish.virtualPrice)
+                        Number(dish.basePrice) || Number(dish.virtualPrice)
                       )}
                     </p>
 
                     {dish.basePrice &&
                       Number(dish.basePrice) !== Number(dish.virtualPrice) && (
                         <p className="text-sm text-muted-foreground line-through">
-                          {formatCurrency(Number(dish.virtualPrice))}
+                          {formatCurrency(
+                            Number(dish.virtualPrice || dish.basePrice)
+                          )}
                         </p>
                       )}
                   </div>
@@ -427,14 +411,14 @@ export default function MenuClient(props: Dish) {
                       <p className="font-medium">{item.name}</p>
                       <p className="text-sm text-muted-foreground">
                         {formatCurrency(
-                          Number(item.basePrice ?? item.virtualPrice)
+                          Number(item.basePrice) || Number(item.virtualPrice)
                         )}{" "}
                         x {item.quantity}
                       </p>
                     </div>
                     <p className="font-semibold">
                       {formatCurrency(
-                        Number(item.basePrice ?? item.virtualPrice) *
+                        (Number(item.basePrice) || Number(item.virtualPrice)) *
                           item.quantity
                       )}
                     </p>

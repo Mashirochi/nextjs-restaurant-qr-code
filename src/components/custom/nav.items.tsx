@@ -30,12 +30,12 @@ const menuItems: {
   },
   {
     title: "NavItem.menu",
-    href: "/guest/menu",
+    href: "/menu",
     role: [Role.Guest],
   },
   {
     title: "NavItem.orders",
-    href: "/guest/orders",
+    href: "/orders",
     role: [Role.Guest],
   },
   {

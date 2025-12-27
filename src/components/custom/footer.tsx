@@ -75,14 +75,6 @@ export default function Footer() {
               </li>
               <li>
                 <Link
-                  href="/contact"
-                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  Contact
-                </Link>
-              </li>
-              <li>
-                <Link
                   href="/orders"
                   className="text-sm text-muted-foreground hover:text-foreground transition-colors"
                 >

@@ -7,11 +7,7 @@ import { useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { useSearchParams } from "next/navigation";
 
-type OauthContentProps = {
-  loginFailedText: string;
-};
-
-export default function OauthContent({ loginFailedText }: OauthContentProps) {
+export default function OauthContent() {
   const { mutateAsync } = useSetTokenToCookieMutation();
   const router = useRouter();
   const count = useRef(0);
@@ -33,7 +29,7 @@ export default function OauthContent({ loginFailedText }: OauthContentProps) {
             router.push("/manage/dashboard");
           })
           .catch((e) => {
-            toast.error(loginFailedText);
+            toast.error("Login failed");
             console.error(e);
           });
         count.current++;
@@ -41,7 +37,8 @@ export default function OauthContent({ loginFailedText }: OauthContentProps) {
     } else {
       if (count.current === 0) {
         setTimeout(() => {
-          toast.error(loginFailedText);
+          toast.error("Login failed");
+          router.push("/login");
         });
         count.current++;
       }
@@ -54,7 +51,6 @@ export default function OauthContent({ loginFailedText }: OauthContentProps) {
     setSocket,
     message,
     mutateAsync,
-    loginFailedText,
   ]);
   return null;
 }
