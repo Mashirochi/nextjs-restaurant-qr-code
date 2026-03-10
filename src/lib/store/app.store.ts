@@ -53,6 +53,9 @@ const encryptedStorage = {
       if (typeof window === "undefined" || !window.localStorage) {
         return null;
       }
+      if (typeof window === "undefined") {
+        return null;
+      }
       const str = window.localStorage.getItem(name);
       if (!str) return null;
       const decryptedStr = decrypt(str);

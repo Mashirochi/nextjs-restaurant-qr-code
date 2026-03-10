@@ -7,12 +7,19 @@ import { Link } from "@/lib/i18n/navigation";
 import { usePathname } from "@/lib/i18n/navigation";
 import { menuItems } from "./nav.links";
 import { useAppStore } from "@/lib/store/app.store";
+import { useState, useEffect } from "react";
 
 export default function MobileNavLinks() {
   const pathname = usePathname();
   const role = useAppStore((state) => state.role);
+  const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => {
+    setIsOpen(false);
+  }, [pathname]);
+
   return (
-    <Sheet>
+    <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>
         <Button size="icon" variant="outline" className="sm:hidden">
           <PanelLeft className="h-5 w-5" />
@@ -40,7 +47,7 @@ export default function MobileNavLinks() {
                   {
                     "text-foreground": isActive,
                     "text-muted-foreground": !isActive,
-                  }
+                  },
                 )}
               >
                 <Item.Icon className="h-5 w-5" />

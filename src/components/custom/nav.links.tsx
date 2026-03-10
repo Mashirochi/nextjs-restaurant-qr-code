@@ -23,8 +23,6 @@ import {
   Users2,
   Salad,
   Table,
-  Ticket,
-  Mail,
 } from "lucide-react";
 import { Role } from "@/type/constant";
 import { useAppStore } from "@/lib/store/app.store";
@@ -68,24 +66,6 @@ export const menuItems = [
     role: [Role.Owner],
   },
   {
-    title: "NavItem.ticket",
-    Icon: Ticket,
-    href: "/manage/ticket",
-    role: [Role.Owner, Role.Employee],
-  },
-  {
-    title: "NavItem.cactus",
-    Icon: TreePine,
-    href: "/manage/cactus",
-    role: [Role.Owner, Role.Employee],
-  },
-  {
-    title: "NavItem.letter",
-    Icon: Mail,
-    href: "/manage/letter",
-    role: [Role.Owner, Role.Employee],
-  },
-  {
     title: "Setting",
     Icon: SettingsIcon,
     href: "/manage/setting",
@@ -121,7 +101,7 @@ export default function NavLinks() {
                       {
                         "bg-accent text-accent-foreground": isActive,
                         "text-muted-foreground": !isActive,
-                      }
+                      },
                     )}
                   >
                     <Item.Icon className="h-5 w-5" />
@@ -144,7 +124,7 @@ export default function NavLinks() {
                     "bg-accent text-accent-foreground":
                       pathname === "/manage/setting",
                     "text-muted-foreground": pathname !== "/manage/setting",
-                  }
+                  },
                 )}
               >
                 <Settings className="h-5 w-5" />

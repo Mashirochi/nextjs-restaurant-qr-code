@@ -125,7 +125,7 @@ export const getVietnameseOrderStatus = (status: string) => {
   }
 };
 export const getTableLink = (tableNumber: number, token: string) => {
-  return `${envConfig.NEXT_PUBLIC_URL}/table/${tableNumber}?token=${token}`;
+  return `${envConfig.NEXT_PUBLIC_URL}/en/table/${tableNumber}?token=${token}`;
 };
 
 export const removeAccents = (str: string) => {

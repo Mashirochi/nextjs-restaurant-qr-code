@@ -26,7 +26,10 @@ export default function SwitchLanguage() {
         router.refresh();
       }}
     >
-      <SelectTrigger className="w-[140px]">
+      <SelectTrigger
+        aria-labelledby="language-switch-label"
+        className="w-[140px]"
+      >
         <SelectValue placeholder={t("title")} />
       </SelectTrigger>
       <SelectContent>

@@ -3,7 +3,7 @@ import { decodeToken } from "./lib/utils";
 import { Role } from "./type/constant";
 import createMiddleware from "next-intl/middleware";
 
-const guestPath = ["/vi/guest", "/en/guest"];
+const guestPath = ["/vi/guest", "/en/guest", "/vi/menu", "/en/menu"];
 const unAuthPath = ["/vi/auth/login", "/en/auth/login"];
 const managePath = ["/vi/manage", "/en/manage"];
 const onlyOwnerPath = ["/vi/manage/accounts", "/en/manage/accounts"];

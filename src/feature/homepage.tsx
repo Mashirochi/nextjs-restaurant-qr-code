@@ -10,6 +10,7 @@ import envConfig from "@/lib/validateEnv";
 import { z } from "zod";
 import { DishTypeValues } from "@/type/schema/dish.schema";
 import { useState } from "react";
+import Image from "next/image";
 
 interface HomeProps {
   dishList: z.infer<typeof DishSchema>[];
@@ -56,16 +57,20 @@ export default function Home(props: HomeProps) {
 
       {filteredDishList && filteredDishList.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {filteredDishList.map((dish) => {
+          {filteredDishList.map((dish, index) => {
             return (
               <Card key={dish.id} className="flex flex-col">
                 <CardHeader className="p-0">
                   <div className="relative">
                     <Avatar className="w-full h-48 rounded-t-lg rounded-b-none">
-                      <AvatarImage
+                      <Image
                         src={`${envConfig.NEXT_PUBLIC_API_ENDPOINT}/static/dishes/${dish.image}`}
                         alt={dish.name}
-                        className="object-cover w-full h-full"
+                        fill
+                        className="object-cover"
+                        priority={index === 0} // LCP image
+                        fetchPriority={index === 0 ? "high" : "auto"}
+                        sizes="(max-width: 768px) 100vw, 25vw"
                       />
                       <AvatarFallback className="rounded-t-lg rounded-b-none bg-muted">
                         {dish.name}

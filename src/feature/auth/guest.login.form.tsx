@@ -44,14 +44,14 @@ export default function GuestLoginForm() {
   };
 
   return (
-    <Card className="mx-auto max-w-sm">
+    <Card className="mx-auto w-full max-w-lg">
       <CardHeader>
         <CardTitle className="text-2xl">Gọi món</CardTitle>
       </CardHeader>
       <CardContent>
         <Form {...form}>
           <form
-            className="space-y-2 max-w-[600px] flex-shrink-0 w-full"
+            className="space-y-2 w-full"
             noValidate
             onSubmit={form.handleSubmit(onSubmit)}
           >
@@ -61,10 +61,10 @@ export default function GuestLoginForm() {
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <div className="grid gap-2">
+                    <div className="grid gap-2 min-h-[20px]">
                       <Label htmlFor="name">Tên khách hàng</Label>
                       <Input id="name" type="text" required {...field} />
-                      <FormMessage />
+                      <FormMessage className="min-h-[20px] text-sm text-destructive" />
                     </div>
                   </FormItem>
                 )}

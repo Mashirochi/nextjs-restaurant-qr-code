@@ -11,16 +11,16 @@ import {
 export default function Footer() {
   return (
     <footer className="border-t bg-background">
-      <div className="container py-12 md:py-16 lg:py-20">
-        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
+      <div className="w-full px-4 sm:px-6 lg:px-8 py-12 md:py-16 lg:py-20">
+        <div className="mx-auto max-w-7xl grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
           {/* Company Info */}
-          <div className="space-y-4 ml-5">
+          <div className="space-y-4 text-center sm:text-left">
             <h3 className="text-lg font-semibold">Restaurant Name</h3>
             <p className="text-sm text-muted-foreground">
               Bringing you the finest dining experience with authentic flavors
               and exceptional service since 2010.
             </p>
-            <div className="flex space-x-4 mt-1">
+            <div className="flex justify-center sm:justify-start space-x-4">
               <Link
                 href="#"
                 className="text-muted-foreground hover:text-foreground transition-colors"
@@ -46,38 +46,26 @@ export default function Footer() {
           </div>
 
           {/* Quick Links */}
-          <div className="space-y-4">
+          <div className="space-y-4 text-center sm:text-left">
             <h3 className="text-lg font-semibold">Quick Links</h3>
             <ul className="space-y-2">
               <li>
-                <Link
-                  href="/"
-                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                >
+                <Link href="/" className="footer-link">
                   Home
                 </Link>
               </li>
               <li>
-                <Link
-                  href="/menu"
-                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                >
+                <Link href="/menu" className="footer-link">
                   Menu
                 </Link>
               </li>
               <li>
-                <Link
-                  href="/about"
-                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                >
+                <Link href="/about" className="footer-link">
                   About Us
                 </Link>
               </li>
               <li>
-                <Link
-                  href="/orders"
-                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                >
+                <Link href="/orders" className="footer-link">
                   My Orders
                 </Link>
               </li>
@@ -85,38 +73,26 @@ export default function Footer() {
           </div>
 
           {/* Legal */}
-          <div className="space-y-4">
+          <div className="space-y-4 text-center sm:text-left">
             <h3 className="text-lg font-semibold">Legal</h3>
             <ul className="space-y-2">
               <li>
-                <Link
-                  href="/privacy-policy"
-                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                >
+                <Link href="/privacy-policy" className="footer-link">
                   Privacy Policy
                 </Link>
               </li>
               <li>
-                <Link
-                  href="/term-of-service"
-                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                >
+                <Link href="/term-of-service" className="footer-link">
                   Terms of Service
                 </Link>
               </li>
               <li>
-                <Link
-                  href="#"
-                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                >
+                <Link href="#" className="footer-link">
                   Cookie Policy
                 </Link>
               </li>
               <li>
-                <Link
-                  href="#"
-                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                >
+                <Link href="#" className="footer-link">
                   Refund Policy
                 </Link>
               </li>
@@ -124,23 +100,23 @@ export default function Footer() {
           </div>
 
           {/* Contact Info */}
-          <div className="space-y-4">
+          <div className="space-y-4 text-center sm:text-left">
             <h3 className="text-lg font-semibold">Contact Us</h3>
             <ul className="space-y-3">
-              <li className="flex items-start">
-                <MapPin className="h-5 w-5 mr-2 text-muted-foreground flex-shrink-0 mt-0.5" />
+              <li className="flex justify-center sm:justify-start items-start">
+                <MapPin className="h-5 w-5 mr-2 text-muted-foreground mt-0.5" />
                 <span className="text-sm text-muted-foreground">
                   123 Restaurant Street, Foodville, FC 12345
                 </span>
               </li>
-              <li className="flex items-center">
-                <Phone className="h-5 w-5 mr-2 text-muted-foreground flex-shrink-0" />
+              <li className="flex justify-center sm:justify-start items-center">
+                <Phone className="h-5 w-5 mr-2 text-muted-foreground" />
                 <span className="text-sm text-muted-foreground">
                   (123) 456-7890
                 </span>
               </li>
-              <li className="flex items-center">
-                <Mail className="h-5 w-5 mr-2 text-muted-foreground flex-shrink-0" />
+              <li className="flex justify-center sm:justify-start items-center">
+                <Mail className="h-5 w-5 mr-2 text-muted-foreground" />
                 <span className="text-sm text-muted-foreground">
                   info@restaurant.com
                 </span>
@@ -149,9 +125,10 @@ export default function Footer() {
           </div>
         </div>
 
+        {/* Bottom Bar */}
         <div className="border-t mt-12 pt-8 text-center">
           <p className="text-sm text-muted-foreground">
-            © {new Date().getFullYear()} Restaurant Name. All rights reserved.
+            {/* © {new Date().getFullYear()} Restaurant Name. All rights reserved. */}
           </p>
         </div>
       </div>
