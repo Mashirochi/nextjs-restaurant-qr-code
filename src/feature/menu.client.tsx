@@ -19,7 +19,7 @@ import { DishStatus } from "@/type/constant";
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { DishSchema, DishTypeValues } from "@/type/schema/dish.schema";
 import z from "zod";
-import { Funnel, ShoppingCart, Trash2 } from "lucide-react";
+import { Funnel, ShoppingCart, Trash2, Plus, Minus } from "lucide-react";
 import {
   Drawer,
   DrawerContent,
@@ -39,7 +39,13 @@ export default function MenuClient(props: Dish) {
   const [cart, setCart] = useState<Record<number, number>>({});
   const [selectedType, setSelectedType] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [allDishes] = useState<z.infer<typeof DishSchema>[]>(initialDishes);
+
+  const handleSelectType = (type: string | null) => {
+    setSelectedType(type);
+    setIsFilterOpen(false);
+  };
   const { mutateAsync } = useGuestCreateOrderMutation();
 
   const filteredDishes = useMemo(() => {
@@ -110,7 +116,7 @@ export default function MenuClient(props: Dish) {
         <p className="text-lg text-muted-foreground">Chọn món bạn yêu thích</p>
       </div>
 
-      <div className="mb-8 space-y-4">
+      <div className="sticky top-16 z-20 bg-background py-4 mb-8 space-y-4 border-b">
         <div className="relative flex items-center justify-center gap-2">
           <Input
             placeholder="Tìm kiếm món ăn..."
@@ -119,7 +125,7 @@ export default function MenuClient(props: Dish) {
             className="max-w-md mx-auto flex-grow"
           />
 
-          <Drawer>
+          <Drawer open={isFilterOpen} onOpenChange={setIsFilterOpen}>
             <DrawerTrigger asChild>
               <Button variant="outline" size="icon" className="md:hidden">
                 <Funnel className="h-4 w-4" />
@@ -132,7 +138,7 @@ export default function MenuClient(props: Dish) {
               <div className="p-4 space-y-2">
                 <Button
                   variant={selectedType === null ? "default" : "outline"}
-                  onClick={() => setSelectedType(null)}
+                  onClick={() => handleSelectType(null)}
                   className="w-full justify-start rounded-full"
                 >
                   Tất cả
@@ -141,7 +147,7 @@ export default function MenuClient(props: Dish) {
                   <Button
                     key={type}
                     variant={selectedType === type ? "default" : "outline"}
-                    onClick={() => setSelectedType(type)}
+                    onClick={() => handleSelectType(type)}
                     className="w-full justify-start rounded-full"
                   >
                     {type}
@@ -151,7 +157,7 @@ export default function MenuClient(props: Dish) {
             </DrawerContent>
           </Drawer>
 
-          <Sheet>
+          <Sheet open={isFilterOpen} onOpenChange={setIsFilterOpen}>
             <SheetTrigger asChild>
               <Button
                 variant="outline"
@@ -168,7 +174,7 @@ export default function MenuClient(props: Dish) {
               <div className="py-4 space-y-2">
                 <Button
                   variant={selectedType === null ? "default" : "outline"}
-                  onClick={() => setSelectedType(null)}
+                  onClick={() => handleSelectType(null)}
                   className="w-full justify-start rounded-full"
                 >
                   Tất cả
@@ -177,7 +183,7 @@ export default function MenuClient(props: Dish) {
                   <Button
                     key={type}
                     variant={selectedType === type ? "default" : "outline"}
-                    onClick={() => setSelectedType(type)}
+                    onClick={() => handleSelectType(type)}
                     className="w-full justify-start rounded-full"
                   >
                     {type}
@@ -272,7 +278,7 @@ export default function MenuClient(props: Dish) {
       </div>
 
       {filteredDishes && filteredDishes.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
           {filteredDishes.map((dish, index) => {
             const quantity = cart[dish.id] || 0;
             const uniqueKey = `${dish.id}-${index}`;
@@ -280,7 +286,7 @@ export default function MenuClient(props: Dish) {
               <Card key={uniqueKey} className="flex flex-col">
                 <CardHeader className="p-0">
                   <div className="relative">
-                    <div className="w-full h-48 rounded-t-lg rounded-b-none relative">
+                    <div className="w-full h-32 md:h-48 rounded-t-lg rounded-b-none relative">
                       <Image
                         src={`${envConfig.NEXT_PUBLIC_API_ENDPOINT}/static/dishes/${dish.image}`}
                         alt={dish.name}
@@ -311,10 +317,13 @@ export default function MenuClient(props: Dish) {
                     </Badge>
                   </div>
                 </CardHeader>
-                <CardContent className="flex-grow p-4">
-                  <CardTitle className="mb-2">{dish.name}</CardTitle>
-                  <div className="mt-4">
-                    <p className="text-lg font-bold text-primary">
+                <CardContent className="flex-grow p-3 md:p-4">
+                  <CardTitle className="text-sm md:text-lg line-clamp-2">{dish.name}</CardTitle>
+                </CardContent>
+
+                <div className="p-3 pt-0 md:p-4 md:pt-0 flex items-center justify-between">
+                  <div className="flex flex-col">
+                    <p className="text-sm md:text-lg font-bold text-primary">
                       {formatCurrency(
                         Number(dish.basePrice) || Number(dish.virtualPrice)
                       )}
@@ -322,43 +331,42 @@ export default function MenuClient(props: Dish) {
 
                     {dish.basePrice &&
                       Number(dish.basePrice) !== Number(dish.virtualPrice) && (
-                        <p className="text-sm text-muted-foreground line-through">
+                        <p className="text-xs md:text-sm text-muted-foreground line-through">
                           {formatCurrency(
                             Number(dish.virtualPrice || dish.basePrice)
                           )}
                         </p>
                       )}
                   </div>
-                </CardContent>
-
-                <div className="p-4 pt-0">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
+                  <div className="shrink-0 ml-2">
+                    {quantity === 0 ? (
                       <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => updateQuantity(dish.id, -1)}
-                        disabled={quantity === 0}
-                      >
-                        -
-                      </Button>
-                      <span className="w-8 text-center">{quantity}</span>
-                      <Button
-                        size="sm"
-                        variant="outline"
+                        size="icon"
+                        className="h-8 w-8 rounded-full bg-orange-500 hover:bg-orange-600 text-white"
                         onClick={() => updateQuantity(dish.id, 1)}
                       >
-                        +
+                        <Plus className="h-4 w-4" />
                       </Button>
-                    </div>
-                    {quantity > 0 && (
-                      <Button
-                        size="sm"
-                        variant="destructive"
-                        onClick={() => updateQuantity(dish.id, -quantity)}
-                      >
-                        <Trash2 />
-                      </Button>
+                    ) : (
+                      <div className="flex items-center gap-1 bg-muted/50 rounded-full p-1">
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          className="h-6 w-6 rounded-full bg-background shadow-sm hover:bg-background/80"
+                          onClick={() => updateQuantity(dish.id, -1)}
+                        >
+                          <Minus className="h-3 w-3" />
+                        </Button>
+                        <span className="w-4 text-center text-xs md:text-sm font-medium">{quantity}</span>
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          className="h-6 w-6 rounded-full bg-orange-100 text-orange-600 hover:bg-orange-200"
+                          onClick={() => updateQuantity(dish.id, 1)}
+                        >
+                          <Plus className="h-3 w-3" />
+                        </Button>
+                      </div>
                     )}
                   </div>
                 </div>

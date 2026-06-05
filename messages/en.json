@@ -88,7 +88,7 @@
   "Orders": {
     "title": "Orders",
     "description": "Manage orders",
-    "myOrdersTitle": "My Orders",
+    "myOrdersTitle": "Ordered dishes",
     "loadingOrders": "Loading order information...",
     "orderUpdatedToast": "Order \"{{dishName}}\" (x{{quantity}}) has been updated to status: {{status}}",
     "paymentSuccessToast": "Customer with name \"{{guestName}}\" at table {{tableNumber}} has successfully paid.",
@@ -119,6 +119,10 @@
   "Tables": {
     "title": "Tables",
     "description": "Manage tables"
+  },
+  "Branches": {
+    "title": "Branches",
+    "description": "Manage branches"
   },
   "Analytics": {
     "title": "Analytics",

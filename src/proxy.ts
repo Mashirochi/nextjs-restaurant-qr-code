@@ -6,7 +6,12 @@ import createMiddleware from "next-intl/middleware";
 const guestPath = ["/vi/guest", "/en/guest", "/vi/menu", "/en/menu"];
 const unAuthPath = ["/vi/auth/login", "/en/auth/login"];
 const managePath = ["/vi/manage", "/en/manage"];
-const onlyOwnerPath = ["/vi/manage/accounts", "/en/manage/accounts"];
+const onlyOwnerPath = [
+  "/vi/manage/accounts",
+  "/en/manage/accounts",
+  "/vi/manage/branches",
+  "/en/manage/branches",
+];
 const privatePath = [...managePath, ...guestPath];
 
 // This function can be marked `async` if using `await` inside

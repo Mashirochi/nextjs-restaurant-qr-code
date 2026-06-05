@@ -112,3 +112,16 @@ export const CreateOrdersRes = z.object({
 });
 
 export type CreateOrdersResType = z.TypeOf<typeof CreateOrdersRes>;
+
+export const GetGuestBillQueryParams = z.object({
+  guestId: z.coerce.number().optional(),
+});
+
+export type GetGuestBillQueryParamsType = z.TypeOf<typeof GetGuestBillQueryParams>;
+
+export const GetGuestBillRes = z.object({
+  message: z.string(),
+  data: z.array(OrderSchema),
+});
+
+export type GetGuestBillResType = z.TypeOf<typeof GetGuestBillRes>;

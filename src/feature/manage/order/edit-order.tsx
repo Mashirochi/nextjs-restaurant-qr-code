@@ -225,7 +225,7 @@ export default function EditOrder({
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {OrderStatusValues.map((status) => (
+                          {OrderStatusValues.filter((status) => status !== OrderStatus.Paid).map((status) => (
                             <SelectItem key={status} value={status}>
                               {getVietnameseOrderStatus(status)}
                             </SelectItem>

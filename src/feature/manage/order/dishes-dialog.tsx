@@ -85,7 +85,17 @@ export function DishesDialog({
   onChoose: (dish: DishItem) => void;
 }) {
   const [open, setOpen] = useState(false);
-  const dishListQuery = useGetDishList();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+    }, 300);
+    return () => clearTimeout(handler);
+  }, [searchQuery]);
+
+  const dishListQuery = useGetDishList({ filter: { search: debouncedSearchQuery } });
   const data = dishListQuery.data?.payload?.data || [];
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -143,16 +153,9 @@ export function DishesDialog({
           <div className="w-full">
             <div className="flex items-center py-4">
               <Input
-                placeholder="Lọc tên"
-                value={
-                  (table.getColumn("dishName")?.getFilterValue() as string) ??
-                  ""
-                }
-                onChange={(event) =>
-                  table
-                    .getColumn("dishName")
-                    ?.setFilterValue(event.target.value)
-                }
+                placeholder="Tìm kiếm món ăn..."
+                value={searchQuery}
+                onChange={(event) => setSearchQuery(event.target.value)}
                 className="max-w-sm"
               />
             </div>

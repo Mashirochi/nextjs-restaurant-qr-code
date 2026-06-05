@@ -5,6 +5,7 @@ import { OrderSchema } from "./order.schema";
 export const GuestLoginBody = z
   .object({
     name: z.string().min(2).max(50),
+    phone: z.string().optional(),
     tableNumber: z.number(),
     token: z.string(),
   })

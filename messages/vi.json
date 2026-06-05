@@ -88,7 +88,7 @@
   "Orders": {
     "title": "Đơn hàng",
     "description": "Quản lý đơn hàng",
-    "myOrdersTitle": "Đơn hàng của tôi",
+    "myOrdersTitle": "Các món đã gọi",
     "loadingOrders": "Đang tải thông tin đơn hàng...",
     "orderUpdatedToast": "Đơn hàng \"{{dishName}}\" (x{{quantity}}) đã được cập nhật trạng thái: {{status}}",
     "paymentSuccessToast": "Khách hàng với tên \"{{guestName}}\" tại bàn {{tableNumber}} đã thanh toán thành công.",
@@ -119,6 +119,10 @@
   "Tables": {
     "title": "Bàn ăn",
     "description": "Quản lý bàn ăn"
+  },
+  "Branches": {
+    "title": "Chi nhánh",
+    "description": "Quản lý chi nhánh"
   },
   "Analytics": {
     "title": "Phân tích",

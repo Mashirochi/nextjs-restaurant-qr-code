@@ -50,8 +50,6 @@ export default function OrdersPageClient({
         return "destructive";
       case OrderStatus.Delivered:
         return "default";
-      case OrderStatus.Paid:
-        return "default";
       default:
         return "secondary";
     }
@@ -169,9 +167,7 @@ export default function OrdersPageClient({
       </div>
     );
   }
-
-  const orders = data?.payload?.data || [];
-  console.log("check orders", orders);
+const orders = data?.payload?.data || [];
   return (
     <div className="container mx-auto py-8">
       <div className="text-center mb-8">

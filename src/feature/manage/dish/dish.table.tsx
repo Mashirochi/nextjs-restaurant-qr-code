@@ -35,7 +35,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { useSearchParams } from "next/navigation";
 import { DishListResType, DishTypeValues } from "@/type/schema/dish.schema";
 import {
   formatCurrency,
@@ -213,26 +212,30 @@ function AlertDialogDeleteDish({
 // Số lượng item trên 1 trang
 const PAGE_SIZE = 10;
 export default function DishTable() {
-  const searchParam = useSearchParams();
-  const page = searchParam.get("page") ? Number(searchParam.get("page")) : 1;
-  const search = searchParam.get("search") || "";
-  const type = searchParam.get("type") || "";
-  const status = searchParam.get("status") || "";
+  const [currentPage, setCurrentPage] = useState(1);
 
   // Filter state
-  const [searchFilter, setSearchFilter] = useState(search);
-  const [typeFilter, setTypeFilter] = useState(type);
-  const [statusFilter, setStatusFilter] = useState(status);
+  const [searchFilter, setSearchFilter] = useState("");
+  const [debouncedSearchFilter, setDebouncedSearchFilter] = useState("");
+  const [typeFilter, setTypeFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearchFilter(searchFilter);
+    }, 300);
+    return () => clearTimeout(handler);
+  }, [searchFilter]);
 
   // Build filter object
   const filter = {
-    ...(searchFilter && { search: searchFilter }),
+    ...(debouncedSearchFilter && { search: debouncedSearchFilter }),
     ...(typeFilter && typeFilter !== "ALL" && { type: typeFilter }),
     ...(statusFilter && statusFilter !== "ALL" && { status: statusFilter }),
   };
 
   const dishListQuery = useGetDishList({
-    page,
+    page: currentPage,
     take: PAGE_SIZE,
     filter,
   });
@@ -245,7 +248,7 @@ export default function DishTable() {
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
   const [pagination, setPagination] = useState({
-    pageIndex: page - 1, // Gía trị mặc định ban đầu, không có ý nghĩa khi data được fetch bất đồng bộ
+    pageIndex: currentPage - 1, // Gía trị mặc định ban đầu, không có ý nghĩa khi data được fetch bất đồng bộ
     pageSize: PAGE_SIZE, //default page size
   });
 
@@ -273,49 +276,25 @@ export default function DishTable() {
 
   useEffect(() => {
     table.setPagination({
-      pageIndex: page - 1,
+      pageIndex: currentPage - 1,
       pageSize: PAGE_SIZE,
     });
-  }, [table, page]);
+  }, [table, currentPage]);
 
   // Handle filter changes
   const handleSearchChange = (value: string) => {
     setSearchFilter(value);
-    // Reset to first page when filter changes
-    const url = new URL(window.location.href);
-    url.searchParams.set("page", "1");
-    if (value) {
-      url.searchParams.set("search", value);
-    } else {
-      url.searchParams.delete("search");
-    }
-    window.history.replaceState({}, "", url.toString());
+    setCurrentPage(1);
   };
 
   const handleTypeChange = (value: string) => {
     setTypeFilter(value);
-    // Reset to first page when filter changes
-    const url = new URL(window.location.href);
-    url.searchParams.set("page", "1");
-    if (value && value !== "ALL") {
-      url.searchParams.set("type", value);
-    } else {
-      url.searchParams.delete("type");
-    }
-    window.history.replaceState({}, "", url.toString());
+    setCurrentPage(1);
   };
 
   const handleStatusChange = (value: string) => {
     setStatusFilter(value);
-    // Reset to first page when filter changes
-    const url = new URL(window.location.href);
-    url.searchParams.set("page", "1");
-    if (value && value !== "ALL") {
-      url.searchParams.set("status", value);
-    } else {
-      url.searchParams.delete("status");
-    }
-    window.history.replaceState({}, "", url.toString());
+    setCurrentPage(1);
   };
 
   return (
@@ -433,9 +412,11 @@ export default function DishTable() {
           </div>
           <div>
             <AutoPagination
-              page={table.getState().pagination.pageIndex + 1}
+              page={currentPage}
               pageSize={PAGE_SIZE}
               pathname="/manage/dishes"
+              isLink={false}
+              onClick={setCurrentPage}
             />
           </div>
         </div>

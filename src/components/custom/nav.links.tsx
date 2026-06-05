@@ -23,6 +23,7 @@ import {
   Users2,
   Salad,
   Table,
+  Receipt,
 } from "lucide-react";
 import { Role } from "@/type/constant";
 import { useAppStore } from "@/lib/store/app.store";
@@ -38,6 +39,12 @@ export const menuItems = [
     title: "Đơn hàng",
     Icon: ShoppingCart,
     href: "/manage/orders",
+    role: [Role.Owner, Role.Employee],
+  },
+  {
+    title: "Hóa đơn",
+    Icon: Receipt,
+    href: "/manage/bill",
     role: [Role.Owner, Role.Employee],
   },
   {
@@ -63,6 +70,12 @@ export const menuItems = [
     title: "Nhân viên",
     Icon: Users2,
     href: "/manage/accounts",
+    role: [Role.Owner],
+  },
+  {
+    title: "Chi nhánh",
+    Icon: TreePine,
+    href: "/manage/branches",
     role: [Role.Owner],
   },
   {

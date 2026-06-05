@@ -174,11 +174,13 @@ const orderTableColumns: ColumnDef<OrderItem>[] = [
             <SelectValue placeholder="Theme" />
           </SelectTrigger>
           <SelectContent>
-            {OrderStatusValues.map((status) => (
-              <SelectItem key={status} value={status}>
-                {getVietnameseOrderStatus(status)}
-              </SelectItem>
-            ))}
+            {OrderStatusValues.filter((status) => status !== OrderStatus.Paid).map(
+              (status) => (
+                <SelectItem key={status} value={status}>
+                  {getVietnameseOrderStatus(status)}
+                </SelectItem>
+              )
+            )}
           </SelectContent>
         </Select>
       );
@@ -215,19 +217,9 @@ const orderTableColumns: ColumnDef<OrderItem>[] = [
       };
 
       return (
-        <DropdownMenu modal={false}>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              {/* <DotsHorizontalIcon className='h-4 w-4' /> */}
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={openEditOrder}>Sửa</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <Button variant="outline" size="sm" onClick={openEditOrder}>
+          Sửa
+        </Button>
       );
     },
   },

@@ -12,6 +12,7 @@ import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormField, FormItem, FormMessage } from "@/components/ui/form";
+import { useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -20,7 +21,6 @@ import Image from "next/image";
 import { cn, formatCurrency, handleErrorApi } from "@/lib/utils";
 import { CreateOrdersBodyType } from "@/type/schema/order.schema";
 import { GetListGuestsResType } from "@/type/schema/account.schema";
-import { DishListResType } from "@/type/schema/dish.schema";
 import { GuestLoginBody, GuestLoginBodyType } from "@/type/schema/guest.schema";
 import { TablesDialog } from "./tables-dialog";
 import { DishStatus } from "@/type/constant";
@@ -38,7 +38,17 @@ export default function AddOrder() {
   >(null);
   const [isNewGuest, setIsNewGuest] = useState(true);
   const [orders, setOrders] = useState<CreateOrdersBodyType["orders"]>([]);
-  const dishListQuery = useGetDishList();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+    }, 300);
+    return () => clearTimeout(handler);
+  }, [searchQuery]);
+
+  const dishListQuery = useGetDishList({ filter: { search: debouncedSearchQuery } });
   const dishes = dishListQuery.data?.payload?.data || [];
 
   const createOrderMutation = useCreateOrderMutation();
@@ -194,6 +204,13 @@ export default function AddOrder() {
             </div>
           </div>
         )}
+        <div className="w-full">
+          <Input
+            placeholder="Tìm kiếm món ăn..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
         {dishes
           .filter((dish) => dish.status !== DishStatus.Hidden)
           .map((dish) => (

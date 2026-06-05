@@ -11,7 +11,13 @@ import { usePathname, useRouter } from "@/lib/i18n/navigation";
 import { Locale, locales } from "@/lib/validateEnv";
 import { useLocale, useTranslations } from "next-intl";
 
-export default function SwitchLanguage() {
+export default function SwitchLanguage({
+  className,
+  compact,
+}: {
+  className?: string;
+  compact?: boolean;
+}) {
   const t = useTranslations("SwitchLanguage");
   const locale = useLocale();
   const pathname = usePathname();
@@ -28,9 +34,13 @@ export default function SwitchLanguage() {
     >
       <SelectTrigger
         aria-labelledby="language-switch-label"
-        className="w-[140px]"
+        className={className || "w-[140px]"}
       >
-        <SelectValue placeholder={t("title")} />
+        {compact ? (
+          <span className="text-xs font-bold uppercase">{locale}</span>
+        ) : (
+          <SelectValue placeholder={t("title")} />
+        )}
       </SelectTrigger>
       <SelectContent>
         <SelectGroup>

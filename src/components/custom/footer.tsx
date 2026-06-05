@@ -66,7 +66,7 @@ export default function Footer() {
               </li>
               <li>
                 <Link href="/orders" className="footer-link">
-                  My Orders
+                  Các món đã gọi
                 </Link>
               </li>
             </ul>
