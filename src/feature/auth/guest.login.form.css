@@ -1,0 +1,34 @@
+@keyframes cart-shake {
+  0%, 100% {
+    transform: rotate(-12deg);
+  }
+
+  15% {
+    transform: rotate(-20deg);
+  }
+
+  30% {
+    transform: rotate(-4deg);
+  }
+
+  45% {
+    transform: rotate(-20deg);
+  }
+
+  60% {
+    transform: rotate(-4deg);
+  }
+
+  75% {
+    transform: rotate(-16deg);
+  }
+
+  90% {
+    transform: rotate(-12deg);
+  }
+}
+
+.animate-cart-shake {
+  animation: cart-shake 1s infinite;
+  transform-origin: top center;
+}

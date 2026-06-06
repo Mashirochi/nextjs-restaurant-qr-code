@@ -1,6 +1,7 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import authApiRequest from "../api/auth.request";
 import guestApiRequest from "../api/guest.request";
+import { UpdateGuestTableBodyType } from "@/type/schema/guest.schema";
 
 export const useLoginMutation = () => {
   return useMutation({
@@ -35,5 +36,24 @@ export const useRefreshTokenMutation = () => {
 export const useSetTokenToCookieMutation = () => {
   return useMutation({
     mutationFn: authApiRequest.setTokenToCookie,
+  });
+};
+
+export const useGetGuestTableStatus = (token: string) => {
+  return useQuery({
+    queryKey: ["guest-table-status", token],
+    queryFn: () => guestApiRequest.getTableStatus(token),
+    enabled: !!token,
+  });
+};
+
+export const useUpdateGuestTableMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ token, body }: { token: string; body: UpdateGuestTableBodyType }) =>
+      guestApiRequest.updateTableStatus(token, body),
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["guest-table-status", variables.token] });
+    }
   });
 };

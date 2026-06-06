@@ -12,6 +12,7 @@ import {
   Settings2,
   SettingsIcon,
   TreePine,
+  Bell,
 } from "lucide-react";
 import { Link } from "@/lib/i18n/navigation";
 
@@ -24,6 +25,7 @@ import {
   Salad,
   Table,
   Receipt,
+  MessageSquare,
 } from "lucide-react";
 import { Role } from "@/type/constant";
 import { useAppStore } from "@/lib/store/app.store";
@@ -59,7 +61,18 @@ export const menuItems = [
     href: "/manage/dishes",
     role: [Role.Owner, Role.Employee],
   },
-
+  {
+    title: "Đánh giá",
+    Icon: MessageSquare,
+    href: "/manage/reviews",
+    role: [Role.Owner, Role.Employee],
+  },
+  {
+    title: "Thông báo",
+    Icon: Bell,
+    href: "/manage/notification",
+    role: [Role.Owner, Role.Employee],
+  },
   {
     title: "Phân tích",
     Icon: LineChart,
@@ -89,6 +102,9 @@ export const menuItems = [
 export default function NavLinks() {
   const pathname = usePathname();
   const role = useAppStore((state) => state.role);
+  const unresolvedCount = useAppStore(
+    (state) => state.unresolvedNotificationCount
+  );
   return (
     <TooltipProvider>
       <aside className="fixed inset-y-0 left-0 z-10 hidden w-14 flex-col border-r bg-background sm:flex">
@@ -104,13 +120,14 @@ export default function NavLinks() {
           {menuItems.map((Item, index) => {
             const isActive = pathname === Item.href;
             if (!Item.role.includes(role as "Owner" | "Employee")) return null;
+            const isNotification = Item.href === "/manage/notification";
             return (
               <Tooltip key={index}>
                 <TooltipTrigger asChild>
                   <Link
                     href={Item.href}
                     className={cn(
-                      "flex h-9 w-9 items-center justify-center rounded-lg transition-colors hover:text-foreground md:h-8 md:w-8",
+                      "relative flex h-9 w-9 items-center justify-center rounded-lg transition-colors hover:text-foreground md:h-8 md:w-8",
                       {
                         "bg-accent text-accent-foreground": isActive,
                         "text-muted-foreground": !isActive,
@@ -118,6 +135,11 @@ export default function NavLinks() {
                     )}
                   >
                     <Item.Icon className="h-5 w-5" />
+                    {isNotification && unresolvedCount > 0 && (
+                      <span className="absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white ring-2 ring-background">
+                        {unresolvedCount > 99 ? "99+" : unresolvedCount}
+                      </span>
+                    )}
                     <span className="sr-only">{Item.title}</span>
                   </Link>
                 </TooltipTrigger>
@@ -151,3 +173,4 @@ export default function NavLinks() {
     </TooltipProvider>
   );
 }
+

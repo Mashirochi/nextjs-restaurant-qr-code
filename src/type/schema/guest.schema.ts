@@ -50,3 +50,30 @@ export type GuestCreateOrdersResType = z.TypeOf<typeof GuestCreateOrdersRes>;
 export const GuestGetOrdersRes = GuestCreateOrdersRes;
 
 export type GuestGetOrdersResType = z.TypeOf<typeof GuestGetOrdersRes>;
+
+export const GuestTableParams = z.object({
+  token: z.string()
+})
+
+export type GuestTableParamsType = z.TypeOf<typeof GuestTableParams>
+
+export const GetGuestTableRes = z.object({
+  data: z.object({
+    number: z.number(),
+    status: z.string(),
+    phoneNumber: z.string().nullable()
+  }),
+  message: z.string()
+})
+
+export type GetGuestTableResType = z.TypeOf<typeof GetGuestTableRes>
+
+export const UpdateGuestTableBody = z.object({
+  phoneNumber: z.string().min(10).max(11)
+}).strict()
+
+export type UpdateGuestTableBodyType = z.TypeOf<typeof UpdateGuestTableBody>
+
+export const UpdateGuestTableRes = GetGuestTableRes
+
+export type UpdateGuestTableResType = z.TypeOf<typeof UpdateGuestTableRes>

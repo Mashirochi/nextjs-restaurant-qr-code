@@ -6,10 +6,10 @@ import { useForm } from "react-hook-form";
 import { Form, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { GuestLoginBody, GuestLoginBodyType } from "@/type/schema/guest.schema";
-import { useLoginGuestMutation } from "@/lib/query/useAuth";
-import { useRouter } from "@/lib/i18n/navigation";
+import { useLoginGuestMutation, useGetGuestTableStatus, useUpdateGuestTableMutation } from "@/lib/query/useAuth";
+import { Link, useRouter } from "@/lib/i18n/navigation";
 import { useAppStore } from "@/lib/store/app.store";
-import { generateSocketInstance } from "@/lib/utils";
+import { generateSocketInstance, setGuestTableTokenToLocalStorage, setGuestTableNumberToLocalStorage } from "@/lib/utils";
 import { useParams, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import {
@@ -24,7 +24,14 @@ import {
   Sunrise,
   Moon,
   Speaker,
+  CreditCard,
+  ShoppingCart,
+  HandHelping,
+  Trash2,
+  MessageSquare,
+  Send,
 } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
 import { useState, useEffect } from "react";
 import SwitchLanguage from "@/components/ui/switch-language";
 import ModeToggle from "@/components/ui/mode-toggle";
@@ -35,6 +42,48 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
+import ReviewDialog from "@/components/review/review-dialog";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+  type CarouselApi,
+} from "@/components/ui/carousel";
+import Autoplay from "embla-carousel-autoplay";
+import Image from "next/image";
+import "./guest.login.form.css";
+
+const bannerItems = [
+  {
+    id: 1,
+    title: "MENU ĐIỆN TỬ",
+    tag: "IPOS O2O",
+    description: "“Gọi món”, “gọi nhân viên” trên chính điện thoại của bạn",
+    image: "/banner/digital_menu_banner.png",
+    cta: "Xem Menu",
+    bgClass: "from-orange-400 via-orange-400 to-yellow-400",
+  },
+  {
+    id: 2,
+    title: "GỌI NHÂN VIÊN DỄ DÀNG",
+    tag: "TIỆN LỢI",
+    description: "Chỉ với 1 chạm, nhân viên sẽ có mặt ngay lập tức",
+    image: "/banner/call_banner.png",
+    cta: "Thử ngay",
+    bgClass: "from-blue-400 via-blue-500 to-cyan-400",
+  },
+  {
+    id: 3,
+    title: "KHÔNG GIAN SANG TRỌNG",
+    tag: "TRẢI NGHIỆM",
+    description: "Thưởng thức ẩm thực trong không gian tuyệt vời",
+    image: "/banner/inside_banner.png",
+    cta: "Khám phá",
+    bgClass: "from-emerald-400 via-emerald-500 to-teal-400",
+  },
+];
 
 export default function GuestLoginForm() {
   const params = useParams<{ number: string }>();
@@ -47,6 +96,38 @@ export default function GuestLoginForm() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [greeting, setGreeting] = useState("Good afternoon");
   const [GreetingIcon, setGreetingIcon] = useState<any>(Sun);
+  const [reviewOpen, setReviewOpen] = useState<boolean>(false)
+  const [api, setApi] = useState<CarouselApi>();
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [slideCount, setSlideCount] = useState(0);
+  const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
+  const [serviceDialogOpen, setServiceDialogOpen] = useState(false);
+  const [selectedServiceOption, setSelectedServiceOption] = useState<string | null>(null);
+  const [serviceMessage, setServiceMessage] = useState("");
+
+  const updateTableMutation = useUpdateGuestTableMutation();
+  const fallbackToken = token || "b926fa73-6ad6-437d-b69c-b1da736cecf4";
+  const { data: tableStatusData } = useGetGuestTableStatus(fallbackToken);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setGuestTableTokenToLocalStorage(fallbackToken);
+      setGuestTableNumberToLocalStorage(tableNumber.toString());
+    }
+  }, [fallbackToken, tableNumber]);
+
+  useEffect(() => {
+    if (!api) {
+      return;
+    }
+
+    setSlideCount(api.scrollSnapList().length);
+    setCurrentSlide(api.selectedScrollSnap() + 1);
+
+    api.on("select", () => {
+      setCurrentSlide(api.selectedScrollSnap() + 1);
+    });
+  }, [api]);
 
   useEffect(() => {
     const currentHour = new Date().getHours();
@@ -67,20 +148,81 @@ export default function GuestLoginForm() {
     defaultValues: {
       name: "Customers",
       phone: "",
-      token: token || "",
+      token: fallbackToken,
       tableNumber: tableNumber,
     },
   });
 
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const savedName = localStorage.getItem("guest-name");
+      if (savedName) {
+        form.setValue("name", savedName);
+      }
+    }
+  }, [form]);
+
+  useEffect(() => {
+    if (tableStatusData) {
+      const phoneNumber = tableStatusData.payload.data.phoneNumber;
+      if (phoneNumber) {
+        form.setValue("phone", phoneNumber);
+      } 
+    }
+  }, [tableStatusData, form]);
+
+  const handleSaveInfo = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const currentName = form.getValues("name");
+    const currentPhone = form.getValues("phone");
+
+    if (typeof window !== "undefined") {
+      localStorage.setItem("guest-name", currentName);
+    }
+
+    if (currentPhone) {
+      try {
+        await updateTableMutation.mutateAsync({
+          token: fallbackToken,
+          body: {
+            phoneNumber: currentPhone,
+          },
+        });
+        toast.success("Cập nhật số điện thoại tích điểm thành công!");
+      } catch (error: any) {
+        toast.error(error?.payload?.message || "Cập nhật số điện thoại tích điểm thất bại.");
+      }
+    }
+    setIsDialogOpen(false);
+  };
+
   const nameValue = form.watch("name");
 
+  const socket = useAppStore((state) => state.socket);
+  const isAuth = useAppStore((state) => state.isAuth);
   const setRole = useAppStore((state) => state.setRole);
   const setSocket = useAppStore((state) => state.setSocket);
+
   const onSubmit = async (values: GuestLoginBodyType) => {
     try {
-      // Remove phone to prevent strict backend validation failure
-      const payload = { ...values };
-      delete payload.phone;
+      if (typeof window !== "undefined") {
+        localStorage.setItem("guest-name", values.name);
+      }
+
+      // Already logged in — just navigate to menu without re-login
+      if (isAuth && socket?.connected) {
+        router.push(`/menu`);
+        return;
+      }
+
+      const payload: any = {
+        name: values.name,
+        tableNumber: values.tableNumber,
+        token: values.token,
+      };
+      if (values.phone) {
+        payload.phoneNumber = values.phone;
+      }
 
       const res = await loginGuestMutation.mutateAsync(payload);
       setRole(res.payload.data.guest.role);
@@ -94,6 +236,36 @@ export default function GuestLoginForm() {
     }
   };
 
+  const handleSendNotification = async (message: string) => {
+    try {
+      let currentSocket = socket;
+      if (!currentSocket?.connected) {
+        const payload: any = {
+          name: form.getValues("name"),
+          tableNumber: form.getValues("tableNumber"),
+          token: form.getValues("token"),
+        };
+        const phoneVal = form.getValues("phone");
+        if (phoneVal) {
+          payload.phoneNumber = phoneVal;
+        }
+        const res = await loginGuestMutation.mutateAsync(payload);
+        setRole(res.payload.data.guest.role);
+        currentSocket = generateSocketInstance(res.payload.data.accessToken);
+        setSocket(currentSocket);
+      }
+      
+      currentSocket?.emit("create-notification", {
+        table: form.getValues('tableNumber'),
+        message
+      });
+      
+      toast.success("Đã gửi yêu cầu đến nhân viên thành công!");
+    } catch (error) {
+      toast.error("Không thể gửi yêu cầu. Vui lòng thử lại.");
+    }
+  };
+
   const handleFeatureClick = () => {
     toast.info("Tính năng đang phát triển", {
       description: "Tính năng này sẽ sớm ra mắt trong các phiên bản tiếp theo.",
@@ -101,7 +273,8 @@ export default function GuestLoginForm() {
   };
 
   return (
-    <div className="fixed inset-0 z-50 w-full min-h-screen overflow-y-auto bg-gray-50 dark:bg-slate-950 flex flex-col font-sans transition-colors duration-300">
+    <> 
+     <div className="fixed inset-0 z-50 w-full min-h-screen overflow-y-auto bg-gray-50 dark:bg-slate-950 flex flex-col font-sans transition-colors duration-300">
       {/* Header */}
       <div className="p-4 bg-white dark:bg-slate-900 flex justify-between items-center shadow-sm dark:shadow-slate-900/50 z-10 sticky top-0 transition-colors duration-300">
         <div>
@@ -122,46 +295,48 @@ export default function GuestLoginForm() {
       </div>
 
       <div className="flex-1 p-4 flex flex-col gap-5 overflow-y-auto pb-24">
-        {/* Banner coded in HTML/CSS */}
-        <div className="w-full rounded-2xl overflow-hidden shadow-sm relative min-h-[160px] bg-gradient-to-r from-orange-400 via-orange-400 to-yellow-400 flex">
-          {/* Decorative background elements */}
-          <div className="absolute top-0 right-0 w-32 h-32 bg-white/20 rounded-full blur-3xl transform translate-x-10 -translate-y-10 pointer-events-none"></div>
-          <div className="absolute bottom-0 right-20 w-24 h-24 bg-yellow-300/40 rounded-full blur-2xl pointer-events-none"></div>
-          
-          <div className="flex-1 p-5 flex flex-col justify-center relative z-10">
-            <div className="inline-block bg-white/20 backdrop-blur-sm text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider w-max mb-1 border border-white/30">
-              IPOS O2O
-            </div>
-            <h2 className="text-2xl font-extrabold text-white leading-tight drop-shadow-md mb-1" style={{ textShadow: '1px 2px 4px rgba(0,0,0,0.15)' }}>
-              MENU ĐIỆN TỬ
-            </h2>
-            <p className="text-white text-xs font-medium leading-relaxed max-w-[180px] opacity-95">
-              “Gọi món”, “gọi nhân viên” trên chính điện thoại của bạn
-            </p>
-          </div>
+        {/* Banner Carousel */}
+        <Carousel
+          opts={{ loop: true }}
+          plugins={[
+            Autoplay({
+              delay: 4000,
+              stopOnInteraction: true,
+            }),
+          ]}
+          setApi={setApi}
+          className="w-full relative"
+        >
+          <CarouselContent>
+            {bannerItems.map((item) => (
+              <CarouselItem key={item.id}>
+                <div className="w-full rounded-2xl overflow-hidden shadow-sm relative h-[180px] sm:h-[220px] md:h-[280px]">
+                  <Image
+                    src={item.image}
+                    alt={item.title || "Banner"}
+                    fill
+                    className="object-cover w-full h-full"
+                    priority={item.id === 1}
+                  />
+                </div>
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+          <CarouselPrevious className="hidden md:flex absolute -left-4 top-1/2 -translate-y-1/2 h-8 w-8 border bg-white/90 backdrop-blur-sm shadow-md text-gray-800 hover:bg-white" />
+          <CarouselNext className="hidden md:flex absolute -right-4 top-1/2 -translate-y-1/2 h-8 w-8 border bg-white/90 backdrop-blur-sm shadow-md text-gray-800 hover:bg-white" />
 
-          <div className="w-[120px] relative z-10 flex items-center justify-center">
-            {/* Mock phone / food illustration using CSS & Emojis */}
-            <div className="relative w-16 h-24 bg-gray-900 dark:bg-slate-900 rounded-xl border-2 border-gray-800 dark:border-slate-800 shadow-xl flex items-center justify-center transform rotate-6 hover:rotate-0 transition-transform">
-              <div className="absolute top-1 w-6 h-1 bg-gray-800 dark:bg-slate-700 rounded-full"></div>
-              <div className="w-[90%] h-[90%] bg-white dark:bg-slate-800 rounded-lg p-1 flex flex-col gap-1 overflow-hidden">
-                <div className="w-full h-8 bg-orange-100 dark:bg-orange-900/40 rounded text-center text-[10px] flex items-center justify-center border border-orange-200 dark:border-orange-800/50">
-                  🥩
-                </div>
-                <div className="w-full h-6 bg-amber-50 dark:bg-amber-900/30 rounded flex items-center justify-center text-[8px] border border-amber-100 dark:border-amber-800/50">
-                  🧋
-                </div>
-              </div>
-            </div>
-            {/* Floating elements */}
-            <div className="absolute -top-2 right-2 bg-yellow-100 dark:bg-yellow-900/80 text-orange-600 dark:text-orange-300 text-[8px] font-bold px-2 py-1 rounded-full shadow-md border border-yellow-200 dark:border-yellow-700 transform rotate-12">
-              Quét QRCode<br/>tại bàn
-            </div>
-            <div className="absolute bottom-2 -left-4 text-2xl drop-shadow-lg">
-              🌶️
-            </div>
+          {/* Pagination Dots */}
+          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex space-x-1.5 z-20">
+            {Array.from({ length: slideCount }).map((_, index) => (
+              <div
+                key={index}
+                className={`h-1.5 rounded-full transition-all duration-300 ${
+                  currentSlide === index + 1 ? "w-4 bg-white" : "w-1.5 bg-white/50"
+                }`}
+              />
+            ))}
           </div>
-        </div>
+        </Carousel>
 
         {/* Greeting Area */}
         <div className="flex flex-col items-center justify-center pt-2">
@@ -178,8 +353,8 @@ export default function GuestLoginForm() {
           <div className="text-sm text-gray-600 dark:text-slate-400 mt-1 flex items-center">
             We will return your items to you at the table:
             <span className="ml-2 font-bold px-3 py-1 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-full shadow-sm text-gray-800 dark:text-slate-200">
-              {tableNumber < 10 ? `A0${tableNumber}` : `A${tableNumber}`}
-            </span>
+                {tableNumber}
+              </span>
           </div>
         </div>
 
@@ -204,7 +379,7 @@ export default function GuestLoginForm() {
         <div className="grid grid-cols-3 gap-3">
           <button 
             type="button" 
-            onClick={handleFeatureClick}
+            onClick={() => setPaymentDialogOpen(true)}
             className="bg-gradient-to-b from-rose-50 to-white dark:from-rose-950/40 dark:to-slate-900 rounded-xl p-3 shadow-sm border border-rose-100 dark:border-rose-900/30 flex flex-col items-center justify-center gap-2 hover:shadow-md transition-shadow relative overflow-hidden min-h-[100px]"
           >
             <span className="text-xs font-semibold text-gray-800 dark:text-slate-200 text-center relative z-10">Request bill</span>
@@ -213,7 +388,11 @@ export default function GuestLoginForm() {
           </button>
           <button 
             type="button" 
-            onClick={handleFeatureClick}
+            onClick={() => {
+              setSelectedServiceOption(null);
+              setServiceMessage("");
+              setServiceDialogOpen(true);
+            }}
             className="bg-gradient-to-b from-teal-50 to-white dark:from-teal-950/40 dark:to-slate-900 rounded-xl p-3 shadow-sm border border-teal-100 dark:border-teal-900/30 flex flex-col items-center justify-center gap-2 hover:shadow-md transition-shadow relative overflow-hidden min-h-[100px]"
           >
             <span className="text-xs font-semibold text-gray-800 dark:text-slate-200 text-center relative z-10">Ask for service</span>
@@ -222,10 +401,10 @@ export default function GuestLoginForm() {
           </button>
           <button 
             type="button" 
-            onClick={handleFeatureClick}
+            onClick={() => setReviewOpen(true)}
             className="bg-gradient-to-b from-amber-50 to-white dark:from-amber-950/40 dark:to-slate-900 rounded-xl p-3 shadow-sm border border-amber-100 dark:border-amber-900/30 flex flex-col items-center justify-center gap-2 hover:shadow-md transition-shadow relative overflow-hidden min-h-[100px]"
           >
-            <span className="text-xs font-semibold text-gray-800 dark:text-slate-200 text-center relative z-10">Give feedback</span>
+            <span  className="text-xs font-semibold text-gray-800 dark:text-slate-200 text-center relative z-10">Give feedback</span>
             <Star className="w-10 h-10 text-amber-400 dark:text-amber-500 mt-1 relative z-10 fill-amber-400 dark:fill-amber-500" />
             <div className="absolute -bottom-2 -right-2 w-12 h-12 bg-amber-100 dark:bg-amber-900/20 rounded-full opacity-50"></div>
           </button>
@@ -252,19 +431,21 @@ export default function GuestLoginForm() {
 
       {/* Footer */}
       <div className="bg-white/80 dark:bg-slate-950/80 backdrop-blur-md p-4 text-center text-xs text-gray-500 dark:text-slate-400 flex flex-col items-center justify-center border-t border-gray-200 dark:border-slate-800 sticky bottom-0 w-full z-10 mt-auto transition-colors duration-300">
-        <span>Powered by <strong className="text-gray-700 dark:text-slate-300 text-sm">iPOS.vn</strong></span>
+        <span>Powered by <strong className="text-gray-700 dark:text-slate-300 text-sm">quannhamoc.com</strong></span>
       </div>
       
       {/* Floating Action Button */}
-      <div className="fixed bottom-20 right-4 z-20">
-        <button 
-          onClick={handleFeatureClick}
-          className="w-14 h-14 bg-orange-100 dark:bg-orange-950/80 rounded-full shadow-lg flex items-center justify-center border-2 border-orange-200 dark:border-orange-800/50 hover:scale-105 transition-transform"
-        >
-          <Speaker className="w-6 h-6 text-orange-600 dark:text-orange-400 transform -rotate-12" />
-        </button>
-      </div>
-
+      <Link href={"/orders"} prefetch={true}>
+     <div className="fixed bottom-20 right-4 z-20">
+  <button
+    className="w-14 h-14 bg-orange-100 dark:bg-orange-950/80 rounded-full shadow-lg flex items-center justify-center border-2 border-orange-200 dark:border-orange-800/50 hover:scale-105 transition-transform"
+  >
+    <ShoppingCart
+      className="w-6 h-6 text-orange-600 dark:text-orange-400 animate-cart-shake"
+    />
+  </button>
+</div>
+          </Link>
       {/* Dialog Login form */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="sm:max-w-[425px] dark:bg-slate-900 dark:border-slate-800">
@@ -275,7 +456,7 @@ export default function GuestLoginForm() {
             </DialogDescription>
           </DialogHeader>
           <Form {...form}>
-            <form onSubmit={(e) => { e.preventDefault(); setIsDialogOpen(false); }} className="space-y-4 pt-4">
+            <form onSubmit={handleSaveInfo} className="space-y-4 pt-4">
               <FormField
                 control={form.control}
                 name="name"
@@ -307,5 +488,133 @@ export default function GuestLoginForm() {
         </DialogContent>
       </Dialog>
     </div>
+          <ReviewDialog 
+        open={reviewOpen}
+        onOpenChange={setReviewOpen}
+      />
+
+      <Dialog open={paymentDialogOpen} onOpenChange={setPaymentDialogOpen}>
+        <DialogContent className="sm:max-w-[425px] dark:bg-slate-900 dark:border-slate-800">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold">Chọn phương thức thanh toán</DialogTitle>
+          </DialogHeader>
+          <div className="flex flex-col gap-4 py-4">
+            <Button
+              variant="outline"
+              className="h-16 text-lg justify-start px-6 gap-4 border-2 hover:border-orange-500 hover:text-orange-600 transition-colors"
+              onClick={() => {
+                handleSendNotification("Khách muốn thanh toán bằng tiền mặt");
+                setPaymentDialogOpen(false);
+              }}
+            >
+              <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
+                <ReceiptText className="w-5 h-5 text-orange-600" />
+              </div>
+              Thanh toán bằng tiền mặt
+            </Button>
+            <Button
+              variant="outline"
+              className="h-16 text-lg justify-start px-6 gap-4 border-2 hover:border-blue-500 hover:text-blue-600 transition-colors"
+              onClick={() => {
+                handleSendNotification("Khách muốn thanh toán bằng chuyển khoản ngân hàng");
+                setPaymentDialogOpen(false);
+              }}
+            >
+              <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                <CreditCard className="w-5 h-5 text-blue-600" />
+              </div>
+              Chuyển khoản ngân hàng
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Service Request Dialog */}
+      <Dialog open={serviceDialogOpen} onOpenChange={setServiceDialogOpen}>
+        <DialogContent className="sm:max-w-[425px] dark:bg-slate-900 dark:border-slate-800">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold flex items-center gap-2">
+              <HandHelping className="h-5 w-5 text-teal-500" />
+              Gọi phục vụ
+            </DialogTitle>
+            <DialogDescription className="text-gray-600 dark:text-slate-400">
+              Chọn nội dung yêu cầu hoặc nhập tin nhắn tùy chỉnh
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col gap-4 py-2">
+            {/* Predefined options */}
+            <div className="flex flex-col gap-2">
+              {[
+                { label: "Khách cần gặp nhân viên phục vụ", icon: Users },
+                { label: "Yêu cầu dọn bàn", icon: Trash2 },
+              ].map((opt) => (
+                <button
+                  key={opt.label}
+                  type="button"
+                  onClick={() =>
+                    setSelectedServiceOption(
+                      selectedServiceOption === opt.label ? null : opt.label
+                    )
+                  }
+                  className={`flex items-center gap-3 p-3 rounded-lg border-2 text-left transition-all text-sm font-medium ${
+                    selectedServiceOption === opt.label
+                      ? "border-teal-500 bg-teal-50 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300"
+                      : "border-gray-200 dark:border-slate-700 hover:border-teal-300 dark:hover:border-teal-700 text-gray-700 dark:text-slate-300"
+                  }`}
+                >
+                  <div
+                    className={`p-1.5 rounded-full ${
+                      selectedServiceOption === opt.label
+                        ? "bg-teal-100 dark:bg-teal-800/50"
+                        : "bg-gray-100 dark:bg-slate-800"
+                    }`}
+                  >
+                    <opt.icon className={`h-4 w-4 ${
+                      selectedServiceOption === opt.label
+                        ? "text-teal-600 dark:text-teal-400"
+                        : "text-gray-500 dark:text-slate-400"
+                    }`} />
+                  </div>
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Optional custom message */}
+            <div>
+              <Label className="text-sm font-medium text-gray-700 dark:text-slate-300 flex items-center gap-1.5 mb-1.5">
+                <MessageSquare className="h-3.5 w-3.5" />
+                Tin nhắn thêm (tuỳ chọn)
+              </Label>
+              <Textarea
+                placeholder="VD: Cho xin thêm đá, khăn giấy..."
+                value={serviceMessage}
+                onChange={(e) => setServiceMessage(e.target.value)}
+                className="resize-none dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100"
+                rows={2}
+              />
+            </div>
+
+            {/* Submit */}
+            <Button
+              disabled={!selectedServiceOption && !serviceMessage.trim()}
+              className="w-full bg-teal-600 hover:bg-teal-700 dark:text-white gap-2"
+              onClick={() => {
+                const parts: string[] = [];
+                if (selectedServiceOption) parts.push(selectedServiceOption);
+                if (serviceMessage.trim()) parts.push(serviceMessage.trim());
+                const message = parts.join(" - ");
+                handleSendNotification(message);
+                setServiceDialogOpen(false);
+              }}
+            >
+              <Send className="h-4 w-4" />
+              Gửi yêu cầu
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
+   
   );
 }

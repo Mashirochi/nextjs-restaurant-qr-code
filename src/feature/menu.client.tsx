@@ -13,13 +13,13 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { formatCurrency, getVietnameseDishStatus } from "@/lib/utils";
+import { formatCurrency, getVietnameseDishStatus, getGuestTableLoginPath } from "@/lib/utils";
 import envConfig from "@/lib/validateEnv";
 import { DishStatus } from "@/type/constant";
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { DishSchema, DishTypeValues } from "@/type/schema/dish.schema";
 import z from "zod";
-import { Funnel, ShoppingCart, Trash2, Plus, Minus } from "lucide-react";
+import { Funnel, ShoppingCart, Trash2, Plus, Minus, MapPin } from "lucide-react";
 import {
   Drawer,
   DrawerContent,
@@ -29,6 +29,9 @@ import {
 } from "@/components/ui/drawer";
 import { useGuestCreateOrderMutation } from "@/lib/query/useOrder";
 import { toast } from "sonner";
+import { Link } from "@/lib/i18n/navigation";
+import SwitchLanguage from "@/components/ui/switch-language";
+import ModeToggle from "@/components/ui/mode-toggle";
 
 interface Dish {
   dishes: z.infer<typeof DishSchema>[];
@@ -110,13 +113,35 @@ export default function MenuClient(props: Dish) {
   };
 
   return (
-    <div className="container mx-auto py-8">
-      <div className="text-center mb-8">
-        <h1 className="text-4xl font-bold mb-4">Thực đơn nhà hàng</h1>
-        <p className="text-lg text-muted-foreground">Chọn món bạn yêu thích</p>
+    <div className="min-h-screen bg-gray-50 dark:bg-slate-950 flex flex-col transition-colors duration-300">
+      {/* Header */}
+      <div className="p-4 bg-white dark:bg-slate-900 flex justify-between items-center shadow-sm dark:shadow-slate-900/50 z-10 sticky top-0 transition-colors duration-300">
+        <div>
+          <Link href={getGuestTableLoginPath()}>
+            <h1 className="text-xl font-extrabold text-gray-800 dark:text-slate-100 uppercase tracking-tight hover:text-orange-500 transition-colors">
+              Quán nhà mộc
+            </h1>
+          </Link>
+          <div className="flex items-center text-xs text-gray-500 dark:text-slate-400 mt-1 max-w-[250px]">
+            <MapPin className="w-3 h-3 mr-1 flex-shrink-0" />
+            <span className="truncate">
+              26H1 Ngõ 130 Xuân Thuỷ Cầu Giấy, Phường...
+            </span>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <SwitchLanguage compact className="h-10 rounded-full bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 shadow-inner px-3 text-slate-800 dark:text-slate-200 w-[70px] focus:ring-0 focus:ring-offset-0" />
+          <ModeToggle />
+        </div>
       </div>
 
-      <div className="sticky top-16 z-20 bg-background py-4 mb-8 space-y-4 border-b">
+      <div className="container mx-auto py-8 flex-1 p-4">
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold mb-4">Thực đơn nhà hàng</h1>
+          <p className="text-lg text-muted-foreground">Chọn món bạn yêu thích</p>
+        </div>
+
+        <div className="sticky top-[80px] z-20 bg-background/95 backdrop-blur-sm py-4 mb-8 space-y-4 border-b">
         <div className="relative flex items-center justify-center gap-2">
           <Input
             placeholder="Tìm kiếm món ăn..."
@@ -456,6 +481,7 @@ export default function MenuClient(props: Dish) {
           </Sheet>
         </div>
       )}
+      </div>
     </div>
   );
 }

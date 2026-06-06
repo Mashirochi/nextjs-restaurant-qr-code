@@ -35,6 +35,24 @@ export const removeTokensFromLocalStorage = () => {
   isClient && localStorage.removeItem("refreshToken");
 };
 
+export const getGuestTableTokenFromLocalStorage = () =>
+  isClient ? localStorage.getItem("guestTableToken") : null;
+
+export const setGuestTableTokenToLocalStorage = (value: string) =>
+  isClient && localStorage.setItem("guestTableToken", value);
+
+export const getGuestTableNumberFromLocalStorage = () =>
+  isClient ? localStorage.getItem("guestTableNumber") : null;
+
+export const setGuestTableNumberToLocalStorage = (value: string) =>
+  isClient && localStorage.setItem("guestTableNumber", value);
+
+export const getGuestTableLoginPath = () => {
+  const token = getGuestTableTokenFromLocalStorage() || "b926fa73-6ad6-437d-b69c-b1da736cecf4";
+  const tableNumber = getGuestTableNumberFromLocalStorage() || "1";
+  return `/table/${tableNumber}?token=${token}`;
+};
+
 export const getCookie = (name: string): string | undefined => {
   const value = `; ${document.cookie}`;
   const parts = value.split(`; ${name}=`);

@@ -148,7 +148,7 @@ export default function AutoPagination({
                   onClick(page - 1);
                 }
               }}
-              className={cn("w-9 h-9 p-0", {
+              className={cn("gap-1 pl-2.5", {
                 "cursor-not-allowed": page === 1,
               })}
               disabled={page === 1}
@@ -182,7 +182,7 @@ export default function AutoPagination({
                   onClick(page + 1);
                 }
               }}
-              className={cn("w-9 h-9 p-0", {
+              className={cn("gap-1 pr-2.5", {
                 "cursor-not-allowed": page === pageSize,
               })}
               disabled={page === pageSize}

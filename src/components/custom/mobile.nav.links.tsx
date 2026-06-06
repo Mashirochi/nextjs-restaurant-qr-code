@@ -12,6 +12,9 @@ import { useState, useEffect } from "react";
 export default function MobileNavLinks() {
   const pathname = usePathname();
   const role = useAppStore((state) => state.role);
+  const unresolvedCount = useAppStore(
+    (state) => state.unresolvedNotificationCount
+  );
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
@@ -38,6 +41,7 @@ export default function MobileNavLinks() {
           {menuItems.map((Item, index) => {
             const isActive = pathname === Item.href;
             if (!Item.role.includes(role as "Owner" | "Employee")) return null;
+            const isNotification = Item.href === "/manage/notification";
             return (
               <Link
                 key={index}
@@ -50,7 +54,14 @@ export default function MobileNavLinks() {
                   },
                 )}
               >
-                <Item.Icon className="h-5 w-5" />
+                <div className="relative">
+                  <Item.Icon className="h-5 w-5" />
+                  {isNotification && unresolvedCount > 0 && (
+                    <span className="absolute -top-1.5 -right-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
+                      {unresolvedCount > 99 ? "99+" : unresolvedCount}
+                    </span>
+                  )}
+                </div>
                 {Item.title}
               </Link>
             );
@@ -60,3 +71,4 @@ export default function MobileNavLinks() {
     </Sheet>
   );
 }
+

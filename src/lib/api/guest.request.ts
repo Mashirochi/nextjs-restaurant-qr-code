@@ -10,6 +10,9 @@ import {
   GuestGetOrdersResType,
   GuestLoginBodyType,
   GuestLoginResType,
+  GetGuestTableResType,
+  UpdateGuestTableBodyType,
+  UpdateGuestTableResType,
 } from "@/type/schema/guest.schema";
 
 const guestApiRequest = {
@@ -60,6 +63,10 @@ const guestApiRequest = {
   order: (body: GuestCreateOrdersBodyType) =>
     http.post<GuestCreateOrdersResType>("/guest/orders", body),
   getOrderList: () => http.get<GuestGetOrdersResType>("/guest/orders"),
+  getTableStatus: (token: string) =>
+    http.get<GetGuestTableResType>(`/guest/table/${token}`),
+  updateTableStatus: (token: string, body: UpdateGuestTableBodyType) =>
+    http.patch<UpdateGuestTableResType>(`/guest/table/${token}`, body),
 };
 
 export default guestApiRequest;

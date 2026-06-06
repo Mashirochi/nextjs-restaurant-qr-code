@@ -23,6 +23,8 @@ interface IAppState {
     } | null
   ) => void;
   clearUser: () => void;
+  unresolvedNotificationCount: number;
+  setUnresolvedNotificationCount: (count: number) => void;
 }
 
 const SECRET_KEY = process.env.NEXT_PUBLIC_ENCRYPTION_KEY!;
@@ -100,6 +102,8 @@ export const useAppStore = create<IAppState>()(
       user: null,
       setUser: (user) => set({ user }),
       clearUser: () => set({ user: null }),
+      unresolvedNotificationCount: 0,
+      setUnresolvedNotificationCount: (count: number) => set({ unresolvedNotificationCount: count }),
     }),
     {
       name: "app-storage", // name of the item in the storage (must be unique)
