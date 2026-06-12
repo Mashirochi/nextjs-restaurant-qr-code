@@ -64,7 +64,7 @@ export default function LoginForm() {
           duration: 5000,
           action: {
             label: "Undo",
-            onClick: () => console.log("Undo"),
+            onClick: () => {},
           },
         });
       }

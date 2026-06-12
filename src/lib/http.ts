@@ -1,6 +1,7 @@
 import {
   getAccessTokenFromLocalStorage,
   getCookie,
+  getRefreshTokenFromLocalStorage,
   removeTokensFromLocalStorage,
   setAccessTokenToLocalStorage,
   setRefreshTokenToLocalStorage,
@@ -8,6 +9,8 @@ import {
 import envConfig from "./validateEnv";
 import { LoginResType } from "@/type/schema/auth.schema";
 import { redirect } from "@/lib/i18n/navigation";
+import { jwtDecode } from "jwt-decode";
+import { Role } from "@/type/constant";
 type CustomOptions = Omit<RequestInit, "method"> & {
   baseUrl?: string | undefined;
 };
@@ -126,7 +129,43 @@ const request = async <Response>(
       );
     } else if (res.status === AUTHENTICATION_ERROR_STATUS) {
       if (isClient) {
-        const locale = getCookie("NEXT_LOCALE");
+        const locale = getCookie("NEXT_LOCALE") || "vi";
+        const refreshToken = getRefreshTokenFromLocalStorage();
+        if (refreshToken) {
+          try {
+            const decoded = jwtDecode(refreshToken) as { role: string };
+            const isGuest = decoded.role === Role.Guest;
+            const refreshUrl = isGuest
+              ? "/api/guest/auth/refresh-token"
+              : "/api/auth/refresh-token";
+            
+            const refreshRes = await fetch(refreshUrl, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+            });
+
+            if (refreshRes.ok) {
+              const refreshPayload = await refreshRes.json();
+              const { accessToken: newAccessToken, refreshToken: newRefreshToken } = refreshPayload.data;
+              setAccessTokenToLocalStorage(newAccessToken);
+              setRefreshTokenToLocalStorage(newRefreshToken);
+
+              const newHeaders = {
+                ...options?.headers,
+                Authorization: `Bearer ${newAccessToken}`,
+              };
+              return request<Response>(method, url, {
+                ...options,
+                headers: newHeaders,
+              });
+            }
+          } catch (refreshError) {
+            console.error("Auto refresh token failed:", refreshError);
+          }
+        }
+
         if (!clientLogoutRequest) {
           clientLogoutRequest = fetch("/api/auth/logout", {
             method: "POST",
@@ -145,7 +184,7 @@ const request = async <Response>(
             // Nếu không không được xử lý đúng cách
             // Vì nếu rơi vào trường hợp tại trang Login, chúng ta có gọi các API cần access token
             // Mà access token đã bị xóa thì nó lại nhảy vào đây, và cứ thế nó sẽ bị lặp
-            location.href = `/${locale}/login`;
+            location.href = `/${locale}/auth/login`;
           }
         }
       } else {
@@ -154,7 +193,7 @@ const request = async <Response>(
         const accessToken = (options?.headers as any)?.Authorization.split(
           "Bearer "
         )[1];
-        const locale = getCookie("NEXT_LOCALE") || "en";
+        const locale = getCookie("NEXT_LOCALE") || "vi";
         redirect({
           href: `/auth/login?accessToken=${accessToken}`,
           locale,

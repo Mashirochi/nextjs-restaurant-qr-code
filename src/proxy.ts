@@ -1,7 +1,16 @@
 import { NextRequest } from "next/server";
-import { decodeToken } from "./lib/utils";
 import { Role } from "./type/constant";
 import createMiddleware from "next-intl/middleware";
+import { jwtDecode } from "jwt-decode";
+import { TokenPayload } from "./type/schema/jwt.type";
+
+const decodeToken = (token: string) => {
+  try {
+    return jwtDecode(token) as TokenPayload;
+  } catch (error) {
+    return null;
+  }
+};
 
 const guestPath = ["/vi/guest", "/en/guest", "/vi/menu", "/en/menu"];
 const unAuthPath = ["/vi/auth/login", "/en/auth/login"];
@@ -48,7 +57,12 @@ export function proxy(request: NextRequest) {
     else if (
       privatePath.some((path) => pathname.startsWith(path) && !accessToken)
     ) {
-      const url = new URL("/api/auth/refresh-token", request.url);
+      const role = refreshToken ? decodeToken(refreshToken)?.role : undefined;
+      const isGuest = role === Role.Guest;
+      const url = new URL(
+        isGuest ? "/api/guest/auth/refresh-token" : "/api/auth/refresh-token",
+        request.url
+      );
       url.searchParams.set("refreshToken", refreshToken ?? "");
       url.searchParams.set("redirect", pathname ?? "");
       response.headers.set("x-middleware-rewrite", url.toString());

@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useState, useMemo, useCallback, useRef } from "react";
-import { useGetBillList, useUpdateOrderMutation } from "@/lib/query/useOrder";
-import { GetOrdersResType } from "@/type/schema/order.schema";
+import React, { useState, useCallback, useRef } from "react";
+import { useGetBillList, usePayBillMutation } from "@/lib/query/useBill";
+import { useUpdateOrderMutation } from "@/lib/query/useOrder";
+import { BillType, PaymentMethod } from "@/type/schema/bill.schema";
 import { OrderStatus } from "@/type/constant";
 import {
   Table,
@@ -36,45 +37,7 @@ import {
 import Image from "next/image";
 import { format } from "date-fns";
 import { generateBillHtml } from "@/components/bill/generate-bill-html";
-
-type OrderItem = GetOrdersResType["data"][0];
-
-interface Bill {
-  guestId: number;
-  guestName: string;
-  tableNumber: number | null;
-  orders: OrderItem[];
-  totalAmount: number;
-  totalItems: number;
-}
-
-function groupOrdersIntoBills(orders: OrderItem[]): Bill[] {
-  const billMap = new Map<number, Bill>();
-  for (const order of orders) {
-    if (!order.guestId) continue;
-    if (!billMap.has(order.guestId)) {
-      billMap.set(order.guestId, {
-        guestId: order.guestId,
-        guestName: order.guest?.name ?? "Không xác định",
-        tableNumber: order.tableNumber,
-        orders: [],
-        totalAmount: 0,
-        totalItems: 0,
-      });
-    }
-    const bill = billMap.get(order.guestId)!;
-    bill.orders.push(order);
-    bill.totalItems += order.quantity;
-    if (
-      order.status === OrderStatus.Delivered ||
-      order.status === OrderStatus.Paid
-    ) {
-      bill.totalAmount += order.dishSnapshot.basePrice * order.quantity;
-    }
-  }
-  return Array.from(billMap.values());
-}
-
+import { toast } from "sonner";
 
 // ─── Payment Dialog ────────────────────────────────────────────────────────────
 function PaymentDialog({
@@ -83,24 +46,25 @@ function PaymentDialog({
   onOpenChange,
   onOrderStatusChanged,
 }: {
-  bill: Bill | null;
+  bill: BillType | null;
   open: boolean;
   onOpenChange: (v: boolean) => void;
   onOrderStatusChanged: () => void;
 }) {
   const [cashReceived, setCashReceived] = useState<string>("");
   const updateOrderMutation = useUpdateOrderMutation();
+  const payBillMutation = usePayBillMutation();
 
   // Local override map: orderId -> "Rejected" | "Delivered" (toggled by staff)
   const [localStatus, setLocalStatus] = useState<
     Record<number, (typeof OrderStatus)[keyof typeof OrderStatus]>
   >({});
 
-  const getEffectiveStatus = (o: OrderItem) =>
+  const getEffectiveStatus = (o: any) =>
     localStatus[o.id] ?? o.status;
 
   const toggleReject = useCallback(
-    async (o: OrderItem) => {
+    async (o: any) => {
       const current = getEffectiveStatus(o);
       const nextStatus =
         current === OrderStatus.Rejected
@@ -132,8 +96,8 @@ function PaymentDialog({
 
   // Reset local status overrides when bill changes
   const prevBillId = useRef<number | null>(null);
-  if (bill && bill.guestId !== prevBillId.current) {
-    prevBillId.current = bill.guestId;
+  if (bill && bill.id !== prevBillId.current) {
+    prevBillId.current = bill.id;
     // only reset when switching to a different bill
   }
 
@@ -153,11 +117,16 @@ function PaymentDialog({
   const cash = Number(cashReceived.replace(/\D/g, "")) || 0;
   const change = Math.max(cash - total, 0);
 
-  const qrUrl = `https://img.vietqr.io/image/MB-123-compact2.png?amount=${total}&addInfo=QNM_${bill.guestId}&accountName=Nha%20Hang`;
+  const qrUrl = `https://img.vietqr.io/image/MB-123-compact2.png?amount=${total}&addInfo=BILL_${bill.id}&accountName=Nha%20Hang`;
 
   const handlePreview = () => {
+    // Generate an html structure suitable for the bill printing component
+    const guestName = bill.guests.length > 0 ? bill.guests[0].name : "Khách";
     const billForPrinting = {
-      ...bill,
+      id: bill.id,
+      guestId: bill.guests.length > 0 ? bill.guests[0].id : 0,
+      guestName,
+      tableNumber: bill.tableNumber,
       orders: bill.orders.filter(o => {
         const status = getEffectiveStatus(o);
         return status === OrderStatus.Delivered || status === OrderStatus.Paid;
@@ -165,13 +134,28 @@ function PaymentDialog({
         ...o,
         status: getEffectiveStatus(o)
       })),
-      totalAmount: total
+      totalAmount: total,
+      totalItems: deliveredOrders.reduce((sum, o) => sum + o.quantity, 0)
     };
-    const html = generateBillHtml(billForPrinting);
+    const html = generateBillHtml(billForPrinting as any);
     const newWindow = window.open("", "_blank");
     if (newWindow) {
       newWindow.document.write(html);
       newWindow.document.close();
+    }
+  };
+
+  const handlePay = async (method: typeof PaymentMethod[keyof typeof PaymentMethod]) => {
+    try {
+      await payBillMutation.mutateAsync({
+        id: bill.id,
+        body: { method }
+      });
+      toast.success("Thanh toán hóa đơn thành công!");
+      onOrderStatusChanged();
+      onOpenChange(false);
+    } catch (error) {
+      handleErrorApi({ error });
     }
   };
 
@@ -183,7 +167,7 @@ function PaymentDialog({
             <div className="flex items-center justify-between pr-6">
               <DialogTitle className="flex items-center gap-2 text-base">
                 <Receipt className="h-5 w-5 text-orange-500" />
-                {bill.guestName} – Bàn {bill.tableNumber ?? "?"}
+                Hóa đơn #{bill.id} – Bàn {bill.tableNumber ?? "?"}
               </DialogTitle>
               <Button
                 variant="outline"
@@ -192,7 +176,7 @@ function PaymentDialog({
                 onClick={handlePreview}
               >
                 <Printer className="h-4 w-4" />
-                Xem hóa đơn
+                Xem in
               </Button>
             </div>
           </DialogHeader>
@@ -251,7 +235,7 @@ function PaymentDialog({
                       }`}
                       title={isRejected ? "Hoàn lại món" : "Gạch món"}
                       onClick={() => toggleReject(o)}
-                      disabled={updateOrderMutation.isPending}
+                      disabled={updateOrderMutation.isPending || bill.status === 'CLOSED'}
                     >
                       {isRejected ? (
                         <RotateCcw className="h-3.5 w-3.5" />
@@ -332,6 +316,13 @@ function PaymentDialog({
                   </span>
                 </div>
               </div>
+              <Button 
+                className="w-full" 
+                onClick={() => handlePay(PaymentMethod.Cash)}
+                disabled={payBillMutation.isPending || bill.status === 'CLOSED'}
+              >
+                Xác nhận đã nhận tiền mặt
+              </Button>
             </TabsContent>
 
             {/* === BANK TAB === */}
@@ -340,7 +331,7 @@ function PaymentDialog({
                 Yêu cầu khách quét mã QR bên dưới để thanh toán qua MB Bank.
                 Nội dung:{" "}
                 <span className="font-semibold text-foreground">
-                  QNM_{bill.guestId}
+                  BILL_{bill.id}
                 </span>
               </p>
               <div className="flex justify-center">
@@ -357,6 +348,13 @@ function PaymentDialog({
                 STK: <strong>123</strong> – MB Bank –{" "}
                 <strong>{formatCurrency(total)}</strong>
               </p>
+              <Button 
+                className="w-full" 
+                onClick={() => handlePay(PaymentMethod.BankTransfer)}
+                disabled={payBillMutation.isPending || bill.status === 'CLOSED'}
+              >
+                Xác nhận đã nhận chuyển khoản
+              </Button>
             </TabsContent>
           </Tabs>
         </DialogContent>
@@ -367,16 +365,13 @@ function PaymentDialog({
 
 // ─── Main BillTable ────────────────────────────────────────────────────────────
 export default function BillTable() {
-  const { data, isPending, refetch } = useGetBillList();
-  const [selectedBill, setSelectedBill] = useState<Bill | null>(null);
+  const { data, isPending, refetch } = useGetBillList({ status: "OPEN" });
+  const [selectedBill, setSelectedBill] = useState<BillType | null>(null);
   const [paymentOpen, setPaymentOpen] = useState(false);
   
-  const bills = useMemo(
-    () => groupOrdersIntoBills(data?.payload?.data ?? []),
-    [data]
-  );
+  const bills = data?.payload?.data ?? [];
 
-  const openPayment = (bill: Bill) => {
+  const openPayment = (bill: BillType) => {
     setSelectedBill(bill);
     setPaymentOpen(true);
   };
@@ -385,7 +380,7 @@ export default function BillTable() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <p className="text-sm text-muted-foreground">
-          Tổng <strong>{bills.length}</strong> hóa đơn
+          Tổng <strong>{bills.length}</strong> hóa đơn đang mở
         </p>
         <Button
           variant="outline"
@@ -402,6 +397,7 @@ export default function BillTable() {
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead>Hóa đơn</TableHead>
               <TableHead>Bàn</TableHead>
               <TableHead>Khách hàng</TableHead>
               <TableHead>Số món</TableHead>
@@ -412,48 +408,55 @@ export default function BillTable() {
           <TableBody>
             {isPending ? (
               <TableRow>
-                <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
+                <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
                   Đang tải...
                 </TableCell>
               </TableRow>
             ) : bills.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
-                  Chưa có hóa đơn nào.
+                <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
+                  Chưa có hóa đơn nào đang mở.
                 </TableCell>
               </TableRow>
             ) : (
-              bills.map((bill) => (
-                <TableRow key={bill.guestId}>
-                  <TableCell className="font-medium">
-                    {bill.tableNumber ?? "?"}
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex flex-col">
-                      <span>{bill.guestName}</span>
-                      <span className="text-xs text-muted-foreground">
-                        #{bill.guestId}
-                      </span>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant="secondary">{bill.totalItems} món</Badge>
-                  </TableCell>
-                  <TableCell className="font-semibold text-orange-600">
-                    {formatCurrency(bill.totalAmount)}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <Button
-                      size="sm"
-                      className="bg-orange-500 hover:bg-orange-600 text-white gap-1"
-                      onClick={() => openPayment(bill)}
-                    >
-                      <Receipt className="h-4 w-4" />
-                      Thanh toán
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))
+              bills.map((bill) => {
+                const totalItems = bill.orders.reduce((sum, o) => sum + o.quantity, 0);
+                const deliveredAmount = bill.orders
+                  .filter((o) => o.status === OrderStatus.Delivered || o.status === OrderStatus.Paid)
+                  .reduce((sum, o) => sum + (o.dishSnapshot.basePrice * o.quantity), 0);
+                
+                return (
+                  <TableRow key={bill.id}>
+                    <TableCell className="font-medium">
+                      #{bill.id}
+                    </TableCell>
+                    <TableCell className="font-medium">
+                      {bill.tableNumber ?? "?"}
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex flex-col">
+                        <span>{bill.guests.map(g => g.name).join(", ") || "Chưa có"}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="secondary">{totalItems} món</Badge>
+                    </TableCell>
+                    <TableCell className="font-semibold text-orange-600">
+                      {formatCurrency(deliveredAmount)}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Button
+                        size="sm"
+                        className="bg-orange-500 hover:bg-orange-600 text-white gap-1"
+                        onClick={() => openPayment(bill)}
+                      >
+                        <Receipt className="h-4 w-4" />
+                        Thanh toán
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                )
+              })
             )}
           </TableBody>
         </Table>

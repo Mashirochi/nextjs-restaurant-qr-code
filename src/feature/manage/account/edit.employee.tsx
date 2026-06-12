@@ -132,7 +132,6 @@ export default function EditEmployee({
         role: data.role || "Employee",
       };
 
-      console.log(finalData);
       if (file) {
         try {
           const formData = new FormData();

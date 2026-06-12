@@ -103,7 +103,6 @@ export default function MenuClient(props: Dish) {
         dishId: item.id,
         quantity: item.quantity,
       }));
-      console.log("Transformed order items:", temp);
       await mutateAsync(temp);
       setCart({});
       toast.success("Đặt món thành công!");

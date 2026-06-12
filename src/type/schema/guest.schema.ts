@@ -22,6 +22,7 @@ export const GuestLoginRes = z.object({
       name: z.string(),
       role: z.enum([Role.Guest]),
       tableNumber: z.number().nullable(),
+      billId: z.number().nullable(),
       createdAt: z.date(),
       updatedAt: z.date(),
     }),

@@ -1,6 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { usePayGuestOrderMutation } from "@/lib/query/useOrder";
+import { usePayBillMutation } from "@/lib/query/useBill";
+import { PaymentMethod } from "@/type/schema/bill.schema";
 import {
   OrderStatusIcon,
   formatCurrency,
@@ -11,12 +12,11 @@ import {
 } from "@/lib/utils";
 import envConfig from "@/lib/validateEnv";
 import { OrderStatus } from "@/type/constant";
-import {
-  GetOrdersResType,
-  PayGuestOrdersResType,
-} from "@/type/schema/order.schema";
+import { GetOrdersResType } from "@/type/schema/order.schema";
+import { CloseBillResType } from "@/type/schema/bill.schema";
 import Image from "next/image";
 import { Fragment } from "react";
+import { toast } from "sonner";
 
 type Guest = GetOrdersResType["data"][0]["guest"];
 type Orders = GetOrdersResType["data"];
@@ -27,7 +27,7 @@ export default function OrderGuestDetail({
 }: {
   guest: Guest;
   orders: Orders;
-  onPaySuccess?: (data: PayGuestOrdersResType) => void;
+  onPaySuccess?: () => void;
 }) {
   const ordersFilterToPurchase = guest
     ? orders.filter(
@@ -39,15 +39,21 @@ export default function OrderGuestDetail({
   const purchasedOrderFilter = guest
     ? orders.filter((order) => order.status === OrderStatus.Paid)
     : [];
-  const payForGuestMutation = usePayGuestOrderMutation();
+  const payBillMutation = usePayBillMutation();
 
   const pay = async () => {
-    if (payForGuestMutation.isPending || !guest) return;
+    if (payBillMutation.isPending || !guest || orders.length === 0) return;
+    const billId = orders[0].billId;
+    if (!billId) {
+      toast.error("Không tìm thấy hóa đơn");
+      return;
+    }
     try {
-      const res = await payForGuestMutation.mutateAsync({
-        guestId: guest.id,
+      const res = await payBillMutation.mutateAsync({
+        id: billId,
+        body: { method: PaymentMethod.Cash }
       });
-      onPaySuccess && onPaySuccess(res?.payload);
+      onPaySuccess && onPaySuccess();
     } catch (error) {
       handleErrorApi({ error });
       console.error("Error paying for guest orders:", error);

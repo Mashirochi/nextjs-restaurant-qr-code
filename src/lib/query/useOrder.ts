@@ -2,9 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import orderRequest from "../api/order.request";
 import {
   CreateOrdersBodyType,
-  GetGuestBillQueryParamsType,
   GetOrdersQueryParamsType,
-  PayGuestOrdersBodyType,
   UpdateOrderBodyType,
 } from "@/type/schema/order.schema";
 import guestApiRequest from "../api/guest.request";
@@ -64,15 +62,3 @@ export const useGuestGetOrderList = () => {
   });
 };
 
-export const usePayGuestOrderMutation = () => {
-  return useMutation({
-    mutationFn: (body: PayGuestOrdersBodyType) => orderRequest.payCash(body),
-  });
-};
-
-export const useGetBillList = (params: GetGuestBillQueryParamsType = {}) => {
-  return useQuery({
-    queryKey: ["bill-list", params],
-    queryFn: () => orderRequest.getBillList(params),
-  });
-};

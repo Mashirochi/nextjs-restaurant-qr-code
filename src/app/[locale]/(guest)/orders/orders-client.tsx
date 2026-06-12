@@ -9,11 +9,12 @@ import envConfig from "@/lib/validateEnv";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import {
-  PayGuestOrdersResType,
   UpdateOrderResType,
 } from "@/type/schema/order.schema";
 import { toast } from "sonner";
 import { useAppStore } from "@/lib/store/app.store";
+import { useLogoutGuestMutation } from "@/lib/query/useAuth";
+import { useRouter } from "@/lib/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { Star, MapPin } from "lucide-react";
 import { Link } from "@/lib/i18n/navigation";
@@ -45,6 +46,8 @@ export default function OrdersPageClient({
   translations,
 }: OrdersPageClientProps) {
   const { data, isLoading, isError, error, refetch } = useGuestGetOrderList();
+  const logoutMutation = useLogoutGuestMutation();
+  const router = useRouter();
 
   const getOrderStatusVariant = (status: string) => {
     switch (status) {
@@ -61,7 +64,6 @@ export default function OrdersPageClient({
     }
   };
 
-  console.log(translations);
   const socket = useAppStore((state) => state.socket);
 
   useEffect(() => {
@@ -98,16 +100,22 @@ export default function OrdersPageClient({
       refetch();
     }
 
-    function onPayment(data: PayGuestOrdersResType["data"]) {
-      const { guest } = data[0];
+    function onPayment(data: any) {
+      const { bill } = data;
       toast.success(
-        `Khách hàng với tên "${
-          guest?.name ?? translations.unknownGuestName
-        }" tại bàn ${
-          guest?.tableNumber ?? translations.unknownTable
-        } đã thanh toán thành công.`
+        `Hóa đơn #${bill.id} đã được thanh toán (một phần hoặc toàn bộ).`
       );
       refetch();
+    }
+
+    async function onBillClosed(data: any) {
+      toast.success("Hóa đơn đã được thanh toán thành công!");
+      try {
+        await logoutMutation.mutateAsync();
+        router.push("/");
+      } catch (error) {
+        console.error(error);
+      }
     }
 
     function onGetOrderStatus(data: UpdateOrderResType["data"]) {
@@ -135,6 +143,7 @@ export default function OrdersPageClient({
     socket?.on("update-order", onOrderUpdate);
     socket?.on("get-order-status", onGetOrderStatus);
     socket?.on("payment", onPayment);
+    socket?.on("bill-closed", onBillClosed);
     socket?.on("disconnect", onDisconnect);
 
     return () => {
@@ -142,9 +151,10 @@ export default function OrdersPageClient({
       socket?.off("update-order", onOrderUpdate);
       socket?.off("get-order-status", onGetOrderStatus);
       socket?.off("payment", onPayment);
+      socket?.off("bill-closed", onBillClosed);
       socket?.off("disconnect", onDisconnect);
     };
-  }, [refetch, translations]);
+  }, [refetch, translations, logoutMutation, router]);
 
   if (isLoading) {
     return (

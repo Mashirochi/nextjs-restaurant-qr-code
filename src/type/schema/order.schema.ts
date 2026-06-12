@@ -18,6 +18,7 @@ const DishSnapshotSchema = z.object({
 export const OrderSchema = z.object({
   id: z.number(),
   guestId: z.number().nullable(),
+  billId: z.number().nullable(),
   guest: z
     .object({
       id: z.number(),
@@ -82,16 +83,6 @@ export const GetOrderDetailRes = z.object({
 
 export type GetOrderDetailResType = z.TypeOf<typeof GetOrderDetailRes>;
 
-export const PayGuestOrdersBody = z.object({
-  guestId: z.number(),
-});
-
-export type PayGuestOrdersBodyType = z.TypeOf<typeof PayGuestOrdersBody>;
-
-export const PayGuestOrdersRes = GetOrdersRes;
-
-export type PayGuestOrdersResType = z.TypeOf<typeof PayGuestOrdersRes>;
-
 export const CreateOrdersBody = z
   .object({
     guestId: z.number(),
@@ -113,15 +104,3 @@ export const CreateOrdersRes = z.object({
 
 export type CreateOrdersResType = z.TypeOf<typeof CreateOrdersRes>;
 
-export const GetGuestBillQueryParams = z.object({
-  guestId: z.coerce.number().optional(),
-});
-
-export type GetGuestBillQueryParamsType = z.TypeOf<typeof GetGuestBillQueryParams>;
-
-export const GetGuestBillRes = z.object({
-  message: z.string(),
-  data: z.array(OrderSchema),
-});
-
-export type GetGuestBillResType = z.TypeOf<typeof GetGuestBillRes>;

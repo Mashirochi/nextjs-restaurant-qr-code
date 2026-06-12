@@ -85,3 +85,60 @@ export async function POST(request: Request) {
     );
   }
 }
+
+export async function GET(request: Request) {
+  const cookieStore = await cookies();
+  const { searchParams } = new URL(request.url);
+  const refreshToken = cookieStore.get("refreshToken")?.value || searchParams.get("refreshToken");
+  const redirectUrl = searchParams.get("redirect") || "/";
+
+  if (!refreshToken) {
+    const locale = cookieStore.get("NEXT_LOCALE")?.value || "vi";
+    return Response.redirect(new URL(`/${locale}/auth/login`, request.url));
+  }
+
+  try {
+    const { payload } = await guestApiRequest.sRefreshToken({
+      refreshToken,
+    });
+
+    let decodedAccessToken, decodedRefreshToken;
+    try {
+      decodedAccessToken = jwtDecode(payload.data.accessToken) as {
+        exp: number;
+      };
+      decodedRefreshToken = jwtDecode(payload.data.refreshToken) as {
+        exp: number;
+      };
+    } catch (decodeError) {
+      cookieStore.delete("accessToken");
+      cookieStore.delete("refreshToken");
+      const locale = cookieStore.get("NEXT_LOCALE")?.value || "vi";
+      return Response.redirect(new URL(`/${locale}/auth/login`, request.url));
+    }
+
+    cookieStore.set("accessToken", payload.data.accessToken, {
+      path: "/",
+      httpOnly: true,
+      sameSite: "lax",
+      secure: true,
+      expires: decodedAccessToken.exp * 1000,
+    });
+
+    cookieStore.set("refreshToken", payload.data.refreshToken, {
+      path: "/",
+      httpOnly: true,
+      sameSite: "lax",
+      secure: true,
+      expires: decodedRefreshToken.exp * 1000,
+    });
+
+    return Response.redirect(new URL(redirectUrl, request.url));
+  } catch (error: any) {
+    cookieStore.delete("accessToken");
+    cookieStore.delete("refreshToken");
+    const locale = cookieStore.get("NEXT_LOCALE")?.value || "vi";
+    return Response.redirect(new URL(`/${locale}/auth/login`, request.url));
+  }
+}
+

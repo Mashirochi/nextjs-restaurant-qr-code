@@ -1,7 +1,11 @@
 "use client";
 
 import { useAppStore } from "@/lib/store/app.store";
-import { checkAndRefreshToken } from "@/lib/utils";
+import {
+  checkAndRefreshToken,
+  generateSocketInstance,
+  getAccessTokenFromLocalStorage,
+} from "@/lib/utils";
 import { usePathname, useRouter } from "@/lib/i18n/navigation";
 import { useEffect } from "react";
 
@@ -15,7 +19,21 @@ export default function RefreshToken() {
   const pathname = usePathname();
   const router = useRouter();
   const socket = useAppStore((state) => state.socket);
+  const setSocket = useAppStore((state) => state.setSocket);
+  const isAuth = useAppStore((state) => state.isAuth);
   const disconnectSocket = useAppStore((state) => state.disconnectSocket);
+
+  // Auto-reconnect socket khi user đã login nhưng socket chưa có
+  // (ví dụ sau khi refresh page, socket instance bị mất do không persist)
+  useEffect(() => {
+    if (UNAUTHENTICATED_PATH.includes(pathname)) return;
+    if (isAuth && !socket) {
+      const accessToken = getAccessTokenFromLocalStorage();
+      if (accessToken) {
+        setSocket(generateSocketInstance(accessToken));
+      }
+    }
+  }, [isAuth, socket, pathname, setSocket]);
 
   useEffect(() => {
     if (UNAUTHENTICATED_PATH.includes(pathname)) return;
@@ -42,11 +60,11 @@ export default function RefreshToken() {
     }
 
     function onConnect() {
-      console.log(socket?.id);
+      console.log("check socket id", socket?.id);
     }
 
     function onDisconnect() {
-      console.log("disconnect");
+      console.log("disconnect", socket?.id);
     }
 
     function onRefreshTokenSocket() {

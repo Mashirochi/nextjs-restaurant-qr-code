@@ -24,7 +24,6 @@ import { GetListGuestsResType } from "@/type/schema/account.schema";
 import { GuestLoginBody, GuestLoginBodyType } from "@/type/schema/guest.schema";
 import { TablesDialog } from "./tables-dialog";
 import { DishStatus } from "@/type/constant";
-import GuestsDialog from "./guests-dialog";
 import { useGetDishList } from "@/lib/query/useDish";
 import { useCreateOrderMutation } from "@/lib/query/useOrder";
 import { useCreateGuestMutation } from "@/lib/query/useAccount";
@@ -33,10 +32,6 @@ import envConfig from "@/lib/validateEnv";
 
 export default function AddOrder() {
   const [open, setOpen] = useState(false);
-  const [selectedGuest, setSelectedGuest] = useState<
-    GetListGuestsResType["data"][0] | null
-  >(null);
-  const [isNewGuest, setIsNewGuest] = useState(true);
   const [orders, setOrders] = useState<CreateOrdersBodyType["orders"]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
@@ -92,20 +87,18 @@ export default function AddOrder() {
 
   const handleOrder = async () => {
     try {
-      let guestId = selectedGuest?.id;
-      if (isNewGuest) {
+      let guestId = -1;
         const createGuestRes = await createGuestMutation.mutateAsync({
           name,
           tableNumber,
         });
         guestId = createGuestRes.payload.data.id;
-      }
+      
       await createOrderMutation.mutateAsync({
         guestId: guestId!,
         orders,
       });
       setOpen(false);
-      setSelectedGuest(null);
       setOrders([]);
       form.reset();
     } catch (error) {
@@ -128,17 +121,6 @@ export default function AddOrder() {
         <DialogHeader>
           <DialogTitle>Tạo đơn hàng</DialogTitle>
         </DialogHeader>
-        <div className="grid grid-cols-4 items-center justify-items-start gap-4">
-          <Label htmlFor="isNewGuest">Khách hàng mới</Label>
-          <div className="col-span-3 flex items-center">
-            <Switch
-              id="isNewGuest"
-              checked={isNewGuest}
-              onCheckedChange={setIsNewGuest}
-            />
-          </div>
-        </div>
-        {isNewGuest && (
           <Form {...form}>
             <form
               noValidate
@@ -185,25 +167,6 @@ export default function AddOrder() {
               </div>
             </form>
           </Form>
-        )}
-        {!isNewGuest && (
-          <GuestsDialog
-            onChoose={(guest) => {
-              setSelectedGuest(guest);
-            }}
-          />
-        )}
-        {!isNewGuest && selectedGuest && (
-          <div className="grid grid-cols-4 items-center justify-items-start gap-4">
-            <Label htmlFor="selectedGuest">Khách đã chọn</Label>
-            <div className="col-span-3 w-full gap-4 flex items-center">
-              <div>
-                {selectedGuest.name} (#{selectedGuest.id})
-              </div>
-              <div>Bàn: {selectedGuest.tableNumber}</div>
-            </div>
-          </div>
-        )}
         <div className="w-full">
           <Input
             placeholder="Tìm kiếm món ăn..."

@@ -48,7 +48,7 @@ export default function DropdownAvatar() {
           <Avatar>
             <AvatarImage
               src={`${envConfig?.NEXT_PUBLIC_API_ENDPOINT}/static/avatars/${
-                account?.avatar || "default.png"
+                account?.avatar 
               }`}
               alt={account?.name}
             />
